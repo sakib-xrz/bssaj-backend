@@ -7,6 +7,269 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model USER {
+  id                 String              @id @default(uuid())
+  name               String
+  email              String              @unique
+  password           String
+  role               Role
+  profile_picture    String?
+  address            String?
+  current_study_info String?
+  agency_id          String?             @unique
+  is_deleted         Boolean             @default(false)
+  created_at         DateTime            @default(now())
+  updated_at         DateTime            @updatedAt
+  agency             AGENCY?             @relation(fields: [agency_id], references: [id])
+  PAYMENT            PAYMENT[]
+  COMPLAIN           COMPLAIN[]
+  BLOG               BLOG[]
+  EVENT_PARTICIPANS  EVENT_PARTICIPANS[]
+  CERTIFICATION      CERTIFICATION[]
+  EXAM_REGISTRATION  EXAM_REGISTRATION[]
+  COMMITEE_MEMBER    COMMITEE_MEMBER?
+  NOTIFICATION       NOTIFICATION[]
+  MEMBERSHIP         MEMBERSHIP[]
+
+  @@map("user")
+}
+
+model AGENCY {
+  id                    String   @id @default(uuid())
+  name                  String
+  logo                  String?
+  description           String?
+  website               String?
+  contact_email         String
+  contact_phone         String?
+  address               String?
+  facebook_url          String?
+  established_year      Int?
+  director_name         String?
+  message_from_director String?
+  services_offered      String?
+  success_stories       String[]
+  downloads             String[]
+  created_at            DateTime @default(now())
+  USER                  USER?
+
+  @@map("agency")
+}
+
+model MEMBERSHIP {
+  id             String           @id @default(uuid())
+  type           String
+  status         MembershipStatus
+  start_date     DateTime
+  end_date       DateTime
+  payment_id     String
+  submitted_at   String
+  approved_at    DateTime?
+  approved_by_id String?
+  payment        PAYMENT[]
+  approved_by    USER?            @relation(fields: [approved_by_id], references: [id])
+
+  @@map("membership")
+}
+
+model PAYMENT {
+  id                String             @id @default(uuid())
+  user_id           String
+  amount            Int
+  status            PaymentStatus
+  transection_id    String?
+  paid_at           DateTime
+  approved_by_id    String?
+  payment_for_type  PaymentType
+  Payment_for_id    String?
+  paid_by           USER               @relation(fields: [user_id], references: [id])
+  approved_by       USER?               @relation(fields: [approved_by_id], references: [id])
+  membership        MEMBERSHIP?        @relation(fields: [Payment_for_id], references: [id])
+  EXAM_REGISTRATION EXAM_REGISTRATION?
+
+  @@map("payment")
+}
+
+model COMPLAIN {
+  id           String         @id @default(uuid())
+  user_id      String
+  subject      String
+  message      String
+  status       ComplainStatus
+  submitted_at DateTime @default(now())
+
+  complain_by USER @relation(fields: [id], references: [id])
+}
+
+model BLOG {
+  id          String   @id @default(uuid())
+  title       String
+  slug         String @unique
+  content     String
+  author_id   String
+  cover_image String?
+  is_deleted  Boolean
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt()
+
+  author USER @relation(fields: [author_id], references: [id])
+
+  @@map("blog")
+}
+
+model EVENT {
+  id                String              @id @default(uuid())
+  title             String
+  slug              String @unique
+  status            EventStatus
+  description       String
+  location          String
+  date              DateTime
+  cover_image       String?
+  is_deleted        Boolean @default(false)
+ created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt()
+  EVENT_PARTICIPANT EVENT_PARTICIPANT[]
+
+  @@map("evnet")
+}
+
+model EVENT_PARTICIPANT {
+  id         String            @id @default(uuid())
+  event_id   String
+  user_id    String
+  status     ParticipantStatus
+  updated_at String
+
+  event EVENT @relation(fields: [event_id], references: [id])
+  participant  USER  @relation(fields: [user_id], references: [id])
+
+  @@map("event_participans")
+}
+
+model CONSTITUTION {
+  id           String   @id @default(uuid())
+  title        String
+  content_html String
+  pdf_url      String
+  publish_at   DateTime
+
+  @@map("constitution")
+}
+
+model NEWSLETTER {
+  id      String   @id @default(uuid())
+  title   String
+  content String
+  sent_at DateTime
+
+  @@map("newsletter")
+}
+
+model SCHOLARSHIP {
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  eilgibility     String?
+  deadline        DateTime
+  application_url String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt()
+
+  @@map("scholarship")
+}
+
+model CERTIFICATION {
+  id        String   @id @default(uuid())
+  user_id   String
+  file_url  String
+  issued_at DateTime
+
+  user              USER               @relation(fields: [id], references: [id])
+  EXAM_REGISTRATION EXAM_REGISTRATION?
+
+  @@map("certification")
+}
+
+model EXAM_REGISTRATION {
+  id                    String               @id @default(uuid())
+  user_id               String
+  exam_name             String
+  registration_date     DateTime
+  status                EXAMRegistrationType
+  payment_id            String               @unique
+  certificated_issued   Boolean @default(false)
+  issued_certificate_id String?               @unique
+ created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt()
+
+  user        USER          @relation(fields: [user_id], references: [id])
+  payment     PAYMENT?      @relation(fields: [payment_id], references: [id])
+  certificate CERTIFICATION @relation(fields: [issued_certificate_id], references: [id])
+
+  @@map("exam_registration")
+}
+
+model COMMITEE_MEMBER {
+  id                String   @id @default(uuid())
+  user_id           String   @unique
+  position          String
+  tenure_start_date DateTime
+  tenure_end_date   DateTime
+  bio               String?
+  social_links      String[]
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt()
+
+  user USER @relation(fields: [id], references: [id])
+
+  @@map("commitee_member")
+}
+
+model NOTIFICATION {
+  id         String   @id @default(uuid())
+  user_id    String
+  title      String
+  message    String
+  is_read    Boolean
+  created_at DateTime
+
+  user USER @relation(fields: [user_id], references: [id])
+
+  @@map("notification")
+}
+
+model JOB {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  location    String
+  type        JobType
+  deadline    DateTime
+  apply_link  String
+  created_at  DateTime
+
+  @@map("job")
+}
+
+// ===================================Type========================================
+enum DonationType {
+  CONFIRMED
+  PENDING
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ComplainStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+}
+
 enum Role {
   ADMIN
   MEMBER
@@ -15,18 +278,40 @@ enum Role {
   COMMITTEE
 }
 
-model User {
-  id                 String   @id @default(uuid())
-  name               String
-  email              String   @unique
-  password           String
-  role               Role
-  profile_picture    String?
-  address            String?
-  current_study_info String?
-  is_deleted         Boolean  @default(false)
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
-
-  @@map("user")
+enum PaymentType {
+  MEMBERSHIP
+  EXAM_REGISTRATION
+  DONATION
 }
+
+enum ParticipantStatus {
+  REGISTERED
+  CANCELLED
+}
+
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum EventStatus {
+  UPCOMING
+  COMPLETED
+  CANCELED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  INTERSHIP
+}
+
+enum EXAMRegistrationType {
+  PENDING_PAYMENT
+  REGISTERED
+  CANCELLED
+}
+
+// ===================================Type========================================
