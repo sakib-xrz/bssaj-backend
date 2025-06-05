@@ -7,34 +7,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model USER {
-  id                 String              @id @default(uuid())
+model User {
+  id                 String   @id @default(uuid())
   name               String
-  email              String              @unique
+  email              String   @unique
   password           String
-  role               Role
+  role               Role     @default(STUDENT)
   profile_picture    String?
   address            String?
   current_study_info String?
-  agency_id          String?             @unique
-  is_deleted         Boolean             @default(false)
-  created_at         DateTime            @default(now())
-  updated_at         DateTime            @updatedAt
-  agency             AGENCY?             @relation(fields: [agency_id], references: [id])
-  PAYMENT            PAYMENT[]
-  COMPLAIN           COMPLAIN[]
-  BLOG               BLOG[]
-  EVENT_PARTICIPANS  EVENT_PARTICIPANS[]
-  CERTIFICATION      CERTIFICATION[]
-  EXAM_REGISTRATION  EXAM_REGISTRATION[]
-  COMMITEE_MEMBER    COMMITEE_MEMBER?
-  NOTIFICATION       NOTIFICATION[]
-  MEMBERSHIP         MEMBERSHIP[]
+  agency_id          String?  @unique
+  is_deleted         Boolean  @default(false)
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
 
-  @@map("user")
+  // Relations
+  agency               Agency?            @relation(fields: [agency_id], references: [id], onDelete: SetNull)
+  payments             Payment[]
+  complains            Complain[]
+  blogs                Blog[]
+  event_participants   EventParticipant[]
+  certifications       Certification[]
+  exam_registrations   ExamRegistration[]
+  committee_member     CommitteeMember?
+  notifications        Notification[]
+  memberships          Membership[]
+  payments_approved    Payment[]          @relation("PaymentApprover")
+  approved_memberships Membership[]       @relation("MembershipApprover")
+
+  @@map("users")
 }
 
-model AGENCY {
+model Agency {
   id                    String   @id @default(uuid())
   name                  String
   logo                  String?
@@ -50,213 +54,269 @@ model AGENCY {
   services_offered      String?
   success_stories       String[]
   downloads             String[]
+  is_deleted            Boolean  @default(false)
   created_at            DateTime @default(now())
-  USER                  USER?
+  updated_at            DateTime @updatedAt
 
-  @@map("agency")
+  // Relations
+  user User?
+
+  @@map("agencies")
 }
 
-model MEMBERSHIP {
+model Membership {
   id             String           @id @default(uuid())
+  user_id        String
   type           String
-  status         MembershipStatus
+  status         MembershipStatus @default(PENDING)
   start_date     DateTime
   end_date       DateTime
-  payment_id     String
-  submitted_at   String
+  submitted_at   DateTime         @default(now())
   approved_at    DateTime?
   approved_by_id String?
-  payment        PAYMENT[]
-  approved_by    USER?            @relation(fields: [approved_by_id], references: [id])
+  is_deleted     Boolean          @default(false)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
 
-  @@map("membership")
+  // Relations
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  approved_by User?     @relation("MembershipApprover", fields: [approved_by_id], references: [id])
+  payments    Payment[]
+
+  @@map("memberships")
 }
 
-model PAYMENT {
-  id                String             @id @default(uuid())
-  user_id           String
-  amount            Int
-  status            PaymentStatus
-  transection_id    String?
-  paid_at           DateTime
-  approved_by_id    String?
-  payment_for_type  PaymentType
-  Payment_for_id    String?
-  paid_by           USER               @relation(fields: [user_id], references: [id])
-  approved_by       USER?               @relation(fields: [approved_by_id], references: [id])
-  membership        MEMBERSHIP?        @relation(fields: [Payment_for_id], references: [id])
-  EXAM_REGISTRATION EXAM_REGISTRATION?
+model Payment {
+  id               String        @id @default(uuid())
+  user_id          String
+  amount           Int
+  status           PaymentStatus @default(PENDING)
+  transaction_id   String?       @unique
+  paid_at          DateTime      @default(now())
+  approved_at      DateTime?
+  approved_by_id   String?
+  payment_for_type PaymentType
+  payment_for_id   String?
+  is_deleted       Boolean       @default(false)
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
 
-  @@map("payment")
+  // Relations
+  paid_by           User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  approved_by       User?             @relation("PaymentApprover", fields: [approved_by_id], references: [id])
+  membership        Membership?       @relation(fields: [payment_for_id], references: [id])
+  exam_registration ExamRegistration?
+
+  @@map("payments")
 }
 
-model COMPLAIN {
+model Complain {
   id           String         @id @default(uuid())
   user_id      String
   subject      String
   message      String
-  status       ComplainStatus
-  submitted_at DateTime @default(now())
+  status       ComplainStatus @default(PENDING)
+  is_deleted   Boolean        @default(false)
+  submitted_at DateTime       @default(now())
+  resolved_at  DateTime?
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
 
-  complain_by USER @relation(fields: [id], references: [id])
+  // Relations
+  complain_by User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("complains")
 }
 
-model BLOG {
-  id          String   @id @default(uuid())
-  title       String
-  slug         String @unique
-  content     String
-  author_id   String
-  cover_image String?
-  is_deleted  Boolean
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt()
+model Blog {
+  id           String   @id @default(uuid())
+  title        String
+  slug         String   @unique
+  content      String
+  author_id    String
+  cover_image  String?
+  is_published Boolean  @default(false)
+  is_deleted   Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
-  author USER @relation(fields: [author_id], references: [id])
+  // Relations
+  author User @relation(fields: [author_id], references: [id], onDelete: Cascade)
 
-  @@map("blog")
+  @@map("blogs")
 }
 
-model EVENT {
-  id                String              @id @default(uuid())
-  title             String
-  slug              String @unique
-  status            EventStatus
-  description       String
-  location          String
-  date              DateTime
-  cover_image       String?
-  is_deleted        Boolean @default(false)
- created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt()
-  EVENT_PARTICIPANT EVENT_PARTICIPANT[]
+model Event {
+  id               String      @id @default(uuid())
+  title            String
+  slug             String      @unique
+  status           EventStatus @default(UPCOMING)
+  description      String
+  location         String
+  event_date       DateTime
+  cover_image      String?
+  max_participants Int?
+  is_deleted       Boolean     @default(false)
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
 
-  @@map("evnet")
+  // Relations
+  participants EventParticipant[]
+
+  @@map("events")
 }
 
-model EVENT_PARTICIPANT {
+model EventParticipant {
   id         String            @id @default(uuid())
   event_id   String
   user_id    String
-  status     ParticipantStatus
-  updated_at String
+  status     ParticipantStatus @default(REGISTERED)
+  created_at DateTime          @default(now())
+  updated_at DateTime          @updatedAt
 
-  event EVENT @relation(fields: [event_id], references: [id])
-  participant  USER  @relation(fields: [user_id], references: [id])
+  // Relations
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("event_participans")
+  // Ensure unique participation per user per event
+  @@unique([event_id, user_id])
+  @@map("event_participants")
 }
 
-model CONSTITUTION {
+model Constitution {
   id           String   @id @default(uuid())
   title        String
   content_html String
   pdf_url      String
-  publish_at   DateTime
+  is_active    Boolean  @default(true)
+  published_at DateTime @default(now())
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
-  @@map("constitution")
+  @@map("constitutions")
 }
 
-model NEWSLETTER {
-  id      String   @id @default(uuid())
-  title   String
-  content String
-  sent_at DateTime
+model Newsletter {
+  id         String    @id @default(uuid())
+  title      String
+  content    String
+  is_sent    Boolean   @default(false)
+  sent_at    DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
 
-  @@map("newsletter")
+  @@map("newsletters")
 }
 
-model SCHOLARSHIP {
+model Scholarship {
   id              String   @id @default(uuid())
   title           String
   description     String
-  eilgibility     String?
+  eligibility     String?
+  amount          Int?
   deadline        DateTime
   application_url String
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt()
+  is_active       Boolean  @default(true)
+  is_deleted      Boolean  @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  @@map("scholarship")
+  @@map("scholarships")
 }
 
-model CERTIFICATION {
-  id        String   @id @default(uuid())
-  user_id   String
-  file_url  String
-  issued_at DateTime
+model Certification {
+  id               String    @id @default(uuid())
+  user_id          String
+  file_url         String
+  certificate_type String
+  issued_at        DateTime  @default(now())
+  expires_at       DateTime?
+  is_active        Boolean   @default(true)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
 
-  user              USER               @relation(fields: [id], references: [id])
-  EXAM_REGISTRATION EXAM_REGISTRATION?
+  // Relations
+  user              User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  exam_registration ExamRegistration?
 
-  @@map("certification")
+  @@map("certifications")
 }
 
-model EXAM_REGISTRATION {
-  id                    String               @id @default(uuid())
+model ExamRegistration {
+  id                    String                 @id @default(uuid())
   user_id               String
   exam_name             String
-  registration_date     DateTime
-  status                EXAMRegistrationType
-  payment_id            String               @unique
-  certificated_issued   Boolean @default(false)
-  issued_certificate_id String?               @unique
- created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt()
+  exam_date             DateTime
+  registration_date     DateTime               @default(now())
+  status                ExamRegistrationStatus @default(PENDING_PAYMENT)
+  payment_id            String                 @unique
+  certificate_issued    Boolean                @default(false)
+  issued_certificate_id String?                @unique
+  is_deleted            Boolean                @default(false)
+  created_at            DateTime               @default(now())
+  updated_at            DateTime               @updatedAt
 
-  user        USER          @relation(fields: [user_id], references: [id])
-  payment     PAYMENT?      @relation(fields: [payment_id], references: [id])
-  certificate CERTIFICATION @relation(fields: [issued_certificate_id], references: [id])
+  // Relations
+  user        User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  payment     Payment        @relation(fields: [payment_id], references: [id])
+  certificate Certification? @relation(fields: [issued_certificate_id], references: [id])
 
-  @@map("exam_registration")
+  @@map("exam_registrations")
 }
 
-model COMMITEE_MEMBER {
-  id                String   @id @default(uuid())
-  user_id           String   @unique
+model CommitteeMember {
+  id                String    @id @default(uuid())
+  user_id           String    @unique
   position          String
   tenure_start_date DateTime
-  tenure_end_date   DateTime
+  tenure_end_date   DateTime?
   bio               String?
   social_links      String[]
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt()
+  is_active         Boolean   @default(true)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
-  user USER @relation(fields: [id], references: [id])
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("commitee_member")
+  @@map("committee_members")
 }
 
-model NOTIFICATION {
+model Notification {
   id         String   @id @default(uuid())
   user_id    String
   title      String
   message    String
-  is_read    Boolean
-  created_at DateTime
+  is_read    Boolean  @default(false)
+  is_deleted Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  user USER @relation(fields: [user_id], references: [id])
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("notification")
+  @@map("notifications")
 }
 
-model JOB {
+model Job {
   id          String   @id @default(uuid())
   title       String
   description String
   location    String
   type        JobType
+  salary_min  Int?
+  salary_max  Int?
   deadline    DateTime
   apply_link  String
-  created_at  DateTime
+  is_active   Boolean  @default(true)
+  is_deleted  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
-  @@map("job")
+  @@map("jobs")
 }
 
-// ===================================Type========================================
-enum DonationType {
-  CONFIRMED
-  PENDING
-}
+// ===================================Enums========================================
 
 enum PaymentStatus {
   PENDING
@@ -287,6 +347,8 @@ enum PaymentType {
 enum ParticipantStatus {
   REGISTERED
   CANCELLED
+  ATTENDED
+  NO_SHOW
 }
 
 enum MembershipStatus {
@@ -298,20 +360,22 @@ enum MembershipStatus {
 
 enum EventStatus {
   UPCOMING
+  ONGOING
   COMPLETED
-  CANCELED
+  CANCELLED
 }
 
 enum JobType {
   FULL_TIME
   PART_TIME
-  INTERSHIP
+  INTERNSHIP
+  CONTRACT
+  FREELANCE
 }
 
-enum EXAMRegistrationType {
+enum ExamRegistrationStatus {
   PENDING_PAYMENT
   REGISTERED
   CANCELLED
+  COMPLETED
 }
-
-// ===================================Type========================================
