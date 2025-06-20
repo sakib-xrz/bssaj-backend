@@ -1,12 +1,39 @@
+import { User } from '@prisma/client';
+import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
+import { JwtPayload } from 'jsonwebtoken';
+import config from '../../config';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
-import bcrypt from 'bcrypt';
 import AuthUtils from './auth.utils';
-import config from '../../config';
-import { JwtPayload } from 'jsonwebtoken';
-import { User } from '@prisma/client';
 
+export const Register = async (payload: User) => {
+  const { email, password, name } = payload;
+
+
+  // Check if user exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    throw new AppError(httpStatus.CONFLICT, 'User already exists');
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, Number(config.bcrypt_salt_rounds));
+
+  // Create user
+  const result = await prisma.user.create({
+    data: {
+      email,
+      name,
+      password: hashedPassword,
+    },
+  });
+
+  return result;
+};
 const Login = async (payload: User) => {
   const user = await prisma.user.findFirst({
     where: { email: payload.email },
@@ -104,6 +131,7 @@ const GetMyProfile = async (user: JwtPayload) => {
 };
 
 const AuthService = {
+  Register,
   Login,
   ChangePassword,
   GetMyProfile,

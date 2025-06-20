@@ -1,11 +1,16 @@
-import express from 'express';
-import validateRequest from '../../middlewares/validateRequest';
-import AuthValidation from './auth.validation';
-import AuthController from './auth.controller';
-import auth from '../../middlewares/auth';
 import { Role } from '@prisma/client';
+import express from 'express';
+import auth from '../../middlewares/auth';
+import validateRequest from '../../middlewares/validateRequest';
+import AuthController from './auth.controller';
+import AuthValidation from './auth.validation';
 
 const router = express.Router();
+
+router.post(
+  '/register',
+  AuthController.Register,
+);
 
 router.post(
   '/login',
@@ -15,14 +20,14 @@ router.post(
 
 router.patch(
   '/change-password',
-  auth(Role.ADMIN, Role.AGENCY, Role.MEMBER, Role.STUDENT, Role.COMMITTEE),
+  auth(Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
   validateRequest(AuthValidation.ChangePasswordSchema),
   AuthController.ChangePassword,
 );
 
 router.get(
   '/me',
-  auth(Role.ADMIN, Role.AGENCY, Role.MEMBER, Role.STUDENT, Role.COMMITTEE),
+  auth(Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
   AuthController.GetMyProfile,
 );
 
