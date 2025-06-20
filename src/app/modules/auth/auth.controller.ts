@@ -3,15 +3,15 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import AuthService from './auth.services';
 
-const Register = catchAsync(async(req,res)=>{
-    const result = await AuthService.Register(req.body)
-    sendResponse(res, {
+const Register = catchAsync(async (req, res) => {
+  const result = await AuthService.Register(req.body);
+  sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'User profile retrieved successfully',
+    message: 'Account created successfully',
     data: result,
   });
-})
+});
 
 const Login = catchAsync(async (req, res) => {
   const result = await AuthService.Login(req.body);
@@ -57,7 +57,7 @@ const AuthController = {
   Login,
   ChangePassword,
   GetMyProfile,
-  Register
+  Register,
 };
 
 export default AuthController;
