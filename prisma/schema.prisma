@@ -22,42 +22,44 @@ model User {
   updated_at         DateTime @updatedAt
 
   // Relations
-  agency               Agency?            @relation(fields: [agency_id], references: [id], onDelete: SetNull)
-  payments             Payment[]
-  complains            Complain[]
-  blogs                Blog[]
-  event_participants   EventParticipant[]
-  certifications       Certification[]
-  exam_registrations   ExamRegistration[]
-  committee_member     CommitteeMember?
-  notifications        Notification[]
-  memberships          Membership[]
-  payments_approved    Payment[]          @relation("PaymentApprover")
-  approved_memberships Membership[]       @relation("MembershipApprover")
-  member               Member?
+  agency             Agency?            @relation(fields: [agency_id], references: [id], onDelete: SetNull)
+  payments           Payment[]
+  blogs              Blog[]
+  certifications     Certification[]
+  exam_registrations ExamRegistration[]
+  notifications      Notification[]
+  payments_approved  Payment[]          @relation("PaymentApprover")
+  member             Member?
+  approved_members   Member[]           @relation("MemberApprover")
+  approved_blogs     Blog[]             @relation("BlogApprover")
+  approved_agencies  Agency[]           @relation("AgencyApprover")
 
   @@map("users")
 }
 
 model Member {
-  id          String   @id @default(uuid())
-  user_id     String   @unique
-  name        String
-  email       String   @unique
-  phone       String
-  designation String
-  is_deleted  Boolean  @default(false)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id             String     @id @default(uuid())
+  user_id        String     @unique
+  name           String
+  email          String     @unique
+  phone          String
+  designation    String
+  kind           MemberKind
+  is_deleted     Boolean    @default(false)
+  approved_at    DateTime?
+  approved_by_id String?
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
 
   // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user        User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  approved_by User? @relation("MemberApprover", fields: [approved_by_id], references: [id])
 
   @@map("members")
 }
 
 model Agency {
-  id                    String   @id @default(uuid())
+  id                    String    @id @default(uuid())
   name                  String
   logo                  String?
   description           String?
@@ -71,37 +73,19 @@ model Agency {
   message_from_director String?
   services_offered      String?
   success_stories       String[]
-  downloads             String[]
-  is_deleted            Boolean  @default(false)
-  created_at            DateTime @default(now())
-  updated_at            DateTime @updatedAt
+  is_approved           Boolean   @default(false)
+  approved_at           DateTime?
+  approved_by_id        String?
+  is_deleted            Boolean   @default(false)
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
 
   // Relations
-  user User?
+  user           User?           @relation
+  certifications Certification[]
+  approved_by    User?           @relation("AgencyApprover", fields: [approved_by_id], references: [id])
 
   @@map("agencies")
-}
-
-model Membership {
-  id             String           @id @default(uuid())
-  user_id        String
-  type           String
-  status         MembershipStatus @default(PENDING)
-  start_date     DateTime
-  end_date       DateTime
-  submitted_at   DateTime         @default(now())
-  approved_at    DateTime?
-  approved_by_id String?
-  is_deleted     Boolean          @default(false)
-  created_at     DateTime         @default(now())
-  updated_at     DateTime         @updatedAt
-
-  // Relations
-  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  approved_by User?     @relation("MembershipApprover", fields: [approved_by_id], references: [id])
-  payments    Payment[]
-
-  @@map("memberships")
 }
 
 model Payment {
@@ -122,83 +106,47 @@ model Payment {
   // Relations
   paid_by           User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
   approved_by       User?             @relation("PaymentApprover", fields: [approved_by_id], references: [id])
-  membership        Membership?       @relation(fields: [payment_for_id], references: [id])
   exam_registration ExamRegistration?
 
   @@map("payments")
 }
 
-model Complain {
-  id           String         @id @default(uuid())
-  user_id      String
-  subject      String
-  message      String
-  status       ComplainStatus @default(PENDING)
-  is_deleted   Boolean        @default(false)
-  submitted_at DateTime       @default(now())
-  resolved_at  DateTime?
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
-
-  // Relations
-  complain_by User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("complains")
-}
-
 model Blog {
-  id           String   @id @default(uuid())
-  title        String
-  slug         String   @unique
-  content      String
-  author_id    String
-  cover_image  String?
-  is_published Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id             String    @id @default(uuid())
+  title          String
+  slug           String    @unique
+  content        String
+  author_id      String
+  cover_image    String?
+  is_published   Boolean   @default(false)
+  is_approved    Boolean   @default(false)
+  approved_at    DateTime?
+  approved_by_id String?
+  is_deleted     Boolean   @default(false)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
 
   // Relations
-  author User @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  author      User  @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  approved_by User? @relation("BlogApprover", fields: [approved_by_id], references: [id])
 
   @@map("blogs")
 }
 
 model Event {
-  id               String      @id @default(uuid())
-  title            String
-  slug             String      @unique
-  status           EventStatus @default(UPCOMING)
-  description      String
-  location         String
-  event_date       DateTime
-  cover_image      String?
-  max_participants Int?
-  is_deleted       Boolean     @default(false)
-  created_at       DateTime    @default(now())
-  updated_at       DateTime    @updatedAt
-
-  // Relations
-  participants EventParticipant[]
+  id          String      @id @default(uuid())
+  title       String
+  slug        String      @unique
+  status      EventStatus @default(UPCOMING)
+  description String
+  location    String
+  event_date  DateTime
+  cover_image String?
+  is_deleted  Boolean     @default(false)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
 
   @@map("events")
-}
-
-model EventParticipant {
-  id         String            @id @default(uuid())
-  event_id   String
-  user_id    String
-  status     ParticipantStatus @default(REGISTERED)
-  created_at DateTime          @default(now())
-  updated_at DateTime          @updatedAt
-
-  // Relations
-  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  // Ensure unique participation per user per event
-  @@unique([event_id, user_id])
-  @@map("event_participants")
 }
 
 model News {
@@ -206,34 +154,12 @@ model News {
   title        String
   content      String
   is_active    Boolean  @default(true)
-  published_at DateTime @default(now())
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-}
-
-model Constitution {
-  id           String   @id @default(uuid())
-  title        String
-  content_html String
-  pdf_url      String
-  is_active    Boolean  @default(true)
+  is_deleted   Boolean  @default(false)
   published_at DateTime @default(now())
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  @@map("constitutions")
-}
-
-model Newsletter {
-  id         String    @id @default(uuid())
-  title      String
-  content    String
-  is_sent    Boolean   @default(false)
-  sent_at    DateTime?
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-
-  @@map("newsletters")
+  @@map("news")
 }
 
 model Scholarship {
@@ -254,17 +180,18 @@ model Scholarship {
 
 model Certification {
   id               String    @id @default(uuid())
-  user_id          String
+  student_id       String
   file_url         String
   certificate_type String
   issued_at        DateTime  @default(now())
   expires_at       DateTime?
-  is_active        Boolean   @default(true)
+  agency_id        String
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
   // Relations
-  user              User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  student           User              @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  agency            Agency            @relation(fields: [agency_id], references: [id], onDelete: Cascade)
   exam_registration ExamRegistration?
 
   @@map("certifications")
@@ -277,6 +204,7 @@ model ExamRegistration {
   exam_date             DateTime
   registration_date     DateTime               @default(now())
   status                ExamRegistrationStatus @default(PENDING_PAYMENT)
+  exam_link             String
   payment_id            String                 @unique
   certificate_issued    Boolean                @default(false)
   issued_certificate_id String?                @unique
@@ -290,24 +218,6 @@ model ExamRegistration {
   certificate Certification? @relation(fields: [issued_certificate_id], references: [id])
 
   @@map("exam_registrations")
-}
-
-model CommitteeMember {
-  id                String    @id @default(uuid())
-  user_id           String    @unique
-  position          String
-  tenure_start_date DateTime
-  tenure_end_date   DateTime?
-  bio               String?
-  social_links      String[]
-  is_active         Boolean   @default(true)
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
-
-  // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("committee_members")
 }
 
 model Notification {
@@ -358,7 +268,16 @@ enum ComplainStatus {
   REJECTED
 }
 
+enum MemberKind {
+  ADVISER
+  HONORABLE
+  EXECUTIVE
+  ASSOCIATE
+  STUDENT_REPRESENTATIVE
+}
+
 enum Role {
+  SUPER_ADMIN
   ADMIN
   AGENCY
   STUDENT
