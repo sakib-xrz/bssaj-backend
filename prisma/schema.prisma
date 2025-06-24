@@ -43,7 +43,6 @@ model Member {
   name           String
   email          String     @unique
   phone          String
-  designation    String
   kind           MemberKind
   is_deleted     Boolean    @default(false)
   approved_at    DateTime?
