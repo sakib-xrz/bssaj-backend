@@ -5,7 +5,10 @@ CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 CREATE TYPE "ComplainStatus" AS ENUM ('PENDING', 'RESOLVED', 'REJECTED');
 
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'MEMBER', 'STUDENT', 'AGENCY', 'COMMITTEE');
+CREATE TYPE "MemberKind" AS ENUM ('ADVISER', 'HONORABLE', 'EXECUTIVE', 'ASSOCIATE', 'STUDENT_REPRESENTATIVE');
+
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'AGENCY', 'STUDENT', 'USER');
 
 -- CreateEnum
 CREATE TYPE "PaymentType" AS ENUM ('MEMBERSHIP', 'EXAM_REGISTRATION', 'DONATION');
@@ -15,6 +18,9 @@ CREATE TYPE "ParticipantStatus" AS ENUM ('REGISTERED', 'CANCELLED', 'ATTENDED', 
 
 -- CreateEnum
 CREATE TYPE "MembershipStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'EXPIRED');
+
+-- CreateEnum
+CREATE TYPE "AgencyStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'EXPIRED');
 
 -- CreateEnum
 CREATE TYPE "EventStatus" AS ENUM ('UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED');
@@ -31,11 +37,10 @@ CREATE TABLE "users" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'STUDENT',
+    "role" "Role" NOT NULL DEFAULT 'USER',
     "profile_picture" TEXT,
     "address" TEXT,
     "current_study_info" TEXT,
-    "agency_id" TEXT,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -44,8 +49,29 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
+CREATE TABLE "members" (
+    "id" TEXT NOT NULL,
+    "member_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "status" "MembershipStatus" NOT NULL DEFAULT 'PENDING',
+    "kind" "MemberKind" NOT NULL,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "approved_at" TIMESTAMP(3),
+    "approved_by_id" TEXT,
+    "action_id" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "members_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "agencies" (
     "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "logo" TEXT,
     "description" TEXT,
@@ -58,31 +84,17 @@ CREATE TABLE "agencies" (
     "director_name" TEXT,
     "message_from_director" TEXT,
     "services_offered" TEXT,
+    "status" "AgencyStatus" NOT NULL DEFAULT 'PENDING',
     "success_stories" TEXT[],
-    "downloads" TEXT[],
-    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "agencies_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "memberships" (
-    "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "status" "MembershipStatus" NOT NULL DEFAULT 'PENDING',
-    "start_date" TIMESTAMP(3) NOT NULL,
-    "end_date" TIMESTAMP(3) NOT NULL,
-    "submitted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "is_approved" BOOLEAN NOT NULL DEFAULT false,
     "approved_at" TIMESTAMP(3),
     "approved_by_id" TEXT,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT,
 
-    CONSTRAINT "memberships_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "agencies_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -105,22 +117,6 @@ CREATE TABLE "payments" (
 );
 
 -- CreateTable
-CREATE TABLE "complains" (
-    "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "subject" TEXT NOT NULL,
-    "message" TEXT NOT NULL,
-    "status" "ComplainStatus" NOT NULL DEFAULT 'PENDING',
-    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
-    "submitted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "resolved_at" TIMESTAMP(3),
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "complains_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "blogs" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -129,6 +125,9 @@ CREATE TABLE "blogs" (
     "author_id" TEXT NOT NULL,
     "cover_image" TEXT,
     "is_published" BOOLEAN NOT NULL DEFAULT false,
+    "is_approved" BOOLEAN NOT NULL DEFAULT false,
+    "approved_at" TIMESTAMP(3),
+    "approved_by_id" TEXT,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -146,7 +145,6 @@ CREATE TABLE "events" (
     "location" TEXT NOT NULL,
     "event_date" TIMESTAMP(3) NOT NULL,
     "cover_image" TEXT,
-    "max_participants" INTEGER,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -155,42 +153,17 @@ CREATE TABLE "events" (
 );
 
 -- CreateTable
-CREATE TABLE "event_participants" (
-    "id" TEXT NOT NULL,
-    "event_id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "status" "ParticipantStatus" NOT NULL DEFAULT 'REGISTERED',
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "event_participants_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "constitutions" (
+CREATE TABLE "news" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "content_html" TEXT NOT NULL,
-    "pdf_url" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
     "published_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "constitutions_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "newsletters" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "is_sent" BOOLEAN NOT NULL DEFAULT false,
-    "sent_at" TIMESTAMP(3),
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "newsletters_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "news_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -213,12 +186,12 @@ CREATE TABLE "scholarships" (
 -- CreateTable
 CREATE TABLE "certifications" (
     "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
+    "student_id" TEXT NOT NULL,
     "file_url" TEXT NOT NULL,
     "certificate_type" TEXT NOT NULL,
     "issued_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "expires_at" TIMESTAMP(3),
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "agency_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -233,6 +206,7 @@ CREATE TABLE "exam_registrations" (
     "exam_date" TIMESTAMP(3) NOT NULL,
     "registration_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" "ExamRegistrationStatus" NOT NULL DEFAULT 'PENDING_PAYMENT',
+    "exam_link" TEXT NOT NULL,
     "payment_id" TEXT NOT NULL,
     "certificate_issued" BOOLEAN NOT NULL DEFAULT false,
     "issued_certificate_id" TEXT,
@@ -241,22 +215,6 @@ CREATE TABLE "exam_registrations" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "exam_registrations_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "committee_members" (
-    "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "position" TEXT NOT NULL,
-    "tenure_start_date" TIMESTAMP(3) NOT NULL,
-    "tenure_end_date" TIMESTAMP(3),
-    "bio" TEXT,
-    "social_links" TEXT[],
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "committee_members_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -296,7 +254,16 @@ CREATE TABLE "jobs" (
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_agency_id_key" ON "users"("agency_id");
+CREATE UNIQUE INDEX "members_member_id_key" ON "members"("member_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "members_user_id_key" ON "members"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "members_email_key" ON "members"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "agencies_user_id_key" ON "agencies"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "payments_transaction_id_key" ON "payments"("transaction_id");
@@ -308,25 +275,22 @@ CREATE UNIQUE INDEX "blogs_slug_key" ON "blogs"("slug");
 CREATE UNIQUE INDEX "events_slug_key" ON "events"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "event_participants_event_id_user_id_key" ON "event_participants"("event_id", "user_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "exam_registrations_payment_id_key" ON "exam_registrations"("payment_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "exam_registrations_issued_certificate_id_key" ON "exam_registrations"("issued_certificate_id");
 
--- CreateIndex
-CREATE UNIQUE INDEX "committee_members_user_id_key" ON "committee_members"("user_id");
+-- AddForeignKey
+ALTER TABLE "members" ADD CONSTRAINT "members_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "users" ADD CONSTRAINT "users_agency_id_fkey" FOREIGN KEY ("agency_id") REFERENCES "agencies"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "members" ADD CONSTRAINT "members_approved_by_id_fkey" FOREIGN KEY ("approved_by_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "memberships" ADD CONSTRAINT "memberships_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "agencies" ADD CONSTRAINT "agencies_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "memberships" ADD CONSTRAINT "memberships_approved_by_id_fkey" FOREIGN KEY ("approved_by_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "agencies" ADD CONSTRAINT "agencies_approved_by_id_fkey" FOREIGN KEY ("approved_by_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "payments" ADD CONSTRAINT "payments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -335,22 +299,16 @@ ALTER TABLE "payments" ADD CONSTRAINT "payments_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "payments" ADD CONSTRAINT "payments_approved_by_id_fkey" FOREIGN KEY ("approved_by_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "payments" ADD CONSTRAINT "payments_payment_for_id_fkey" FOREIGN KEY ("payment_for_id") REFERENCES "memberships"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "complains" ADD CONSTRAINT "complains_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "blogs" ADD CONSTRAINT "blogs_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "event_participants" ADD CONSTRAINT "event_participants_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "events"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "blogs" ADD CONSTRAINT "blogs_approved_by_id_fkey" FOREIGN KEY ("approved_by_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "event_participants" ADD CONSTRAINT "event_participants_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "certifications" ADD CONSTRAINT "certifications_student_id_fkey" FOREIGN KEY ("student_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "certifications" ADD CONSTRAINT "certifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "certifications" ADD CONSTRAINT "certifications_agency_id_fkey" FOREIGN KEY ("agency_id") REFERENCES "agencies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "exam_registrations" ADD CONSTRAINT "exam_registrations_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -360,9 +318,6 @@ ALTER TABLE "exam_registrations" ADD CONSTRAINT "exam_registrations_payment_id_f
 
 -- AddForeignKey
 ALTER TABLE "exam_registrations" ADD CONSTRAINT "exam_registrations_issued_certificate_id_fkey" FOREIGN KEY ("issued_certificate_id") REFERENCES "certifications"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "committee_members" ADD CONSTRAINT "committee_members_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
