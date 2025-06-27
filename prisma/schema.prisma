@@ -12,17 +12,16 @@ model User {
   name               String
   email              String   @unique
   password           String
-  role               Role     @default(STUDENT)
+  role               Role     @default(USER)
   profile_picture    String?
   address            String?
   current_study_info String?
-  agency_id          String?  @unique
   is_deleted         Boolean  @default(false)
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
 
   // Relations
-  agency             Agency?            @relation(fields: [agency_id], references: [id], onDelete: SetNull)
+
   payments           Payment[]
   blogs              Blog[]
   certifications     Certification[]
@@ -33,33 +32,35 @@ model User {
   approved_members   Member[]           @relation("MemberApprover")
   approved_blogs     Blog[]             @relation("BlogApprover")
   approved_agencies  Agency[]           @relation("AgencyApprover")
+  agency             Agency?
 
   @@map("users")
 }
 
 model Member {
-  id             String     @id @default(uuid())
-  user_id        String     @unique
-  name           String
-  email          String     @unique
-  phone          String
-  designation    String
-  kind           MemberKind
-  is_deleted     Boolean    @default(false)
-  approved_at    DateTime?
-  approved_by_id String?
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @updatedAt
+  id          String           @id @default(uuid())
+  user_id     String           @unique
+  name        String
+  email       String           @unique
+  phone       String
+  status      MembershipStatus @default(PENDING)
+  kind        MemberKind
+  is_deleted  Boolean          @default(false)
+  approved_at DateTime?
+  action_id   String?
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
 
   // Relations
   user        User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  approved_by User? @relation("MemberApprover", fields: [approved_by_id], references: [id])
+  approved_by User? @relation("MemberApprover", fields: [action_id], references: [id])
 
   @@map("members")
 }
 
 model Agency {
-  id                    String    @id @default(uuid())
+  id                    String       @id @default(uuid())
+  user_id               String       @unique
   name                  String
   logo                  String?
   description           String?
@@ -72,18 +73,21 @@ model Agency {
   director_name         String?
   message_from_director String?
   services_offered      String?
+  status                AgencyStatus @default(PENDING)
   success_stories       String[]
-  is_approved           Boolean   @default(false)
+  is_approved           Boolean      @default(false)
   approved_at           DateTime?
   approved_by_id        String?
-  is_deleted            Boolean   @default(false)
-  created_at            DateTime  @default(now())
-  updated_at            DateTime  @updatedAt
+  is_deleted            Boolean      @default(false)
+  created_at            DateTime     @default(now())
+  updated_at            DateTime     @updatedAt
 
   // Relations
-  user           User?           @relation
+  user User? @relation(fields: [user_id], references: [id])
+
   certifications Certification[]
   approved_by    User?           @relation("AgencyApprover", fields: [approved_by_id], references: [id])
+  userId         String?
 
   @@map("agencies")
 }
@@ -298,6 +302,13 @@ enum ParticipantStatus {
 }
 
 enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum AgencyStatus {
   PENDING
   APPROVED
   REJECTED
