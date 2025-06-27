@@ -1,5 +1,6 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
+import pick from '../../utils/pick';
 import sendResponse from '../../utils/sendResponse';
 import { MembersService } from './member.service';
 
@@ -13,23 +14,26 @@ const CreateMember = catchAsync(async (req, res) => {
   });
 });
 
-const GetAllMember = catchAsync(async (_req, res) => {
-  const result = await MembersService.GetAllMember();
+const GetAllMember = catchAsync(async (req, res) => {
+  const query = pick(req.query, ['name', 'email', 'search', 'phone'])
+  const options = pick(req.query, ['page', 'limit', 'sort_by', 'sort_order'])
+  const result = await MembersService.GetAllMember(query, options);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Members fetched successfully',
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 
 const SingleMember = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await MembersService.SingleMember(id);
+  const result = await MembersService.GetSingleMember(id);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Member fetched successfully',
+    message: 'Single Member fetched successfully',
     data: result,
   });
 });
@@ -56,10 +60,21 @@ const DeleteMember = catchAsync(async (req, res) => {
   });
 });
 
+const ApprovedOrRejectMember = catchAsync(async (req, res) => {
+  const result = await MembersService.ApprovedOrRejectMember(req.params?.id, req.body)
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Successfully ${result.status.toLowerCase()} the member.`,
+    data: result,
+  });
+})
+
 export const MembersController = {
   CreateMember,
   GetAllMember,
   SingleMember,
   UpdateMember,
   DeleteMember,
+  ApprovedOrRejectMember
 };

@@ -3,7 +3,8 @@ import { Router } from 'express';
 import auth from '../../middlewares/auth';
 import validateRequest from '../../middlewares/validateRequest';
 import { MembersController } from './member.controller';
-import memberSchema from './member.validation';
+import { memberSchema, memberUpdateSchema } from './member.validation';
+
 
 const router = Router();
 
@@ -19,7 +20,10 @@ router
 router
   .route('/:id')
   .get(MembersController.SingleMember)
-  .patch(auth(Role.ADMIN, Role.AGENCY), MembersController.UpdateMember)
+  .patch(auth(Role.ADMIN, Role.AGENCY),
+    validateRequest(memberUpdateSchema),
+    MembersController.UpdateMember)
+  .put(auth(Role.ADMIN, Role.AGENCY), MembersController.ApprovedOrRejectMember)
   .delete(auth(Role.ADMIN), MembersController.DeleteMember);
 
 export const MemberRouter = router;
