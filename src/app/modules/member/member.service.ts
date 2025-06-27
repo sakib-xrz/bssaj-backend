@@ -5,6 +5,7 @@ import AppError from '../../errors/AppError';
 import calculatePagination from '../../utils/pagination';
 import prisma from '../../utils/prisma';
 import { memberSearchableFields } from './member.constant';
+import MemberUtils from './member.utils';
 
 const CreateMember = async (payload: Member) => {
   const user = await prisma.user.findUnique({
@@ -17,8 +18,10 @@ const CreateMember = async (payload: Member) => {
     throw new Error('User not found');
   }
 
+  const memberId = await MemberUtils.GenerateMemberId(payload.kind);
+
   const information = {
-    member_id: `M-${Date.now()}`,
+    member_id: memberId,
     user_id: payload.user_id,
     name: user.name,
     email: user.email,
