@@ -5,7 +5,6 @@ import validateRequest from '../../middlewares/validateRequest';
 import { MembersController } from './member.controller';
 import { memberSchema, memberUpdateSchema } from './member.validation';
 
-
 const router = Router();
 
 router
@@ -20,10 +19,12 @@ router
 router
   .route('/:id')
   .get(MembersController.SingleMember)
-  .patch(auth(Role.ADMIN, Role.AGENCY),
+  .patch(
+    auth(Role.ADMIN, Role.AGENCY),
     validateRequest(memberUpdateSchema),
-    MembersController.UpdateMember)
-  .put(auth(Role.ADMIN, Role.AGENCY), MembersController.ApprovedOrRejectMember)
+    MembersController.UpdateMember,
+  )
+  .put(auth(Role.ADMIN), MembersController.ApprovedOrRejectMember)
   .delete(auth(Role.ADMIN), MembersController.DeleteMember);
 
 export const MemberRouter = router;
