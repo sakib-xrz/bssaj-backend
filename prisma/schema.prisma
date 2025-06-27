@@ -38,6 +38,7 @@ model User {
 }
 
 model Member {
+<<<<<<< HEAD
   id          String           @id @default(uuid())
   user_id     String           @unique
   name        String
@@ -50,6 +51,19 @@ model Member {
   action_id   String?
   created_at  DateTime         @default(now())
   updated_at  DateTime         @updatedAt
+=======
+  id             String     @id @default(uuid())
+  user_id        String     @unique
+  name           String
+  email          String     @unique
+  phone          String
+  kind           MemberKind
+  is_deleted     Boolean    @default(false)
+  approved_at    DateTime?
+  approved_by_id String?
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+>>>>>>> 89cfedd15160ec4cc0b52a440ce62ac65c5b2aea
 
   // Relations
   user        User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
