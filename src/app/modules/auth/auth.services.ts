@@ -10,7 +10,6 @@ import AuthUtils from './auth.utils';
 export const Register = async (payload: User) => {
   const { email, password, name } = payload;
 
-
   // Check if user exists
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -21,7 +20,10 @@ export const Register = async (payload: User) => {
   }
 
   // Hash password
-  const hashedPassword = await bcrypt.hash(password, Number(config.bcrypt_salt_rounds));
+  const hashedPassword = await bcrypt.hash(
+    password,
+    Number(config.bcrypt_salt_rounds),
+  );
 
   // Create user
   const result = await prisma.user.create({
@@ -32,8 +34,28 @@ export const Register = async (payload: User) => {
     },
   });
 
-  return result;
+  // Prepare JWT payload
+  const jwtPayload = {
+    id: result.id,
+    email: result.email,
+    role: result.role,
+  };
+
+  const access_token = AuthUtils.CreateToken(
+    jwtPayload,
+    config.jwt_access_token_secret as string,
+    config.jwt_access_token_expires_in as string,
+  );
+
+  const refresh_token = AuthUtils.CreateToken(
+    jwtPayload,
+    config.jwt_refresh_token_secret as string,
+    config.jwt_refresh_token_expires_in as string,
+  );
+
+  return { access_token, refresh_token };
 };
+
 const Login = async (payload: User) => {
   const user = await prisma.user.findFirst({
     where: { email: payload.email },
@@ -70,7 +92,7 @@ const Login = async (payload: User) => {
     config.jwt_refresh_token_expires_in as string,
   );
 
-  return { access_token, refresh_token, user: { ...user, shop: undefined } };
+  return { access_token, refresh_token };
 };
 
 const ChangePassword = async (

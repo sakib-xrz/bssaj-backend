@@ -5,11 +5,20 @@ import AuthService from './auth.services';
 
 const Register = catchAsync(async (req, res) => {
   const result = await AuthService.Register(req.body);
+
+  const { access_token, refresh_token } = result;
+
+  res.cookie('REFRESH_TOKEN', refresh_token, {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Account created successfully',
-    data: result,
+    data: {
+      access_token,
+    },
   });
 });
 
