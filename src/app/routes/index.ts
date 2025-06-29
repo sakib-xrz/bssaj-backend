@@ -10,9 +10,9 @@ type Route = { path: string; route: express.Router };
 
 const routes: Route[] = [
   { path: '/auth', route: AuthRoutes },
-  { path: '/member', route: MemberRouter },
-  { path: '/agency', route: AgencyRouter },
-  { path: '/user', route: UserRoute }
+  { path: '/members', route: MemberRouter },
+  { path: '/agencies', route: AgencyRouter },
+  { path: '/users', route: UserRoute },
 ];
 
 routes.forEach((route) => {
