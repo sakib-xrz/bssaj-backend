@@ -4,6 +4,16 @@ import pick from '../../utils/pick';
 import sendResponse from '../../utils/sendResponse';
 import { UserService } from './user.services';
 
+const CreateUser = catchAsync(async (req, res) => {
+  const result = await UserService.CreateUser(req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User created successfully',
+    data: result,
+  });
+});
+
 const GetAllUser = catchAsync(async (req, res) => {
   const query = pick(req.query, ['name', 'email', 'search']);
   const options = pick(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
@@ -11,23 +21,45 @@ const GetAllUser = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'fetch all users',
+    message: 'Users fetched successfully',
     meta: result.meta,
     data: result.data,
   });
 });
 
-const GetSingleUser = catchAsync(async (req, res) => {
-  const result = UserService.GetSingleUser(req.params?.id);
+const SearchUser = catchAsync(async (req, res) => {
+  const result = await UserService.SearchUser(req.query.search as string);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'fetch single users',
-    data: await result,
+    message: 'Users fetched successfully',
+    data: result,
+  });
+});
+
+const UpdateUser = catchAsync(async (req, res) => {
+  const result = await UserService.UpdateUser(req.params.id, req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User updated successfully',
+    data: result,
+  });
+});
+
+const DeleteUser = catchAsync(async (req, res) => {
+  await UserService.DeleteUser(req.params.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.NO_CONTENT,
+    message: 'User deleted successfully',
   });
 });
 
 export const UserController = {
+  CreateUser,
   GetAllUser,
-  GetSingleUser,
+  SearchUser,
+  UpdateUser,
+  DeleteUser,
 };

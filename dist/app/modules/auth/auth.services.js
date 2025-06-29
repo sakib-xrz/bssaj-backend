@@ -12,12 +12,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Register = void 0;
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const http_status_1 = __importDefault(require("http-status"));
+const config_1 = __importDefault(require("../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_utils_1 = __importDefault(require("./auth.utils"));
-const config_1 = __importDefault(require("../../config"));
+const Register = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password, name } = payload;
+    // Check if user exists
+    const existingUser = yield prisma_1.default.user.findUnique({
+        where: { email },
+    });
+    if (existingUser) {
+        throw new AppError_1.default(http_status_1.default.CONFLICT, 'User already exists');
+    }
+    // Hash password
+    const hashedPassword = yield bcrypt_1.default.hash(password, Number(config_1.default.bcrypt_salt_rounds));
+    // Create user
+    const result = yield prisma_1.default.user.create({
+        data: {
+            email,
+            name,
+            password: hashedPassword,
+        },
+    });
+    return result;
+});
+exports.Register = Register;
 const Login = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield prisma_1.default.user.findFirst({
         where: { email: payload.email },
@@ -75,6 +98,7 @@ const GetMyProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
     return userProfile;
 });
 const AuthService = {
+    Register: exports.Register,
     Login,
     ChangePassword,
     GetMyProfile,
