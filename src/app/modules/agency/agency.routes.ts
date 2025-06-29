@@ -10,7 +10,7 @@ const router = Router();
 router
   .route('/')
   .post(
-    auth(Role.USER),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
     validateRequest(agencySchema),
     AgencyController.CreateAgency,
   )
@@ -19,8 +19,14 @@ router
 router
   .route('/:id')
   .get(AgencyController.GetSingleAgency)
-  .patch(auth(Role.ADMIN, Role.AGENCY), AgencyController.UpdateAgency)
-  .put(auth(Role.ADMIN), AgencyController.ApprovedOrRejectAgency)
-  .delete(auth(Role.ADMIN), AgencyController.DeleteAgency);
+  .patch(
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
+    AgencyController.UpdateAgency,
+  )
+  .put(
+    auth(Role.SUPER_ADMIN, Role.ADMIN),
+    AgencyController.ApprovedOrRejectAgency,
+  )
+  .delete(auth(Role.SUPER_ADMIN, Role.ADMIN), AgencyController.DeleteAgency);
 
 export const AgencyRouter = router;

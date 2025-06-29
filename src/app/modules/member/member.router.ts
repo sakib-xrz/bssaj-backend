@@ -10,7 +10,7 @@ const router = Router();
 router
   .route('/')
   .post(
-    auth(Role.USER),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
     validateRequest(memberSchema),
     MembersController.CreateMember,
   )
@@ -20,11 +20,14 @@ router
   .route('/:id')
   .get(MembersController.SingleMember)
   .patch(
-    auth(Role.ADMIN, Role.AGENCY),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
     validateRequest(memberUpdateSchema),
     MembersController.UpdateMember,
   )
-  .put(auth(Role.ADMIN), MembersController.ApprovedOrRejectMember)
-  .delete(auth(Role.ADMIN), MembersController.DeleteMember);
+  .put(
+    auth(Role.SUPER_ADMIN, Role.ADMIN),
+    MembersController.ApprovedOrRejectMember,
+  )
+  .delete(auth(Role.SUPER_ADMIN, Role.ADMIN), MembersController.DeleteMember);
 
 export const MemberRouter = router;

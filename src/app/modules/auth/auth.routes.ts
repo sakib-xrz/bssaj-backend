@@ -7,10 +7,7 @@ import AuthValidation from './auth.validation';
 
 const router = express.Router();
 
-router.post(
-  '/register',
-  AuthController.Register,
-);
+router.post('/register', AuthController.Register);
 
 router.post(
   '/login',
@@ -20,14 +17,14 @@ router.post(
 
 router.patch(
   '/change-password',
-  auth(Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
   validateRequest(AuthValidation.ChangePasswordSchema),
   AuthController.ChangePassword,
 );
 
 router.get(
   '/me',
-  auth(Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
   AuthController.GetMyProfile,
 );
 
