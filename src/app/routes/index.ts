@@ -13,12 +13,12 @@ type Route = { path: string; route: express.Router };
 
 const routes: Route[] = [
   { path: '/auth', route: AuthRoutes },
-  { path: '/member', route: MemberRouter },
-  { path: '/agency', route: AgencyRouter },
-  { path: '/user', route: UserRoute },
-  { path: '/blog', route: BlogRouter },
-  { path: '/event', route: EventRouter },
-  { path: '/admin', route: AdminRoute }
+  { path: '/members', route: MemberRouter },
+  { path: '/agencies', route: AgencyRouter },
+  { path: '/users', route: UserRoute },
+  { path: '/blogs', route: BlogRouter },
+  { path: '/events', route: EventRouter },
+  { path: '/admin', route: AdminRoute },
 ];
 
 routes.forEach((route) => {
