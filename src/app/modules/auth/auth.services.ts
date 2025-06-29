@@ -7,7 +7,7 @@ import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
 import AuthUtils from './auth.utils';
 
-export const Register = async (payload: User) => {
+const Register = async (payload: User) => {
   const { email, password, name } = payload;
 
   // Check if user exists
