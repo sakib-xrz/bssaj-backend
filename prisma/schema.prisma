@@ -33,6 +33,8 @@ model User {
   approved_blogs     Blog[]             @relation("BlogApprover")
   approved_agencies  Agency[]           @relation("AgencyApprover")
   agency             Agency?
+  event              Event[]            @relation("eventApprover")
+  Event              Event[]
 
   @@map("users")
 }
@@ -118,19 +120,19 @@ model Payment {
 }
 
 model Blog {
-  id             String    @id @default(uuid())
+  id             String     @id @default(uuid())
   title          String
-  slug           String    @unique
+  slug           String     @unique
   content        String
   author_id      String
   cover_image    String?
-  is_published   Boolean   @default(false)
-  is_approved    Boolean   @default(false)
+  is_published   Boolean    @default(false)
+  is_approved    Boolean    @default(false)
   approved_at    DateTime?
   approved_by_id String?
-  is_deleted     Boolean   @default(false)
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
+  is_deleted     Boolean    @default(false)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
 
   // Relations
   author      User  @relation(fields: [author_id], references: [id], onDelete: Cascade)
@@ -140,17 +142,22 @@ model Blog {
 }
 
 model Event {
-  id          String      @id @default(uuid())
-  title       String
-  slug        String      @unique
-  status      EventStatus @default(UPCOMING)
-  description String
-  location    String
-  event_date  DateTime
-  cover_image String?
-  is_deleted  Boolean     @default(false)
-  created_at  DateTime    @default(now())
-  updated_at  DateTime    @updatedAt
+  id             String      @id @default(uuid())
+  title          String
+  slug           String      @unique
+  status         EventStatus @default(UPCOMING)
+  description    String
+  location       String
+  event_date     DateTime
+  cover_image    String?
+  author_id      String
+  approved_by_id String?
+  is_deleted     Boolean     @default(false)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+
+  author      User  @relation(fields: [author_id], references: [id])
+  approved_by User? @relation("eventApprover", fields: [approved_by_id], references: [id])
 
   @@map("events")
 }
@@ -338,3 +345,4 @@ enum ExamRegistrationStatus {
   CANCELLED
   COMPLETED
 }
+

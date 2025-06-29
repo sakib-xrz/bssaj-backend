@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Agency, AgencyStatus, Prisma } from '@prisma/client';
+import { Agency, Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import calculatePagination from '../../utils/pagination';
@@ -103,41 +103,7 @@ const DeleteAgency = async (id: string) => {
   return result;
 };
 
-const ApprovedOrRejectAgency = async (
-  id: string,
-  status: AgencyStatus,
-  approved_by_id: string,
-) => {
-  const result = await prisma.$transaction(async (tx) => {
-    const existingAgency = await tx.agency.findUnique({
-      where: { id },
-    });
 
-    if (!existingAgency) {
-      throw new AppError(httpStatus.NOT_FOUND, 'Agency not found');
-    }
-
-    const updatedAgency = await tx.agency.update({
-      where: { id },
-      data: {
-        status: status,
-        approved_by_id,
-        approved_at: new Date(),
-      },
-    });
-
-    if (status === AgencyStatus.APPROVED) {
-      await tx.user.update({
-        where: { id: existingAgency.user_id },
-        data: { role: 'AGENCY' },
-      });
-    }
-
-    return updatedAgency;
-  });
-
-  return result;
-};
 
 export const AgencyService = {
   CreateAgency,
@@ -145,5 +111,4 @@ export const AgencyService = {
   GetSingleAgency,
   UpdateAgency,
   DeleteAgency,
-  ApprovedOrRejectAgency,
 };

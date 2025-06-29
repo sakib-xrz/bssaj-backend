@@ -60,19 +60,7 @@ const DeleteAgency = catchAsync(async (req, res) => {
   });
 });
 
-const ApprovedOrRejectAgency = catchAsync(async (req, res) => {
-  const result = await AgencyService.ApprovedOrRejectAgency(
-    req.params?.id,
-    req.body.status,
-    req.user?.id,
-  );
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: `Successfully ${result.status.toLowerCase()} the agency.`,
-    data: result,
-  });
-});
+
 
 export const AgencyController = {
   CreateAgency,
@@ -80,5 +68,4 @@ export const AgencyController = {
   GetSingleAgency,
   UpdateAgency,
   DeleteAgency,
-  ApprovedOrRejectAgency,
 };

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const memberSchema = z.object({
+export const memberValidation = z.object({
   body: z.object({
     user_id: z.string({ required_error: "Invalid user id" }),
     phone: z.string({ required_error: 'Phone Number is Required' }),
@@ -8,7 +8,7 @@ export const memberSchema = z.object({
   })
 });
 
-export const memberUpdateSchema = z.object({
+export const updateMemberValidation = z.object({
   body: z.object({
     name: z.string().optional(),
     phone: z.string({ required_error: 'Phone Number is Required' }).optional(),
@@ -17,3 +17,7 @@ export const memberUpdateSchema = z.object({
 });
 
 
+export const MemberValidation = {
+  memberValidation,
+  updateMemberValidation
+}

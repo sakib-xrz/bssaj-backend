@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Member, MembershipStatus, Prisma } from '@prisma/client';
+import { Member, Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import calculatePagination from '../../utils/pagination';
@@ -149,34 +149,7 @@ const DeleteMember = async (id: string) => {
   return null;
 };
 
-const ApprovedOrRejectMember = async (
-  id: string,
-  status: MembershipStatus,
-  approved_by_id: string,
-) => {
-  const existingMember = await prisma.member.findUnique({
-    where: {
-      id,
-    },
-  });
 
-  if (!existingMember) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This member is not found');
-  }
-
-  const result = await prisma.member.update({
-    where: {
-      id,
-    },
-    data: {
-      status,
-      approved_by_id,
-      approved_at: new Date(),
-    },
-  });
-
-  return result;
-};
 
 export const MembersService = {
   CreateMember,
@@ -184,5 +157,4 @@ export const MembersService = {
   GetAllMember,
   UpdateMember,
   DeleteMember,
-  ApprovedOrRejectMember,
 };

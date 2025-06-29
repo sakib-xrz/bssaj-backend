@@ -60,19 +60,7 @@ const DeleteMember = catchAsync(async (req, res) => {
   });
 });
 
-const ApprovedOrRejectMember = catchAsync(async (req, res) => {
-  const result = await MembersService.ApprovedOrRejectMember(
-    req.params?.id,
-    req.body.status,
-    req.user?.id,
-  );
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: 'Member status updated successfully',
-    data: result,
-  });
-});
+
 
 export const MembersController = {
   CreateMember,
@@ -80,5 +68,4 @@ export const MembersController = {
   SingleMember,
   UpdateMember,
   DeleteMember,
-  ApprovedOrRejectMember,
 };
