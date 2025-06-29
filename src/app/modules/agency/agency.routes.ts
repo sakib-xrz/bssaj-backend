@@ -23,10 +23,6 @@ router
     auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
     AgencyController.UpdateAgency,
   )
-  .put(
-    auth(Role.SUPER_ADMIN, Role.ADMIN),
-    AgencyController.ApprovedOrRejectAgency,
-  )
   .delete(auth(Role.SUPER_ADMIN, Role.ADMIN), AgencyController.DeleteAgency);
 
 export const AgencyRouter = router;

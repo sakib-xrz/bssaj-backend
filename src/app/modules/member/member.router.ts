@@ -25,10 +25,6 @@ router
     validateRequest(MemberValidation.updateMemberValidation),
     MembersController.UpdateMember,
   )
-  .put(
-    auth(Role.SUPER_ADMIN, Role.ADMIN),
-    MembersController.ApprovedOrRejectMember,
-  )
   .delete(auth(Role.SUPER_ADMIN, Role.ADMIN), MembersController.DeleteMember);
 
 export const MemberRouter = router;
