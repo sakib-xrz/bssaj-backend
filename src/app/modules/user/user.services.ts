@@ -41,6 +41,18 @@ const GetAllUser = async (query: any, options: any) => {
 
   const result = await prisma.user.findMany({
     where: whereCondition,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      agency: {
+        select: {
+          name: true,
+        },
+      },
+      created_at: true,
+    },
     skip,
     take: limit,
     orderBy:
