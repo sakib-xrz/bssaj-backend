@@ -7,9 +7,12 @@ const router = express.Router();
 
 router.get('/', auth(Role.SUPER_ADMIN, Role.ADMIN), UserController.GetAllUser);
 router.get(
-  '/:id',
+  '/search',
   auth(Role.SUPER_ADMIN, Role.ADMIN),
-  UserController.GetSingleUser,
+  UserController.SearchUser,
 );
+router.post('/', auth(Role.SUPER_ADMIN), UserController.CreateUser);
+router.patch('/:id', auth(Role.SUPER_ADMIN), UserController.UpdateUser);
+router.delete('/:id', auth(Role.SUPER_ADMIN), UserController.DeleteUser);
 
 export const UserRoute = router;
