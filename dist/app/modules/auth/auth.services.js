@@ -12,10 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Register = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const http_status_1 = __importDefault(require("http-status"));
 const config_1 = __importDefault(require("../../config"));
+const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
 const auth_utils_1 = __importDefault(require("./auth.utils"));
@@ -38,9 +37,16 @@ const Register = (payload) => __awaiter(void 0, void 0, void 0, function* () {
             password: hashedPassword,
         },
     });
-    return result;
+    // Prepare JWT payload
+    const jwtPayload = {
+        id: result.id,
+        email: result.email,
+        role: result.role,
+    };
+    const access_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_access_token_secret, config_1.default.jwt_access_token_expires_in);
+    const refresh_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_refresh_token_secret, config_1.default.jwt_refresh_token_expires_in);
+    return { access_token, refresh_token };
 });
-exports.Register = Register;
 const Login = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield prisma_1.default.user.findFirst({
         where: { email: payload.email },
@@ -59,7 +65,7 @@ const Login = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     };
     const access_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_access_token_secret, config_1.default.jwt_access_token_expires_in);
     const refresh_token = auth_utils_1.default.CreateToken(jwtPayload, config_1.default.jwt_refresh_token_secret, config_1.default.jwt_refresh_token_expires_in);
-    return { access_token, refresh_token, user: Object.assign(Object.assign({}, user), { shop: undefined }) };
+    return { access_token, refresh_token };
 });
 const ChangePassword = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
     const isUserValid = yield prisma_1.default.user.findFirst({
@@ -98,7 +104,7 @@ const GetMyProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
     return userProfile;
 });
 const AuthService = {
-    Register: exports.Register,
+    Register,
     Login,
     ChangePassword,
     GetMyProfile,

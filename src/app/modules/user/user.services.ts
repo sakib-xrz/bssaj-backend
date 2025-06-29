@@ -2,12 +2,44 @@
 import { Prisma } from '@prisma/client';
 import calculatePagination from '../../utils/pagination';
 import prisma from '../../utils/prisma';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 
 const CreateUser = async (data: any) => {
-  const result = await prisma.user.create({
-    data,
+  const { email, password, name, ...rest } = data;
+
+  // Check if user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
   });
-  return result;
+
+  if (existingUser) {
+    throw new Error('User already exists');
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(
+    password,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  // Create user
+  const result = await prisma.user.create({
+    data: {
+      email,
+      name,
+      password: hashedPassword,
+      ...rest,
+    },
+  });
+
+  return {
+    id: result.id,
+    email: result.email,
+    name: result.name,
+    role: result.role,
+    created_at: result.created_at,
+  };
 };
 
 const GetAllUser = async (query: any, options: any) => {
@@ -69,6 +101,23 @@ const GetAllUser = async (query: any, options: any) => {
     },
     data: result,
   };
+};
+
+const GetUserById = async (id: string) => {
+  const result = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      address: true,
+    },
+  });
+  if (!result) {
+    throw new Error('User not found');
+  }
+  return result;
 };
 
 const SearchUser = async (search: string) => {
@@ -155,6 +204,7 @@ const DeleteUser = async (id: string) => {
 export const UserService = {
   CreateUser,
   GetAllUser,
+  GetUserById,
   SearchUser,
   UpdateUser,
   DeleteUser,

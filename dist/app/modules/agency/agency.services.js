@@ -13,8 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgencyService = void 0;
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const pagination_1 = __importDefault(require("../../utils/pagination"));
@@ -105,37 +103,10 @@ const DeleteAgency = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
-const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-        const existingAgency = yield tx.agency.findUnique({
-            where: { id },
-        });
-        if (!existingAgency) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Agency not found');
-        }
-        const updatedAgency = yield tx.agency.update({
-            where: { id },
-            data: {
-                status: status,
-                approved_by_id,
-                approved_at: new Date(),
-            },
-        });
-        if (status === client_1.AgencyStatus.APPROVED) {
-            yield tx.user.update({
-                where: { id: existingAgency.user_id },
-                data: { role: 'AGENCY' },
-            });
-        }
-        return updatedAgency;
-    }));
-    return result;
-});
 exports.AgencyService = {
     CreateAgency,
     GetAllAgency,
     GetSingleAgency,
     UpdateAgency,
     DeleteAgency,
-    ApprovedOrRejectAgency,
 };

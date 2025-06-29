@@ -19,6 +19,5 @@ router
     .route('/:id')
     .get(agency_controller_1.AgencyController.GetSingleAgency)
     .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), agency_controller_1.AgencyController.UpdateAgency)
-    .put((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), agency_controller_1.AgencyController.ApprovedOrRejectAgency)
     .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), agency_controller_1.AgencyController.DeleteAgency);
 exports.AgencyRouter = router;

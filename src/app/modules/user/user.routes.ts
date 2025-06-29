@@ -12,7 +12,16 @@ router.get(
   UserController.SearchUser,
 );
 router.post('/', auth(Role.SUPER_ADMIN), UserController.CreateUser);
-router.patch('/:id', auth(Role.SUPER_ADMIN), UserController.UpdateUser);
+router.get(
+  '/:id',
+  auth(Role.SUPER_ADMIN, Role.ADMIN),
+  UserController.GetUserById,
+);
+router.patch(
+  '/:id',
+  auth(Role.SUPER_ADMIN, Role.ADMIN),
+  UserController.UpdateUser,
+);
 router.delete('/:id', auth(Role.SUPER_ADMIN), UserController.DeleteUser);
 
 export const UserRoute = router;

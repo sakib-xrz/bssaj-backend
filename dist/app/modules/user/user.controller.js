@@ -39,6 +39,15 @@ const GetAllUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result.data,
     });
 }));
+const GetUserById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_services_1.UserService.GetUserById(req.params.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'User fetched successfully',
+        data: result,
+    });
+}));
 const SearchUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_services_1.UserService.SearchUser(req.query.search);
     (0, sendResponse_1.default)(res, {
@@ -68,6 +77,7 @@ const DeleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
 exports.UserController = {
     CreateUser,
     GetAllUser,
+    GetUserById,
     SearchUser,
     UpdateUser,
     DeleteUser,

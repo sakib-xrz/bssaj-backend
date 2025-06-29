@@ -12,67 +12,66 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AgencyController = void 0;
+exports.BlogController = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
-const agency_services_1 = require("./agency.services");
 const pick_1 = __importDefault(require("../../utils/pick"));
-const CreateAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield agency_services_1.AgencyService.CreateAgency(req.body);
+const blog_services_1 = require("./blog.services");
+const CreateBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield blog_services_1.BlogService.CreateBlog(req.body);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.CREATED,
-        message: 'Agency created successfully',
-        data: result,
+        message: "Blog created successfully",
+        data: result
     });
 }));
-const GetAllAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const GetAllBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = (0, pick_1.default)(req.query, ['name', 'search']);
     const options = (0, pick_1.default)(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
-    const result = yield agency_services_1.AgencyService.GetAllAgency(query, options);
+    const result = yield blog_services_1.BlogService.GetAllBlog(query, options);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: 'Agencies retrieved successfully',
-        meta: result.meta,
-        data: result.data,
+        message: "Blogs retrieved successfully",
+        data: result
     });
 }));
-const GetSingleAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const result = yield agency_services_1.AgencyService.GetSingleAgency(id);
+const GetSingleBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const result = yield blog_services_1.BlogService.GetSingleBlog((_a = req.params) === null || _a === void 0 ? void 0 : _a.id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: 'Agency retrieved successfully',
-        data: result,
+        message: "Blog retrieved successfully",
+        data: result
     });
 }));
-const UpdateAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const result = yield agency_services_1.AgencyService.UpdateAgency(req.body, id);
+const UpdateBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const result = yield blog_services_1.BlogService.UpdateBlog((_a = req.params) === null || _a === void 0 ? void 0 : _a.id, req.body);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: 'Agency updated successfully',
-        data: result,
+        message: "Blog updated successfully",
+        data: result
     });
 }));
-const DeleteAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const result = yield agency_services_1.AgencyService.DeleteAgency(id);
+const DeleteBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const result = yield blog_services_1.BlogService.DeleteBlog((_a = req.params) === null || _a === void 0 ? void 0 : _a.id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: 'Agency deleted successfully',
-        data: result,
+        message: "Blog deleted successfully",
+        data: result
     });
 }));
-exports.AgencyController = {
-    CreateAgency,
-    GetAllAgency,
-    GetSingleAgency,
-    UpdateAgency,
-    DeleteAgency,
+exports.BlogController = {
+    CreateBlog,
+    GetAllBlog,
+    GetSingleBlog,
+    UpdateBlog,
+    DeleteBlog
 };

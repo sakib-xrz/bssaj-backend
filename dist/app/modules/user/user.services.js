@@ -26,11 +26,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const pagination_1 = __importDefault(require("../../utils/pagination"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const config_1 = __importDefault(require("../../config"));
 const CreateUser = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.user.create({
-        data,
+    const { email, password, name } = data, rest = __rest(data, ["email", "password", "name"]);
+    // Check if user already exists
+    const existingUser = yield prisma_1.default.user.findUnique({
+        where: { email },
     });
-    return result;
+    if (existingUser) {
+        throw new Error('User already exists');
+    }
+    // Hash password
+    const hashedPassword = yield bcrypt_1.default.hash(password, Number(config_1.default.bcrypt_salt_rounds));
+    // Create user
+    const result = yield prisma_1.default.user.create({
+        data: Object.assign({ email,
+            name, password: hashedPassword }, rest),
+    });
+    return {
+        id: result.id,
+        email: result.email,
+        name: result.name,
+        role: result.role,
+        created_at: result.created_at,
+    };
 });
 const GetAllUser = (query, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { search } = query, filterData = __rest(query, ["search"]);
@@ -59,6 +79,18 @@ const GetAllUser = (query, options) => __awaiter(void 0, void 0, void 0, functio
     const whereCondition = { AND: andCondition };
     const result = yield prisma_1.default.user.findMany({
         where: whereCondition,
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            agency: {
+                select: {
+                    name: true,
+                },
+            },
+            created_at: true,
+        },
         skip,
         take: limit,
         orderBy: sort_by && sort_order ? { [sort_by]: sort_order } : { created_at: 'asc' },
@@ -74,6 +106,22 @@ const GetAllUser = (query, options) => __awaiter(void 0, void 0, void 0, functio
         },
         data: result,
     };
+});
+const GetUserById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            address: true,
+        },
+    });
+    if (!result) {
+        throw new Error('User not found');
+    }
+    return result;
 });
 const SearchUser = (search) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.user.findMany({
@@ -145,6 +193,7 @@ const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
 exports.UserService = {
     CreateUser,
     GetAllUser,
+    GetUserById,
     SearchUser,
     UpdateUser,
     DeleteUser,

@@ -1,8 +1,8 @@
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import config from '../../config';
 import httpStatus from 'http-status';
 import { JwtPayload } from 'jsonwebtoken';
-import config from '../../config';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
 import AuthUtils from './auth.utils';

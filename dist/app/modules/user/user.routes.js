@@ -12,6 +12,7 @@ const router = express_1.default.Router();
 router.get('/', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.GetAllUser);
 router.get('/search', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.SearchUser);
 router.post('/', (0, auth_1.default)(client_1.Role.SUPER_ADMIN), user_controller_1.UserController.CreateUser);
-router.patch('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN), user_controller_1.UserController.UpdateUser);
+router.get('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.GetUserById);
+router.patch('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.UpdateUser);
 router.delete('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN), user_controller_1.UserController.DeleteUser);
 exports.UserRoute = router;

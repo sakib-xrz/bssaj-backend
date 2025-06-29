@@ -18,11 +18,17 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const auth_services_1 = __importDefault(require("./auth.services"));
 const Register = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_services_1.default.Register(req.body);
+    const { access_token, refresh_token } = result;
+    res.cookie('REFRESH_TOKEN', refresh_token, {
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
         message: 'Account created successfully',
-        data: result,
+        data: {
+            access_token,
+        },
     });
 }));
 const Login = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

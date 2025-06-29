@@ -27,6 +27,16 @@ const GetAllUser = catchAsync(async (req, res) => {
   });
 });
 
+const GetUserById = catchAsync(async (req, res) => {
+  const result = await UserService.GetUserById(req.params.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User fetched successfully',
+    data: result,
+  });
+});
+
 const SearchUser = catchAsync(async (req, res) => {
   const result = await UserService.SearchUser(req.query.search as string);
   sendResponse(res, {
@@ -59,6 +69,7 @@ const DeleteUser = catchAsync(async (req, res) => {
 export const UserController = {
   CreateUser,
   GetAllUser,
+  GetUserById,
   SearchUser,
   UpdateUser,
   DeleteUser,

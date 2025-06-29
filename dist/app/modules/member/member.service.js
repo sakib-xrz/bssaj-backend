@@ -146,32 +146,10 @@ const DeleteMember = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return null;
 });
-const ApprovedOrRejectMember = (id, status, approved_by_id) => __awaiter(void 0, void 0, void 0, function* () {
-    const existingMember = yield prisma_1.default.member.findUnique({
-        where: {
-            id,
-        },
-    });
-    if (!existingMember) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This member is not found');
-    }
-    const result = yield prisma_1.default.member.update({
-        where: {
-            id,
-        },
-        data: {
-            status,
-            approved_by_id,
-            approved_at: new Date(),
-        },
-    });
-    return result;
-});
 exports.MembersService = {
     CreateMember,
     GetSingleMember,
     GetAllMember,
     UpdateMember,
     DeleteMember,
-    ApprovedOrRejectMember,
 };
