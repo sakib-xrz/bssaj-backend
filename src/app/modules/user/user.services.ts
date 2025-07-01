@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import calculatePagination from '../../utils/pagination';
 import prisma from '../../utils/prisma';
 import bcrypt from 'bcrypt';
@@ -121,16 +121,33 @@ const GetUserById = async (id: string) => {
 };
 
 const SearchUser = async (search: string) => {
+  if (!search || search.trim().length === 0) {
+    return [];
+  }
+
   const result = await prisma.user.findMany({
     where: {
       OR: [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search.trim(), mode: 'insensitive' } },
+        { email: { contains: search.trim(), mode: 'insensitive' } },
       ],
+      role: {
+        not: Role.SUPER_ADMIN,
+      },
+      member: null,
+      is_deleted: false,
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+    take: 20,
   });
+
   return result;
 };
+
 const UpdateUser = async (id: string, data: any) => {
   const result = await prisma.user.update({
     where: { id },
