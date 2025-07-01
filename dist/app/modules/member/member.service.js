@@ -57,13 +57,36 @@ const GetSingleMember = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const existingMember = yield prisma_1.default.member.findUnique({
         where: {
             id: id,
+            is_deleted: false,
+        },
+        select: {
+            id: true,
+            member_id: true,
+            name: true,
+            email: true,
+            phone: true,
+            kind: true,
+            status: true,
+            approved_at: true,
+            approved_by: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            created_at: true,
+            updated_at: true,
+            user: {
+                select: {
+                    id: true,
+                    role: true,
+                    profile_picture: true,
+                },
+            },
         },
     });
     if (!existingMember) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Invalid Member Id');
-    }
-    if (existingMember.is_deleted) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This member is Deleted');
     }
     return existingMember;
 });
@@ -91,15 +114,35 @@ const GetAllMember = (query, options) => __awaiter(void 0, void 0, void 0, funct
             })),
         });
     }
-    const whareCondition = { AND: andCondition };
+    const whereCondition = { AND: andCondition };
     const result = yield prisma_1.default.member.findMany({
-        where: whareCondition,
+        where: whereCondition,
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            kind: true,
+            phone: true,
+            status: true,
+            approved_at: true,
+            created_at: true,
+            user: {
+                select: {
+                    profile_picture: true,
+                },
+            },
+            approved_by: {
+                select: {
+                    name: true,
+                },
+            },
+        },
         skip,
         take: limit,
         orderBy: sort_by && sort_order ? { [sort_by]: sort_order } : { created_at: 'asc' },
     });
     const total = yield prisma_1.default.member.count({
-        where: whareCondition,
+        where: whereCondition,
     });
     return {
         meta: {

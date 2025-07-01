@@ -24,6 +24,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const client_1 = require("@prisma/client");
 const pagination_1 = __importDefault(require("../../utils/pagination"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -124,13 +126,27 @@ const GetUserById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return result;
 });
 const SearchUser = (search) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!search || search.trim().length === 0) {
+        return [];
+    }
     const result = yield prisma_1.default.user.findMany({
         where: {
             OR: [
-                { name: { contains: search, mode: 'insensitive' } },
-                { email: { contains: search, mode: 'insensitive' } },
+                { name: { contains: search.trim(), mode: 'insensitive' } },
+                { email: { contains: search.trim(), mode: 'insensitive' } },
             ],
+            role: {
+                not: client_1.Role.SUPER_ADMIN,
+            },
+            member: null,
+            is_deleted: false,
         },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+        },
+        take: 20,
     });
     return result;
 });

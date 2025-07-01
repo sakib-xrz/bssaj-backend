@@ -19,12 +19,11 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const admin_services_1 = require("./admin.services");
 const ApprovedOrRejectMember = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    const result = yield admin_services_1.AdminService.ApprovedOrRejectMember((_a = req.params) === null || _a === void 0 ? void 0 : _a.id, req.body.status, (_b = req.user) === null || _b === void 0 ? void 0 : _b.id);
+    yield admin_services_1.AdminService.ApprovedOrRejectMember((_a = req.params) === null || _a === void 0 ? void 0 : _a.id, req.body.status, (_b = req.user) === null || _b === void 0 ? void 0 : _b.id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
         message: 'Member status updated successfully',
-        data: result,
     });
 }));
 const ApprovedOrRejectAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -51,5 +50,5 @@ const ApprovedOrRejectBlog = (0, catchAsync_1.default)((req, res) => __awaiter(v
 exports.AdminController = {
     ApprovedOrRejectMember,
     ApprovedOrRejectAgency,
-    ApprovedOrRejectBlog
+    ApprovedOrRejectBlog,
 };

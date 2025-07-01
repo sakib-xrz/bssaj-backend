@@ -40,15 +40,37 @@ const GetSingleMember = async (id: string) => {
   const existingMember = await prisma.member.findUnique({
     where: {
       id: id,
+      is_deleted: false,
+    },
+    select: {
+      id: true,
+      member_id: true,
+      name: true,
+      email: true,
+      phone: true,
+      kind: true,
+      status: true,
+      approved_at: true,
+      approved_by: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      created_at: true,
+      updated_at: true,
+      user: {
+        select: {
+          id: true,
+          role: true,
+          profile_picture: true,
+        },
+      },
     },
   });
 
   if (!existingMember) {
     throw new AppError(httpStatus.NOT_FOUND, 'Invalid Member Id');
-  }
-
-  if (existingMember.is_deleted) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This member is Deleted');
   }
 
   return existingMember;
@@ -81,17 +103,37 @@ const GetAllMember = async (query: any, options: any) => {
     });
   }
 
-  const whareCondition: Prisma.MemberWhereInput = { AND: andCondition };
+  const whereCondition: Prisma.MemberWhereInput = { AND: andCondition };
 
   const result = await prisma.member.findMany({
-    where: whareCondition,
+    where: whereCondition,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      kind: true,
+      phone: true,
+      status: true,
+      approved_at: true,
+      created_at: true,
+      user: {
+        select: {
+          profile_picture: true,
+        },
+      },
+      approved_by: {
+        select: {
+          name: true,
+        },
+      },
+    },
     skip,
     take: limit,
     orderBy:
       sort_by && sort_order ? { [sort_by]: sort_order } : { created_at: 'asc' },
   });
   const total = await prisma.member.count({
-    where: whareCondition,
+    where: whereCondition,
   });
   return {
     meta: {
@@ -148,8 +190,6 @@ const DeleteMember = async (id: string) => {
   });
   return null;
 };
-
-
 
 export const MembersService = {
   CreateMember,

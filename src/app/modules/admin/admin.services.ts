@@ -1,7 +1,7 @@
-import { AgencyStatus, Blog, MembershipStatus } from "@prisma/client";
-import httpStatus from "http-status";
-import AppError from "../../errors/AppError";
-import prisma from "../../utils/prisma";
+import { AgencyStatus, Blog, MembershipStatus } from '@prisma/client';
+import httpStatus from 'http-status';
+import AppError from '../../errors/AppError';
+import prisma from '../../utils/prisma';
 
 const ApprovedOrRejectMember = async (
   id: string,
@@ -18,18 +18,33 @@ const ApprovedOrRejectMember = async (
     throw new AppError(httpStatus.NOT_FOUND, 'This member is not found');
   }
 
-  const result = await prisma.member.update({
-    where: {
-      id,
-    },
-    data: {
-      status,
-      approved_by_id,
-      approved_at: new Date(),
-    },
-  });
+  if (existingMember.status === MembershipStatus.APPROVED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'This member is already approved',
+    );
+  }
 
-  return result;
+  if (status === MembershipStatus.APPROVED) {
+    await prisma.member.update({
+      where: {
+        id,
+      },
+      data: {
+        status,
+        approved_by_id,
+        approved_at: new Date(),
+      },
+    });
+  }
+
+  if (status === MembershipStatus.REJECTED) {
+    await prisma.member.delete({
+      where: {
+        id,
+      },
+    });
+  }
 };
 
 const ApprovedOrRejectAgency = async (
@@ -68,25 +83,25 @@ const ApprovedOrRejectAgency = async (
   return result;
 };
 
-const ApprovedOrRejectBlog = async (approvedId: string, payload: Partial<Blog>) => {
-  const reuslt = await prisma.blog.update(
-    {
-      where: {
-        id: payload.id
-      },
-      data: {
-        approved_by_id: approvedId,
-        is_published: payload.is_published,
-        is_approved: payload.is_approved
-      }
-    }
-  )
-  return reuslt
-}
-
+const ApprovedOrRejectBlog = async (
+  approvedId: string,
+  payload: Partial<Blog>,
+) => {
+  const reuslt = await prisma.blog.update({
+    where: {
+      id: payload.id,
+    },
+    data: {
+      approved_by_id: approvedId,
+      is_published: payload.is_published,
+      is_approved: payload.is_approved,
+    },
+  });
+  return reuslt;
+};
 
 export const AdminService = {
   ApprovedOrRejectMember,
   ApprovedOrRejectAgency,
-  ApprovedOrRejectBlog
-}
+  ApprovedOrRejectBlog,
+};

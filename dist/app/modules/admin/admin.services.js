@@ -26,17 +26,28 @@ const ApprovedOrRejectMember = (id, status, approved_by_id) => __awaiter(void 0,
     if (!existingMember) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This member is not found');
     }
-    const result = yield prisma_1.default.member.update({
-        where: {
-            id,
-        },
-        data: {
-            status,
-            approved_by_id,
-            approved_at: new Date(),
-        },
-    });
-    return result;
+    if (existingMember.status === client_1.MembershipStatus.APPROVED) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'This member is already approved');
+    }
+    if (status === client_1.MembershipStatus.APPROVED) {
+        yield prisma_1.default.member.update({
+            where: {
+                id,
+            },
+            data: {
+                status,
+                approved_by_id,
+                approved_at: new Date(),
+            },
+        });
+    }
+    if (status === client_1.MembershipStatus.REJECTED) {
+        yield prisma_1.default.member.delete({
+            where: {
+                id,
+            },
+        });
+    }
 });
 const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -67,18 +78,18 @@ const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0,
 const ApprovedOrRejectBlog = (approvedId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const reuslt = yield prisma_1.default.blog.update({
         where: {
-            id: payload.id
+            id: payload.id,
         },
         data: {
             approved_by_id: approvedId,
             is_published: payload.is_published,
-            is_approved: payload.is_approved
-        }
+            is_approved: payload.is_approved,
+        },
     });
     return reuslt;
 });
 exports.AdminService = {
     ApprovedOrRejectMember,
     ApprovedOrRejectAgency,
-    ApprovedOrRejectBlog
+    ApprovedOrRejectBlog,
 };
