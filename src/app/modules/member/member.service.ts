@@ -167,9 +167,9 @@ const GetMemberStats = async () => {
   });
 
   return {
-    total_member: totalMember,
-    total_approved_member: totalApprovedMember,
-    total_pending_member: totalPendingMember,
+    total_members: totalMember,
+    total_approved_members: totalApprovedMember,
+    total_pending_members: totalPendingMember,
   };
 };
 
