@@ -172,9 +172,9 @@ const GetMemberStats = () => __awaiter(void 0, void 0, void 0, function* () {
         },
     });
     return {
-        total_member: totalMember,
-        total_approved_member: totalApprovedMember,
-        total_pending_member: totalPendingMember,
+        total_members: totalMember,
+        total_approved_members: totalApprovedMember,
+        total_pending_members: totalPendingMember,
     };
 });
 const UpdateMember = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
