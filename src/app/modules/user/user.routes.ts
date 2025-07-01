@@ -2,6 +2,7 @@ import express from 'express';
 import { UserController } from './user.controller';
 import auth from '../../middlewares/auth';
 import { Role } from '@prisma/client';
+import { upload } from '../../utils/handelFile';
 
 const router = express.Router();
 
@@ -10,6 +11,12 @@ router.get(
   '/search',
   auth(Role.SUPER_ADMIN, Role.ADMIN),
   UserController.SearchUser,
+);
+router.patch(
+  '/profile-picture/:id',
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  upload.single('image'),
+  UserController.UpdateProfilePicture,
 );
 router.post('/', auth(Role.SUPER_ADMIN), UserController.CreateUser);
 router.get(

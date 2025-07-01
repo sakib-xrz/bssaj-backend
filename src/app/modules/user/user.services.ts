@@ -4,6 +4,13 @@ import calculatePagination from '../../utils/pagination';
 import prisma from '../../utils/prisma';
 import bcrypt from 'bcrypt';
 import config from '../../config';
+import {
+  deleteFromCloudinary,
+  extractPublicIdFromUrl,
+  uploadToCloudinary,
+} from '../../utils/handelFile';
+import httpStatus from 'http-status';
+import AppError from '../../errors/AppError';
 
 const CreateUser = async (data: any) => {
   const { email, password, name, ...rest } = data;
@@ -156,6 +163,45 @@ const UpdateUser = async (id: string, data: any) => {
   return result;
 };
 
+const UpdateProfilePicture = async (id: string, file: Express.Multer.File) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+  });
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  let profilePicture: string | null = user.profile_picture || null;
+
+  try {
+    if (user.profile_picture) {
+      const publicId = extractPublicIdFromUrl(user.profile_picture);
+      if (publicId) {
+        await deleteFromCloudinary([publicId]);
+      }
+    }
+
+    const uploadResult = await uploadToCloudinary(file, {
+      folder: 'profile-pictures',
+      public_id: `profile_picture_${Date.now()}`,
+    });
+    profilePicture = uploadResult?.secure_url || null;
+  } catch (error) {
+    console.log('Error from cloudinary while uploading profile picture', error);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Failed to upload profile picture',
+    );
+  }
+
+  const result = await prisma.user.update({
+    where: { id },
+    data: { profile_picture: profilePicture },
+  });
+
+  return result;
+};
+
 const DeleteUser = async (id: string) => {
   const transaction = await prisma.$transaction(async (tx) => {
     await tx.notification.deleteMany({
@@ -224,5 +270,6 @@ export const UserService = {
   GetUserById,
   SearchUser,
   UpdateUser,
+  UpdateProfilePicture,
   DeleteUser,
 };

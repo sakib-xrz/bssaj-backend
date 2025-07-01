@@ -3,6 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import pick from '../../utils/pick';
 import sendResponse from '../../utils/sendResponse';
 import { UserService } from './user.services';
+import AppError from '../../errors/AppError';
 
 const CreateUser = catchAsync(async (req, res) => {
   const result = await UserService.CreateUser(req.body);
@@ -57,6 +58,23 @@ const UpdateUser = catchAsync(async (req, res) => {
   });
 });
 
+const UpdateProfilePicture = catchAsync(async (req, res) => {
+  if (!req.file) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Image is required');
+  }
+
+  const result = await UserService.UpdateProfilePicture(
+    req.params.id,
+    req.file,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Profile picture updated successfully',
+    data: result,
+  });
+});
+
 const DeleteUser = catchAsync(async (req, res) => {
   await UserService.DeleteUser(req.params.id);
   sendResponse(res, {
@@ -72,5 +90,6 @@ export const UserController = {
   GetUserById,
   SearchUser,
   UpdateUser,
+  UpdateProfilePicture,
   DeleteUser,
 };
