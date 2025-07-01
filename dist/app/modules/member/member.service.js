@@ -153,6 +153,30 @@ const GetAllMember = (query, options) => __awaiter(void 0, void 0, void 0, funct
         data: result,
     };
 });
+const GetMemberStats = () => __awaiter(void 0, void 0, void 0, function* () {
+    const totalMember = yield prisma_1.default.member.count({
+        where: {
+            is_deleted: false,
+        },
+    });
+    const totalApprovedMember = yield prisma_1.default.member.count({
+        where: {
+            is_deleted: false,
+            status: 'APPROVED',
+        },
+    });
+    const totalPendingMember = yield prisma_1.default.member.count({
+        where: {
+            is_deleted: false,
+            status: 'PENDING',
+        },
+    });
+    return {
+        total_member: totalMember,
+        total_approved_member: totalApprovedMember,
+        total_pending_member: totalPendingMember,
+    };
+});
 const UpdateMember = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const member = yield prisma_1.default.member.findUnique({
         where: {
@@ -193,6 +217,7 @@ exports.MembersService = {
     CreateMember,
     GetSingleMember,
     GetAllMember,
+    GetMemberStats,
     UpdateMember,
     DeleteMember,
 };

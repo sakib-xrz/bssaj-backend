@@ -38,6 +38,16 @@ const SingleMember = catchAsync(async (req, res) => {
   });
 });
 
+const GetMemberStats = catchAsync(async (req, res) => {
+  const result = await MembersService.GetMemberStats();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Member stats fetched successfully',
+    data: result,
+  });
+});
+
 const UpdateMember = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await MembersService.UpdateMember(id, req.body);
@@ -60,12 +70,11 @@ const DeleteMember = catchAsync(async (req, res) => {
   });
 });
 
-
-
 export const MembersController = {
   CreateMember,
   GetAllMember,
   SingleMember,
+  GetMemberStats,
   UpdateMember,
   DeleteMember,
 };

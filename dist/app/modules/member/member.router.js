@@ -15,6 +15,7 @@ router
     .route('/')
     .post((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.USER), (0, validateRequest_1.default)(member_validation_1.MemberValidation.memberValidation), member_controller_1.MembersController.CreateMember)
     .get(member_controller_1.MembersController.GetAllMember);
+router.get('/stats', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), member_controller_1.MembersController.GetMemberStats);
 router
     .route('/:id')
     .get(member_controller_1.MembersController.SingleMember)

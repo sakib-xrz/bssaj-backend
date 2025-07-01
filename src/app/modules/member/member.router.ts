@@ -5,7 +5,6 @@ import validateRequest from '../../middlewares/validateRequest';
 import { MembersController } from './member.controller';
 import { MemberValidation } from './member.validation';
 
-
 const router = Router();
 
 router
@@ -16,6 +15,12 @@ router
     MembersController.CreateMember,
   )
   .get(MembersController.GetAllMember);
+
+router.get(
+  '/stats',
+  auth(Role.SUPER_ADMIN, Role.ADMIN),
+  MembersController.GetMemberStats,
+);
 
 router
   .route('/:id')

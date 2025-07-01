@@ -30,6 +30,9 @@ const pagination_1 = __importDefault(require("../../utils/pagination"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const config_1 = __importDefault(require("../../config"));
+const handelFile_1 = require("../../utils/handelFile");
+const http_status_1 = __importDefault(require("http-status"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const CreateUser = (data) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password, name } = data, rest = __rest(data, ["email", "password", "name"]);
     // Check if user already exists
@@ -157,6 +160,37 @@ const UpdateUser = (id, data) => __awaiter(void 0, void 0, void 0, function* () 
     });
     return result;
 });
+const UpdateProfilePicture = (id, file) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findUnique({
+        where: { id },
+    });
+    if (!user) {
+        throw new Error('User not found');
+    }
+    let profilePicture = user.profile_picture || null;
+    try {
+        if (user.profile_picture) {
+            const publicId = (0, handelFile_1.extractPublicIdFromUrl)(user.profile_picture);
+            if (publicId) {
+                yield (0, handelFile_1.deleteFromCloudinary)([publicId]);
+            }
+        }
+        const uploadResult = yield (0, handelFile_1.uploadToCloudinary)(file, {
+            folder: 'profile-pictures',
+            public_id: `profile_picture_${Date.now()}`,
+        });
+        profilePicture = (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.secure_url) || null;
+    }
+    catch (error) {
+        console.log('Error from cloudinary while uploading profile picture', error);
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to upload profile picture');
+    }
+    const result = yield prisma_1.default.user.update({
+        where: { id },
+        data: { profile_picture: profilePicture },
+    });
+    return result;
+});
 const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const transaction = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
         yield tx.notification.deleteMany({
@@ -212,5 +246,6 @@ exports.UserService = {
     GetUserById,
     SearchUser,
     UpdateUser,
+    UpdateProfilePicture,
     DeleteUser,
 };

@@ -145,6 +145,34 @@ const GetAllMember = async (query: any, options: any) => {
   };
 };
 
+const GetMemberStats = async () => {
+  const totalMember = await prisma.member.count({
+    where: {
+      is_deleted: false,
+    },
+  });
+
+  const totalApprovedMember = await prisma.member.count({
+    where: {
+      is_deleted: false,
+      status: 'APPROVED',
+    },
+  });
+
+  const totalPendingMember = await prisma.member.count({
+    where: {
+      is_deleted: false,
+      status: 'PENDING',
+    },
+  });
+
+  return {
+    total_member: totalMember,
+    total_approved_member: totalApprovedMember,
+    total_pending_member: totalPendingMember,
+  };
+};
+
 const UpdateMember = async (id: string, payload: Partial<Member>) => {
   const member = await prisma.member.findUnique({
     where: {
@@ -195,6 +223,7 @@ export const MembersService = {
   CreateMember,
   GetSingleMember,
   GetAllMember,
+  GetMemberStats,
   UpdateMember,
   DeleteMember,
 };

@@ -18,6 +18,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const pick_1 = __importDefault(require("../../utils/pick"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const user_services_1 = require("./user.services");
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const CreateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_services_1.UserService.CreateUser(req.body);
     (0, sendResponse_1.default)(res, {
@@ -66,6 +67,18 @@ const UpdateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result,
     });
 }));
+const UpdateProfilePicture = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.file) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Image is required');
+    }
+    const result = yield user_services_1.UserService.UpdateProfilePicture(req.params.id, req.file);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Profile picture updated successfully',
+        data: result,
+    });
+}));
 const DeleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield user_services_1.UserService.DeleteUser(req.params.id);
     (0, sendResponse_1.default)(res, {
@@ -80,5 +93,6 @@ exports.UserController = {
     GetUserById,
     SearchUser,
     UpdateUser,
+    UpdateProfilePicture,
     DeleteUser,
 };
