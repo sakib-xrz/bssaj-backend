@@ -5,17 +5,18 @@ import { AgencyService } from './agency.services';
 import pick from '../../utils/pick';
 
 const CreateAgency = catchAsync(async (req, res) => {
-  const result = await AgencyService.CreateAgency(req.body);
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const result = await AgencyService.CreateAgency(req.body, files);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.CREATED,
-    message: 'Agency created successfully',
+    message: 'Agency and user created successfully',
     data: result,
   });
 });
 
 const GetAllAgency = catchAsync(async (req, res) => {
-  const query = pick(req.query, ['name', 'search']);
+  const query = pick(req.query, ['name', 'search', 'status']);
   const options = pick(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
   const result = await AgencyService.GetAllAgency(query, options);
   sendResponse(res, {
@@ -40,7 +41,8 @@ const GetSingleAgency = catchAsync(async (req, res) => {
 
 const UpdateAgency = catchAsync(async (req, res) => {
   const id = req.params.id;
-  const result = await AgencyService.UpdateAgency(req.body, id);
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const result = await AgencyService.UpdateAgency(req.body, id, files);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -59,8 +61,6 @@ const DeleteAgency = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
-
 
 export const AgencyController = {
   CreateAgency,
