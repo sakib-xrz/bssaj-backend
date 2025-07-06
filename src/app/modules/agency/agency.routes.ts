@@ -18,6 +18,8 @@ router
   )
   .get(AgencyController.GetAllAgency);
 
+router.route('/stats').get(AgencyController.GetAgencyStats);
+
 router
   .route('/:id')
   .get(AgencyController.GetSingleAgency)

@@ -5,7 +5,7 @@ import { AgencyService } from './agency.services';
 import pick from '../../utils/pick';
 
 const CreateAgency = catchAsync(async (req, res) => {
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const files = req.files as Express.Multer.File[];
   const result = await AgencyService.CreateAgency(req.body, files);
   sendResponse(res, {
     success: true,
@@ -28,6 +28,16 @@ const GetAllAgency = catchAsync(async (req, res) => {
   });
 });
 
+const GetAgencyStats = catchAsync(async (req, res) => {
+  const result = await AgencyService.GetAgencyStats();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Agency statistics retrieved successfully',
+    data: result,
+  });
+});
+
 const GetSingleAgency = catchAsync(async (req, res) => {
   const id = req.params.id;
   const result = await AgencyService.GetSingleAgency(id);
@@ -41,7 +51,7 @@ const GetSingleAgency = catchAsync(async (req, res) => {
 
 const UpdateAgency = catchAsync(async (req, res) => {
   const id = req.params.id;
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const files = req.files as Express.Multer.File[];
   const result = await AgencyService.UpdateAgency(req.body, id, files);
   sendResponse(res, {
     success: true,
@@ -65,6 +75,7 @@ const DeleteAgency = catchAsync(async (req, res) => {
 export const AgencyController = {
   CreateAgency,
   GetAllAgency,
+  GetAgencyStats,
   GetSingleAgency,
   UpdateAgency,
   DeleteAgency,

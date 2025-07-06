@@ -75,7 +75,6 @@ model Agency {
   established_year Int?
   director_name    String?
   status           AgencyStatus @default(PENDING)
-  is_approved      Boolean      @default(false)
   approved_at      DateTime?
   approved_by_id   String?
   is_deleted       Boolean      @default(false)

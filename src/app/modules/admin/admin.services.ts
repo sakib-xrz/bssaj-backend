@@ -61,23 +61,38 @@ const ApprovedOrRejectAgency = async (
       throw new AppError(httpStatus.NOT_FOUND, 'Agency not found');
     }
 
-    const updatedAgency = await tx.agency.update({
-      where: { id },
-      data: {
-        status: status,
-        approved_by_id,
-        approved_at: new Date(),
-      },
-    });
+    if (existingAgency.status === AgencyStatus.APPROVED) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'This agency is already approved',
+      );
+    }
 
     if (status === AgencyStatus.APPROVED) {
+      const updatedAgency = await tx.agency.update({
+        where: { id },
+        data: {
+          status: status,
+          approved_by_id,
+          approved_at: new Date(),
+        },
+      });
+
       await tx.user.update({
         where: { id: existingAgency.user_id },
         data: { role: 'AGENCY' },
       });
+
+      return updatedAgency;
     }
 
-    return updatedAgency;
+    if (status === AgencyStatus.REJECTED) {
+      await tx.agency.delete({
+        where: { id },
+      });
+
+      return null;
+    }
   });
 
   return result;

@@ -89,7 +89,6 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
         facebook_url: payload.facebook_url || null,
         logo: logo,
         status: payload.status || 'PENDING',
-        is_approved: payload.is_approved === 'true' ? true : false,
         is_deleted: payload.is_deleted === 'true' ? true : false,
       };
 
@@ -204,6 +203,42 @@ const GetAllAgency = async (query: any, options: any) => {
   };
 };
 
+const GetAgencyStats = async () => {
+  const totalAgencies = await prisma.agency.count({
+    where: {
+      is_deleted: false,
+    },
+  });
+
+  const totalApprovedAgencies = await prisma.agency.count({
+    where: {
+      is_deleted: false,
+      status: 'APPROVED',
+    },
+  });
+
+  const totalPendingAgencies = await prisma.agency.count({
+    where: {
+      is_deleted: false,
+      status: 'PENDING',
+    },
+  });
+
+  const totalRejectedAgencies = await prisma.agency.count({
+    where: {
+      is_deleted: false,
+      status: 'REJECTED',
+    },
+  });
+
+  return {
+    total_agencies: totalAgencies,
+    total_approved_agencies: totalApprovedAgencies,
+    total_pending_agencies: totalPendingAgencies,
+    total_rejected_agencies: totalRejectedAgencies,
+  };
+};
+
 const GetSingleAgency = async (id: string) => {
   const result = await prisma.agency.findUnique({
     where: { id, is_deleted: false },
@@ -217,6 +252,11 @@ const GetSingleAgency = async (id: string) => {
         },
       },
       success_stories: true,
+      approved_by: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
@@ -373,6 +413,7 @@ const DeleteAgency = async (id: string) => {
 export const AgencyService = {
   CreateAgency,
   GetAllAgency,
+  GetAgencyStats,
   GetSingleAgency,
   UpdateAgency,
   DeleteAgency,
