@@ -91,6 +91,10 @@ const ApprovedOrRejectAgency = async (
         where: { id },
       });
 
+      await tx.user.delete({
+        where: { id: existingAgency.user_id },
+      });
+
       return null;
     }
   });

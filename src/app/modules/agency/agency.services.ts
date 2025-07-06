@@ -67,7 +67,7 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
-          name: payload.name,
+          name: payload.director_name,
           email: payload.contact_email,
           password: hashedPassword,
           role: Role.AGENCY,
@@ -395,17 +395,48 @@ const DeleteAgency = async (id: string) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Agency not found');
   }
 
-  // Soft delete agency and associated user
-  await prisma.$transaction([
-    prisma.agency.update({
+  // Hard delete agency and associated data
+  await prisma.$transaction(async (tx) => {
+    // Delete success stories first (due to foreign key constraints)
+    await tx.agencySuccessStory.deleteMany({
+      where: { agency_id: id },
+    });
+
+    // Delete the agency
+    await tx.agency.delete({
       where: { id },
-      data: { is_deleted: true },
-    }),
-    prisma.user.update({
+    });
+
+    // Delete the associated user
+    await tx.user.delete({
       where: { id: existingAgency.user_id },
-      data: { is_deleted: true },
-    }),
-  ]);
+    });
+  });
+
+  // Clean up uploaded files from cloud storage
+  const filesToDelete: string[] = [];
+
+  // Add logo to deletion list
+  if (existingAgency.logo) {
+    const logoPublicId = extractPublicIdFromUrl(existingAgency.logo);
+    if (logoPublicId) filesToDelete.push(logoPublicId);
+  }
+
+  // Add success story images to deletion list
+  if (existingAgency.success_stories.length > 0) {
+    const successStoryPublicIds = existingAgency.success_stories
+      .map((story) => extractPublicIdFromUrl(story.image))
+      .filter((id) => id) as string[];
+    filesToDelete.push(...successStoryPublicIds);
+  }
+
+  // Delete files from cloudinary
+  if (filesToDelete.length > 0) {
+    await deleteFromCloudinary(filesToDelete).catch(() => {
+      // Log error but don't fail the operation
+      console.error('Failed to delete some files from cloudinary');
+    });
+  }
 
   return { message: 'Agency and associated user deleted successfully' };
 };
