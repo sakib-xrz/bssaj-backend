@@ -25,7 +25,7 @@ const ApprovedOrRejectAgency = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: `Successfully ${result.status.toLowerCase()} the agency.`,
+    message: 'Agency status updated Successfully',
     data: result,
   });
 });
