@@ -20,6 +20,7 @@ app.use(
       'http://localhost:3000',
       'https://admin.bssaj.org',
       'https://admin-bssaj.vercel.app',
+      'https://bssaj.org',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders:
