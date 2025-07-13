@@ -32,7 +32,7 @@ const ApprovedOrRejectAgency = (0, catchAsync_1.default)((req, res) => __awaiter
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: `Successfully ${result.status.toLowerCase()} the agency.`,
+        message: 'Agency status updated Successfully',
         data: result,
     });
 }));

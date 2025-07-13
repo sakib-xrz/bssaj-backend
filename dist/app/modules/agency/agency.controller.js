@@ -19,16 +19,17 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const agency_services_1 = require("./agency.services");
 const pick_1 = __importDefault(require("../../utils/pick"));
 const CreateAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield agency_services_1.AgencyService.CreateAgency(req.body);
+    const files = req.files;
+    const result = yield agency_services_1.AgencyService.CreateAgency(req.body, files);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.CREATED,
-        message: 'Agency created successfully',
+        message: 'Agency and user created successfully',
         data: result,
     });
 }));
 const GetAllAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = (0, pick_1.default)(req.query, ['name', 'search']);
+    const query = (0, pick_1.default)(req.query, ['name', 'search', 'status']);
     const options = (0, pick_1.default)(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
     const result = yield agency_services_1.AgencyService.GetAllAgency(query, options);
     (0, sendResponse_1.default)(res, {
@@ -37,6 +38,15 @@ const GetAllAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         message: 'Agencies retrieved successfully',
         meta: result.meta,
         data: result.data,
+    });
+}));
+const GetAgencyStats = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield agency_services_1.AgencyService.GetAgencyStats();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Agency statistics retrieved successfully',
+        data: result,
     });
 }));
 const GetSingleAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -51,7 +61,8 @@ const GetSingleAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0
 }));
 const UpdateAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const result = yield agency_services_1.AgencyService.UpdateAgency(req.body, id);
+    const files = req.files;
+    const result = yield agency_services_1.AgencyService.UpdateAgency(req.body, id, files);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -72,6 +83,7 @@ const DeleteAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
 exports.AgencyController = {
     CreateAgency,
     GetAllAgency,
+    GetAgencyStats,
     GetSingleAgency,
     UpdateAgency,
     DeleteAgency,

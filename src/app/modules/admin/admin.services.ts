@@ -2,6 +2,10 @@ import { AgencyStatus, Blog, MembershipStatus } from '@prisma/client';
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
+import {
+  deleteMultipleFromSpaces,
+  extractKeyFromUrl,
+} from '../../utils/handelFile';
 
 const ApprovedOrRejectMember = async (
   id: string,
@@ -52,23 +56,27 @@ const ApprovedOrRejectAgency = async (
   status: AgencyStatus,
   approved_by_id: string,
 ) => {
-  const result = await prisma.$transaction(async (tx) => {
-    const existingAgency = await tx.agency.findUnique({
-      where: { id },
-    });
+  const existingAgency = await prisma.agency.findUnique({
+    where: { id },
+    include: {
+      success_stories: true,
+      user: true,
+    },
+  });
 
-    if (!existingAgency) {
-      throw new AppError(httpStatus.NOT_FOUND, 'Agency not found');
-    }
+  if (!existingAgency) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Agency not found');
+  }
 
-    if (existingAgency.status === AgencyStatus.APPROVED) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        'This agency is already approved',
-      );
-    }
+  if (existingAgency.status === AgencyStatus.APPROVED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'This agency is already approved',
+    );
+  }
 
-    if (status === AgencyStatus.APPROVED) {
+  if (status === AgencyStatus.APPROVED) {
+    const result = await prisma.$transaction(async (tx) => {
       const updatedAgency = await tx.agency.update({
         where: { id },
         data: {
@@ -84,9 +92,30 @@ const ApprovedOrRejectAgency = async (
       });
 
       return updatedAgency;
+    });
+
+    return result;
+  }
+
+  if (status === AgencyStatus.REJECTED) {
+    const filesToDelete: string[] = [];
+
+    if (existingAgency.logo) {
+      const logoKey = extractKeyFromUrl(existingAgency.logo);
+      if (logoKey) filesToDelete.push(logoKey);
     }
 
-    if (status === AgencyStatus.REJECTED) {
+    if (
+      existingAgency.success_stories &&
+      existingAgency.success_stories.length > 0
+    ) {
+      const successStoryKeys = existingAgency.success_stories
+        .map((story) => extractKeyFromUrl(story.image))
+        .filter((key) => key) as string[];
+      filesToDelete.push(...successStoryKeys);
+    }
+
+    await prisma.$transaction(async (tx) => {
       await tx.agency.delete({
         where: { id },
       });
@@ -94,12 +123,21 @@ const ApprovedOrRejectAgency = async (
       await tx.user.delete({
         where: { id: existingAgency.user_id },
       });
+    });
 
-      return null;
+    if (filesToDelete.length > 0) {
+      try {
+        await deleteMultipleFromSpaces(filesToDelete);
+      } catch (error) {
+        console.error(
+          'Failed to delete some files from DigitalOcean Spaces:',
+          error,
+        );
+      }
     }
-  });
 
-  return result;
+    return null;
+  }
 };
 
 const ApprovedOrRejectBlog = async (

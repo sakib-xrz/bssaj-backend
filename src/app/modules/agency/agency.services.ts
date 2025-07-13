@@ -6,10 +6,12 @@ import config from '../../config';
 import AppError from '../../errors/AppError';
 import calculatePagination from '../../utils/pagination';
 import prisma from '../../utils/prisma';
+import path from 'path';
 import {
-  uploadToCloudinary,
-  deleteFromCloudinary,
-  extractPublicIdFromUrl,
+  uploadToSpaces,
+  deleteFromSpaces,
+  deleteMultipleFromSpaces,
+  extractKeyFromUrl,
 } from '../../utils/handelFile';
 import AgencyUtils from './agency.utils';
 
@@ -38,11 +40,11 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
 
     const logoFile = files?.find((file) => file.fieldname === 'logo');
     if (logoFile) {
-      const logoUploadResult = await uploadToCloudinary(logoFile, {
+      const logoUploadResult = await uploadToSpaces(logoFile, {
         folder: 'agency-logos',
-        public_id: `agency_logo_${Date.now()}`,
+        filename: `agency_logo_${Date.now()}${path.extname(logoFile.originalname)}`,
       });
-      logo = logoUploadResult?.secure_url || null;
+      logo = logoUploadResult?.url || null;
     }
 
     const successStoryFiles =
@@ -52,15 +54,15 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
 
     if (successStoryFiles.length > 0) {
       const uploadPromises = successStoryFiles.map((file, index) =>
-        uploadToCloudinary(file, {
+        uploadToSpaces(file, {
           folder: 'agency-success-stories',
-          public_id: `success_story_${Date.now()}_${index}`,
+          filename: `success_story_${Date.now()}_${index}${path.extname(file.originalname)}`,
         }),
       );
 
       const uploadResults = await Promise.all(uploadPromises);
       uploadedSuccessStories = uploadResults
-        .map((result) => result?.secure_url)
+        .map((result) => result?.url)
         .filter((url) => url !== undefined) as string[];
     }
 
@@ -128,15 +130,14 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
     };
   } catch (error) {
     if (logo) {
-      const publicId = extractPublicIdFromUrl(logo);
-      if (publicId) await deleteFromCloudinary([publicId]).catch(() => {});
+      const key = extractKeyFromUrl(logo);
+      if (key) await deleteFromSpaces(key).catch(() => {});
     }
     if (uploadedSuccessStories.length > 0) {
-      const publicIds = uploadedSuccessStories
-        .map((url) => extractPublicIdFromUrl(url))
-        .filter((id) => id) as string[];
-      if (publicIds.length > 0)
-        await deleteFromCloudinary(publicIds).catch(() => {});
+      const keys = uploadedSuccessStories
+        .map((url) => extractKeyFromUrl(url))
+        .filter((key) => key) as string[];
+      if (keys.length > 0) await deleteMultipleFromSpaces(keys).catch(() => {});
     }
 
     throw error;
@@ -290,16 +291,15 @@ const UpdateAgency = async (
     if (logoFile) {
       // Delete old logo if exists
       if (existingAgency.logo) {
-        const oldPublicId = extractPublicIdFromUrl(existingAgency.logo);
-        if (oldPublicId)
-          await deleteFromCloudinary([oldPublicId]).catch(() => {});
+        const key = extractKeyFromUrl(existingAgency.logo);
+        if (key) await deleteFromSpaces(key).catch(() => {});
       }
 
-      const logoUploadResult = await uploadToCloudinary(logoFile, {
+      const logoUploadResult = await uploadToSpaces(logoFile, {
         folder: 'agency-logos',
-        public_id: `agency_logo_${Date.now()}`,
+        filename: `agency_logo_${Date.now()}${path.extname(logoFile.originalname)}`,
       });
-      logo = logoUploadResult?.secure_url || null;
+      logo = logoUploadResult?.url || null;
     }
 
     // Handle success story images - filter files with fieldname starting with 'successStoryImages'
@@ -312,10 +312,10 @@ const UpdateAgency = async (
       // Delete old success stories
       if (existingAgency.success_stories.length > 0) {
         const oldPublicIds = existingAgency.success_stories
-          .map((story) => extractPublicIdFromUrl(story.image))
+          .map((story) => extractKeyFromUrl(story.image))
           .filter((id) => id) as string[];
         if (oldPublicIds.length > 0) {
-          await deleteFromCloudinary(oldPublicIds).catch(() => {});
+          await deleteMultipleFromSpaces(oldPublicIds).catch(() => {});
         }
 
         // Delete old success story records
@@ -326,15 +326,15 @@ const UpdateAgency = async (
 
       // Upload new success stories
       const uploadPromises = successStoryFiles.map((file, index) =>
-        uploadToCloudinary(file, {
+        uploadToSpaces(file, {
           folder: 'agency-success-stories',
-          public_id: `success_story_${Date.now()}_${index}`,
+          filename: `success_story_${Date.now()}_${index}${path.extname(file.originalname)}`,
         }),
       );
 
       const uploadResults = await Promise.all(uploadPromises);
       newSuccessStories = uploadResults
-        .map((result) => result?.secure_url)
+        .map((result) => result?.url)
         .filter((url) => url !== undefined) as string[];
 
       // Create new success story records
@@ -376,10 +376,10 @@ const UpdateAgency = async (
     // Clean up newly uploaded files on error
     if (newSuccessStories.length > 0) {
       const publicIds = newSuccessStories
-        .map((url) => extractPublicIdFromUrl(url))
+        .map((url) => extractKeyFromUrl(url))
         .filter((id) => id) as string[];
       if (publicIds.length > 0)
-        await deleteFromCloudinary(publicIds).catch(() => {});
+        await deleteMultipleFromSpaces(publicIds).catch(() => {});
     }
     throw error;
   }
@@ -418,23 +418,23 @@ const DeleteAgency = async (id: string) => {
 
   // Add logo to deletion list
   if (existingAgency.logo) {
-    const logoPublicId = extractPublicIdFromUrl(existingAgency.logo);
+    const logoPublicId = extractKeyFromUrl(existingAgency.logo);
     if (logoPublicId) filesToDelete.push(logoPublicId);
   }
 
   // Add success story images to deletion list
   if (existingAgency.success_stories.length > 0) {
     const successStoryPublicIds = existingAgency.success_stories
-      .map((story) => extractPublicIdFromUrl(story.image))
+      .map((story) => extractKeyFromUrl(story.image))
       .filter((id) => id) as string[];
     filesToDelete.push(...successStoryPublicIds);
   }
 
-  // Delete files from cloudinary
+  // Delete files from DigitalOcean Spaces
   if (filesToDelete.length > 0) {
-    await deleteFromCloudinary(filesToDelete).catch(() => {
+    await deleteMultipleFromSpaces(filesToDelete).catch(() => {
       // Log error but don't fail the operation
-      console.error('Failed to delete some files from cloudinary');
+      console.error('Failed to delete some files from DigitalOcean Spaces');
     });
   }
 

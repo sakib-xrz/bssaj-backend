@@ -4,10 +4,11 @@ import calculatePagination from '../../utils/pagination';
 import prisma from '../../utils/prisma';
 import bcrypt from 'bcrypt';
 import config from '../../config';
+import path from 'path';
 import {
-  deleteFromCloudinary,
-  extractPublicIdFromUrl,
-  uploadToCloudinary,
+  deleteFromSpaces,
+  extractKeyFromUrl,
+  uploadToSpaces,
 } from '../../utils/handelFile';
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
@@ -175,19 +176,22 @@ const UpdateProfilePicture = async (id: string, file: Express.Multer.File) => {
 
   try {
     if (user.profile_picture) {
-      const publicId = extractPublicIdFromUrl(user.profile_picture);
-      if (publicId) {
-        await deleteFromCloudinary([publicId]);
+      const key = extractKeyFromUrl(user.profile_picture);
+      if (key) {
+        await deleteFromSpaces(key);
       }
     }
 
-    const uploadResult = await uploadToCloudinary(file, {
+    const uploadResult = await uploadToSpaces(file, {
       folder: 'profile-pictures',
-      public_id: `profile_picture_${Date.now()}`,
+      filename: `profile_picture_${Date.now()}${path.extname(file.originalname)}`,
     });
-    profilePicture = uploadResult?.secure_url || null;
+    profilePicture = uploadResult?.url || null;
   } catch (error) {
-    console.log('Error from cloudinary while uploading profile picture', error);
+    console.log(
+      'Error from DigitalOcean Spaces while uploading profile picture',
+      error,
+    );
     throw new AppError(
       httpStatus.BAD_REQUEST,
       'Failed to upload profile picture',

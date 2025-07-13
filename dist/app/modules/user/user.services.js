@@ -30,6 +30,7 @@ const pagination_1 = __importDefault(require("../../utils/pagination"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const config_1 = __importDefault(require("../../config"));
+const path_1 = __importDefault(require("path"));
 const handelFile_1 = require("../../utils/handelFile");
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
@@ -170,19 +171,19 @@ const UpdateProfilePicture = (id, file) => __awaiter(void 0, void 0, void 0, fun
     let profilePicture = user.profile_picture || null;
     try {
         if (user.profile_picture) {
-            const publicId = (0, handelFile_1.extractPublicIdFromUrl)(user.profile_picture);
-            if (publicId) {
-                yield (0, handelFile_1.deleteFromCloudinary)([publicId]);
+            const key = (0, handelFile_1.extractKeyFromUrl)(user.profile_picture);
+            if (key) {
+                yield (0, handelFile_1.deleteFromSpaces)(key);
             }
         }
-        const uploadResult = yield (0, handelFile_1.uploadToCloudinary)(file, {
+        const uploadResult = yield (0, handelFile_1.uploadToSpaces)(file, {
             folder: 'profile-pictures',
-            public_id: `profile_picture_${Date.now()}`,
+            filename: `profile_picture_${Date.now()}${path_1.default.extname(file.originalname)}`,
         });
-        profilePicture = (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.secure_url) || null;
+        profilePicture = (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.url) || null;
     }
     catch (error) {
-        console.log('Error from cloudinary while uploading profile picture', error);
+        console.log('Error from DigitalOcean Spaces while uploading profile picture', error);
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to upload profile picture');
     }
     const result = yield prisma_1.default.user.update({

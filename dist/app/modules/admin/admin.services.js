@@ -17,6 +17,7 @@ const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
+const handelFile_1 = require("../../utils/handelFile");
 const ApprovedOrRejectMember = (id, status, approved_by_id) => __awaiter(void 0, void 0, void 0, function* () {
     const existingMember = yield prisma_1.default.member.findUnique({
         where: {
@@ -50,30 +51,69 @@ const ApprovedOrRejectMember = (id, status, approved_by_id) => __awaiter(void 0,
     }
 });
 const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-        const existingAgency = yield tx.agency.findUnique({
-            where: { id },
-        });
-        if (!existingAgency) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Agency not found');
-        }
-        const updatedAgency = yield tx.agency.update({
-            where: { id },
-            data: {
-                status: status,
-                approved_by_id,
-                approved_at: new Date(),
-            },
-        });
-        if (status === client_1.AgencyStatus.APPROVED) {
+    const existingAgency = yield prisma_1.default.agency.findUnique({
+        where: { id },
+        include: {
+            success_stories: true,
+            user: true,
+        },
+    });
+    if (!existingAgency) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Agency not found');
+    }
+    if (existingAgency.status === client_1.AgencyStatus.APPROVED) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'This agency is already approved');
+    }
+    if (status === client_1.AgencyStatus.APPROVED) {
+        const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+            const updatedAgency = yield tx.agency.update({
+                where: { id },
+                data: {
+                    status: status,
+                    approved_by_id,
+                    approved_at: new Date(),
+                },
+            });
             yield tx.user.update({
                 where: { id: existingAgency.user_id },
                 data: { role: 'AGENCY' },
             });
+            return updatedAgency;
+        }));
+        return result;
+    }
+    if (status === client_1.AgencyStatus.REJECTED) {
+        const filesToDelete = [];
+        if (existingAgency.logo) {
+            const logoKey = (0, handelFile_1.extractKeyFromUrl)(existingAgency.logo);
+            if (logoKey)
+                filesToDelete.push(logoKey);
         }
-        return updatedAgency;
-    }));
-    return result;
+        if (existingAgency.success_stories &&
+            existingAgency.success_stories.length > 0) {
+            const successStoryKeys = existingAgency.success_stories
+                .map((story) => (0, handelFile_1.extractKeyFromUrl)(story.image))
+                .filter((key) => key);
+            filesToDelete.push(...successStoryKeys);
+        }
+        yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+            yield tx.agency.delete({
+                where: { id },
+            });
+            yield tx.user.delete({
+                where: { id: existingAgency.user_id },
+            });
+        }));
+        if (filesToDelete.length > 0) {
+            try {
+                yield (0, handelFile_1.deleteMultipleFromSpaces)(filesToDelete);
+            }
+            catch (error) {
+                console.error('Failed to delete some files from DigitalOcean Spaces:', error);
+            }
+        }
+        return null;
+    }
 });
 const ApprovedOrRejectBlog = (approvedId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const reuslt = yield prisma_1.default.blog.update({
