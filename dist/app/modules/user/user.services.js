@@ -208,6 +208,12 @@ const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
             where: { approved_by_id: id },
             data: { approved_by_id: null },
         });
+        yield tx.agencySuccessStory.deleteMany({
+            where: { agency_id: id },
+        });
+        yield tx.agency.deleteMany({
+            where: { user_id: id },
+        });
         yield tx.payment.deleteMany({
             where: { user_id: id },
         });

@@ -227,6 +227,14 @@ const DeleteUser = async (id: string) => {
       data: { approved_by_id: null },
     });
 
+    await tx.agencySuccessStory.deleteMany({
+      where: { agency_id: id },
+    });
+
+    await tx.agency.deleteMany({
+      where: { user_id: id },
+    });
+
     await tx.payment.deleteMany({
       where: { user_id: id },
     });
