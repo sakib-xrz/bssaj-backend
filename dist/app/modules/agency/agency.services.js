@@ -26,17 +26,37 @@ const handelFile_1 = require("../../utils/handelFile");
 const agency_utils_1 = __importDefault(require("./agency.utils"));
 const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, function* () {
     let logo = null;
+    let coverPhoto = null;
     let uploadedSuccessStories = [];
     let generatedPassword = '';
+    let userId;
+    let hashedPassword = '';
     try {
-        const existingUser = yield prisma_1.default.user.findUnique({
-            where: { email: payload.contact_email },
-        });
-        if (existingUser) {
-            throw new AppError_1.default(http_status_1.default.CONFLICT, 'User with this email already exists');
+        // Check if we're using an existing user or creating a new one
+        if (payload.user_selection_type === 'existing' && payload.user_id) {
+            // Using existing user
+            const existingUser = yield prisma_1.default.user.findUnique({
+                where: { id: payload.user_id, is_deleted: false },
+            });
+            if (!existingUser) {
+                throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Selected user not found');
+            }
+            // Note: User can now have multiple agencies, so we don't check for existing agency
+            userId = existingUser.id;
         }
-        generatedPassword = agency_utils_1.default.generateRandomPassword(12);
-        const hashedPassword = yield bcrypt_1.default.hash(generatedPassword, Number(config_1.default.bcrypt_salt_rounds));
+        else {
+            // Creating new user
+            const existingUser = yield prisma_1.default.user.findUnique({
+                where: { email: payload.contact_email },
+            });
+            if (existingUser) {
+                throw new AppError_1.default(http_status_1.default.CONFLICT, 'User with this email already exists');
+            }
+            generatedPassword = agency_utils_1.default.generateRandomPassword(12);
+            hashedPassword = yield bcrypt_1.default.hash(generatedPassword, Number(config_1.default.bcrypt_salt_rounds));
+            // We'll create the user in the transaction
+            userId = ''; // Will be set in transaction
+        }
         const logoFile = files === null || files === void 0 ? void 0 : files.find((file) => file.fieldname === 'logo');
         if (logoFile) {
             const logoUploadResult = yield (0, handelFile_1.uploadToSpaces)(logoFile, {
@@ -44,6 +64,14 @@ const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, funct
                 filename: `agency_logo_${Date.now()}${path_1.default.extname(logoFile.originalname)}`,
             });
             logo = (logoUploadResult === null || logoUploadResult === void 0 ? void 0 : logoUploadResult.url) || null;
+        }
+        const coverPhotoFile = files === null || files === void 0 ? void 0 : files.find((file) => file.fieldname === 'cover_photo');
+        if (coverPhotoFile) {
+            const coverPhotoUploadResult = yield (0, handelFile_1.uploadToSpaces)(coverPhotoFile, {
+                folder: 'agency-cover-photos',
+                filename: `agency_cover_${Date.now()}${path_1.default.extname(coverPhotoFile.originalname)}`,
+            });
+            coverPhoto = (coverPhotoUploadResult === null || coverPhotoUploadResult === void 0 ? void 0 : coverPhotoUploadResult.url) || null;
         }
         const successStoryFiles = (files === null || files === void 0 ? void 0 : files.filter((file) => file.fieldname.startsWith('successStoryImages'))) || [];
         if (successStoryFiles.length > 0) {
@@ -57,16 +85,25 @@ const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, funct
                 .filter((url) => url !== undefined);
         }
         const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-            const user = yield tx.user.create({
-                data: {
-                    name: payload.director_name,
-                    email: payload.contact_email,
-                    password: hashedPassword,
-                    role: client_1.Role.AGENCY,
-                },
-            });
+            let finalUserId;
+            if (payload.user_selection_type === 'existing' && payload.user_id) {
+                // Use existing user
+                finalUserId = userId;
+            }
+            else {
+                // Create new user
+                const user = yield tx.user.create({
+                    data: {
+                        name: payload.director_name,
+                        email: payload.contact_email,
+                        password: hashedPassword,
+                        role: client_1.Role.AGENCY,
+                    },
+                });
+                finalUserId = user.id;
+            }
             const agencyData = {
-                user_id: user.id,
+                user_id: finalUserId,
                 name: payload.name,
                 contact_email: payload.contact_email,
                 contact_phone: payload.contact_phone || null,
@@ -79,6 +116,7 @@ const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, funct
                 address: payload.address || null,
                 facebook_url: payload.facebook_url || null,
                 logo: logo,
+                cover_photo: coverPhoto,
                 status: payload.status || 'PENDING',
                 is_deleted: payload.is_deleted === 'true' ? true : false,
             };
@@ -114,6 +152,11 @@ const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, funct
     catch (error) {
         if (logo) {
             const key = (0, handelFile_1.extractKeyFromUrl)(logo);
+            if (key)
+                yield (0, handelFile_1.deleteFromSpaces)(key).catch(() => { });
+        }
+        if (coverPhoto) {
+            const key = (0, handelFile_1.extractKeyFromUrl)(coverPhoto);
             if (key)
                 yield (0, handelFile_1.deleteFromSpaces)(key).catch(() => { });
         }
@@ -241,6 +284,7 @@ const UpdateAgency = (payload, id, files) => __awaiter(void 0, void 0, void 0, f
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Agency not found');
     }
     let logo = existingAgency.logo;
+    let coverPhoto = existingAgency.cover_photo;
     let newSuccessStories = [];
     try {
         // Handle logo update - find logo file from array
@@ -257,6 +301,21 @@ const UpdateAgency = (payload, id, files) => __awaiter(void 0, void 0, void 0, f
                 filename: `agency_logo_${Date.now()}${path_1.default.extname(logoFile.originalname)}`,
             });
             logo = (logoUploadResult === null || logoUploadResult === void 0 ? void 0 : logoUploadResult.url) || null;
+        }
+        // Handle cover photo update - find cover_photo file from array
+        const coverPhotoFile = files === null || files === void 0 ? void 0 : files.find((file) => file.fieldname === 'cover_photo');
+        if (coverPhotoFile) {
+            // Delete old cover photo if exists
+            if (existingAgency.cover_photo) {
+                const key = (0, handelFile_1.extractKeyFromUrl)(existingAgency.cover_photo);
+                if (key)
+                    yield (0, handelFile_1.deleteFromSpaces)(key).catch(() => { });
+            }
+            const coverPhotoUploadResult = yield (0, handelFile_1.uploadToSpaces)(coverPhotoFile, {
+                folder: 'agency-cover-photos',
+                filename: `agency_cover_${Date.now()}${path_1.default.extname(coverPhotoFile.originalname)}`,
+            });
+            coverPhoto = (coverPhotoUploadResult === null || coverPhotoUploadResult === void 0 ? void 0 : coverPhotoUploadResult.url) || null;
         }
         // Handle success story images - filter files with fieldname starting with 'successStoryImages'
         const successStoryFiles = (files === null || files === void 0 ? void 0 : files.filter((file) => file.fieldname.startsWith('successStoryImages'))) || [];
@@ -292,7 +351,7 @@ const UpdateAgency = (payload, id, files) => __awaiter(void 0, void 0, void 0, f
             }));
             yield Promise.all(successStoryPromises);
         }
-        const updateData = Object.assign(Object.assign({}, payload), { logo });
+        const updateData = Object.assign(Object.assign({}, payload), { logo, cover_photo: coverPhoto });
         const result = yield prisma_1.default.agency.update({
             where: { id },
             data: updateData,
@@ -340,10 +399,7 @@ const DeleteAgency = (id) => __awaiter(void 0, void 0, void 0, function* () {
         yield tx.agency.delete({
             where: { id },
         });
-        // Delete the associated user
-        yield tx.user.delete({
-            where: { id: existingAgency.user_id },
-        });
+        // Don't delete the user - they might have other agencies or data
     }));
     // Clean up uploaded files from cloud storage
     const filesToDelete = [];

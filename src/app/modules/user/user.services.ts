@@ -86,11 +86,6 @@ const GetAllUser = async (query: any, options: any) => {
       name: true,
       email: true,
       role: true,
-      agency: {
-        select: {
-          name: true,
-        },
-      },
       created_at: true,
     },
     skip,
@@ -255,7 +250,7 @@ const DeleteUser = async (id: string) => {
       .catch(() => {});
 
     await tx.agency
-      .delete({
+      .deleteMany({
         where: { user_id: id },
       })
       .catch(() => {});

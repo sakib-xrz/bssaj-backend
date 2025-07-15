@@ -97,22 +97,25 @@ const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0,
             filesToDelete.push(...successStoryKeys);
         }
         yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+            // Delete agency success stories first
+            yield tx.agencySuccessStory.deleteMany({
+                where: { agency_id: id },
+            });
+            // Delete the agency
             yield tx.agency.delete({
                 where: { id },
             });
-            yield tx.user.delete({
-                where: { id: existingAgency.user_id },
-            });
         }));
+        // Clean up files from cloud storage
         if (filesToDelete.length > 0) {
             try {
                 yield (0, handelFile_1.deleteMultipleFromSpaces)(filesToDelete);
             }
             catch (error) {
                 console.error('Failed to delete some files from DigitalOcean Spaces:', error);
+                // Don't throw error for file cleanup failures
             }
         }
-        return null;
     }
 });
 const ApprovedOrRejectBlog = (approvedId, payload) => __awaiter(void 0, void 0, void 0, function* () {

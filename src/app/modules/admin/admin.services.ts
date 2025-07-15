@@ -116,15 +116,18 @@ const ApprovedOrRejectAgency = async (
     }
 
     await prisma.$transaction(async (tx) => {
+      // Delete agency success stories first
+      await tx.agencySuccessStory.deleteMany({
+        where: { agency_id: id },
+      });
+
+      // Delete the agency
       await tx.agency.delete({
         where: { id },
       });
-
-      await tx.user.delete({
-        where: { id: existingAgency.user_id },
-      });
     });
 
+    // Clean up files from cloud storage
     if (filesToDelete.length > 0) {
       try {
         await deleteMultipleFromSpaces(filesToDelete);
@@ -133,10 +136,9 @@ const ApprovedOrRejectAgency = async (
           'Failed to delete some files from DigitalOcean Spaces:',
           error,
         );
+        // Don't throw error for file cleanup failures
       }
     }
-
-    return null;
   }
 };
 

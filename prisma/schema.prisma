@@ -32,7 +32,7 @@ model User {
   approved_members   Member[]           @relation("MemberApprover")
   approved_blogs     Blog[]             @relation("BlogApprover")
   approved_agencies  Agency[]           @relation("AgencyApprover")
-  agency             Agency?
+  agencies           Agency[]
   event              Event[]            @relation("eventApprover")
   Event              Event[]
 
@@ -63,9 +63,10 @@ model Member {
 
 model Agency {
   id               String       @id @default(uuid())
-  user_id          String       @unique
+  user_id          String
   name             String
   logo             String?
+  cover_photo      String?
   description      String?
   website          String?
   contact_email    String

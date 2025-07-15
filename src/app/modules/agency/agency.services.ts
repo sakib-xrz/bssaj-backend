@@ -17,26 +17,49 @@ import AgencyUtils from './agency.utils';
 
 const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
   let logo: string | null = null;
+  let coverPhoto: string | null = null;
   let uploadedSuccessStories: string[] = [];
   let generatedPassword: string = '';
+  let userId: string;
+  let hashedPassword: string = '';
 
   try {
-    const existingUser = await prisma.user.findUnique({
-      where: { email: payload.contact_email },
-    });
+    // Check if we're using an existing user or creating a new one
+    if (payload.user_selection_type === 'existing' && payload.user_id) {
+      // Using existing user
+      const existingUser = await prisma.user.findUnique({
+        where: { id: payload.user_id, is_deleted: false },
+      });
 
-    if (existingUser) {
-      throw new AppError(
-        httpStatus.CONFLICT,
-        'User with this email already exists',
+      if (!existingUser) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Selected user not found');
+      }
+
+      // Note: User can now have multiple agencies, so we don't check for existing agency
+
+      userId = existingUser.id;
+    } else {
+      // Creating new user
+      const existingUser = await prisma.user.findUnique({
+        where: { email: payload.contact_email },
+      });
+
+      if (existingUser) {
+        throw new AppError(
+          httpStatus.CONFLICT,
+          'User with this email already exists',
+        );
+      }
+
+      generatedPassword = AgencyUtils.generateRandomPassword(12);
+      hashedPassword = await bcrypt.hash(
+        generatedPassword,
+        Number(config.bcrypt_salt_rounds),
       );
-    }
 
-    generatedPassword = AgencyUtils.generateRandomPassword(12);
-    const hashedPassword = await bcrypt.hash(
-      generatedPassword,
-      Number(config.bcrypt_salt_rounds),
-    );
+      // We'll create the user in the transaction
+      userId = ''; // Will be set in transaction
+    }
 
     const logoFile = files?.find((file) => file.fieldname === 'logo');
     if (logoFile) {
@@ -45,6 +68,17 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
         filename: `agency_logo_${Date.now()}${path.extname(logoFile.originalname)}`,
       });
       logo = logoUploadResult?.url || null;
+    }
+
+    const coverPhotoFile = files?.find(
+      (file) => file.fieldname === 'cover_photo',
+    );
+    if (coverPhotoFile) {
+      const coverPhotoUploadResult = await uploadToSpaces(coverPhotoFile, {
+        folder: 'agency-cover-photos',
+        filename: `agency_cover_${Date.now()}${path.extname(coverPhotoFile.originalname)}`,
+      });
+      coverPhoto = coverPhotoUploadResult?.url || null;
     }
 
     const successStoryFiles =
@@ -67,17 +101,26 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          name: payload.director_name,
-          email: payload.contact_email,
-          password: hashedPassword,
-          role: Role.AGENCY,
-        },
-      });
+      let finalUserId: string;
 
-      const agencyData: Partial<Agency> = {
-        user_id: user.id,
+      if (payload.user_selection_type === 'existing' && payload.user_id) {
+        // Use existing user
+        finalUserId = userId;
+      } else {
+        // Create new user
+        const user = await tx.user.create({
+          data: {
+            name: payload.director_name,
+            email: payload.contact_email,
+            password: hashedPassword,
+            role: Role.AGENCY,
+          },
+        });
+        finalUserId = user.id;
+      }
+
+      const agencyData = {
+        user_id: finalUserId,
         name: payload.name,
         contact_email: payload.contact_email,
         contact_phone: payload.contact_phone || null,
@@ -90,12 +133,13 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
         address: payload.address || null,
         facebook_url: payload.facebook_url || null,
         logo: logo,
+        cover_photo: coverPhoto,
         status: payload.status || 'PENDING',
         is_deleted: payload.is_deleted === 'true' ? true : false,
       };
 
       const agency = await tx.agency.create({
-        data: agencyData as Agency,
+        data: agencyData as any,
       });
 
       if (uploadedSuccessStories.length > 0) {
@@ -131,6 +175,10 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
   } catch (error) {
     if (logo) {
       const key = extractKeyFromUrl(logo);
+      if (key) await deleteFromSpaces(key).catch(() => {});
+    }
+    if (coverPhoto) {
+      const key = extractKeyFromUrl(coverPhoto);
       if (key) await deleteFromSpaces(key).catch(() => {});
     }
     if (uploadedSuccessStories.length > 0) {
@@ -283,6 +331,7 @@ const UpdateAgency = async (
   }
 
   let logo = existingAgency.logo;
+  let coverPhoto = (existingAgency as any).cover_photo;
   let newSuccessStories: string[] = [];
 
   try {
@@ -300,6 +349,24 @@ const UpdateAgency = async (
         filename: `agency_logo_${Date.now()}${path.extname(logoFile.originalname)}`,
       });
       logo = logoUploadResult?.url || null;
+    }
+
+    // Handle cover photo update - find cover_photo file from array
+    const coverPhotoFile = files?.find(
+      (file) => file.fieldname === 'cover_photo',
+    );
+    if (coverPhotoFile) {
+      // Delete old cover photo if exists
+      if ((existingAgency as any).cover_photo) {
+        const key = extractKeyFromUrl((existingAgency as any).cover_photo);
+        if (key) await deleteFromSpaces(key).catch(() => {});
+      }
+
+      const coverPhotoUploadResult = await uploadToSpaces(coverPhotoFile, {
+        folder: 'agency-cover-photos',
+        filename: `agency_cover_${Date.now()}${path.extname(coverPhotoFile.originalname)}`,
+      });
+      coverPhoto = coverPhotoUploadResult?.url || null;
     }
 
     // Handle success story images - filter files with fieldname starting with 'successStoryImages'
@@ -353,6 +420,7 @@ const UpdateAgency = async (
     const updateData = {
       ...payload,
       logo,
+      cover_photo: coverPhoto,
     };
 
     const result = await prisma.agency.update({
@@ -407,10 +475,7 @@ const DeleteAgency = async (id: string) => {
       where: { id },
     });
 
-    // Delete the associated user
-    await tx.user.delete({
-      where: { id: existingAgency.user_id },
-    });
+    // Don't delete the user - they might have other agencies or data
   });
 
   // Clean up uploaded files from cloud storage

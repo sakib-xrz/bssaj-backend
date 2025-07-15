@@ -90,11 +90,6 @@ const GetAllUser = (query, options) => __awaiter(void 0, void 0, void 0, functio
             name: true,
             email: true,
             role: true,
-            agency: {
-                select: {
-                    name: true,
-                },
-            },
             created_at: true,
         },
         skip,
@@ -231,7 +226,7 @@ const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
         })
             .catch(() => { });
         yield tx.agency
-            .delete({
+            .deleteMany({
             where: { user_id: id },
         })
             .catch(() => { });
