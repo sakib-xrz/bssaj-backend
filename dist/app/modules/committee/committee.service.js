@@ -67,7 +67,7 @@ const GetSingleCommittee = (id) => __awaiter(void 0, void 0, void 0, function* (
 });
 const GetAllCommittee = (query, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { term_start_year, term_end_year, search } = query, filterData = __rest(query, ["term_start_year", "term_end_year", "search"]);
-    const { limit, page, sort_order, sort_by, skip } = (0, pagination_1.default)(options);
+    const { limit, page, skip } = (0, pagination_1.default)(options);
     const andCondition = [];
     if (term_start_year && term_end_year) {
         andCondition.push({
@@ -117,17 +117,14 @@ const GetAllCommittee = (query, options) => __awaiter(void 0, void 0, void 0, fu
         where: whereCondition,
         skip,
         take: limit,
-        orderBy: sort_by && sort_order ? { [sort_by]: sort_order } : undefined,
     });
-    const sortedResult = sort_by && sort_order
-        ? result
-        : result.sort((a, b) => {
-            const aIndex = designationOrder.indexOf(a.designation);
-            const bIndex = designationOrder.indexOf(b.designation);
-            const aOrder = aIndex === -1 ? designationOrder.length : aIndex;
-            const bOrder = bIndex === -1 ? designationOrder.length : bIndex;
-            return aOrder - bOrder;
-        });
+    const sortedResult = result.sort((a, b) => {
+        const aIndex = designationOrder.indexOf(a.designation);
+        const bIndex = designationOrder.indexOf(b.designation);
+        const aOrder = aIndex === -1 ? designationOrder.length : aIndex;
+        const bOrder = bIndex === -1 ? designationOrder.length : bIndex;
+        return aOrder - bOrder;
+    });
     const total = yield prisma_1.default.committee.count({
         where: whereCondition,
     });

@@ -58,8 +58,7 @@ const GetSingleCommittee = async (id: string) => {
 
 const GetAllCommittee = async (query: any, options: any) => {
   const { term_start_year, term_end_year, search, ...filterData } = query;
-  const { limit, page, sort_order, sort_by, skip } =
-    calculatePagination(options);
+  const { limit, page, skip } = calculatePagination(options);
   const andCondition: Prisma.CommitteeWhereInput[] = [];
 
   if (term_start_year && term_end_year) {
@@ -114,21 +113,17 @@ const GetAllCommittee = async (query: any, options: any) => {
     where: whereCondition,
     skip,
     take: limit,
-    orderBy: sort_by && sort_order ? { [sort_by]: sort_order } : undefined,
   });
 
-  const sortedResult =
-    sort_by && sort_order
-      ? result
-      : result.sort((a, b) => {
-          const aIndex = designationOrder.indexOf(a.designation);
-          const bIndex = designationOrder.indexOf(b.designation);
+  const sortedResult = result.sort((a, b) => {
+    const aIndex = designationOrder.indexOf(a.designation);
+    const bIndex = designationOrder.indexOf(b.designation);
 
-          const aOrder = aIndex === -1 ? designationOrder.length : aIndex;
-          const bOrder = bIndex === -1 ? designationOrder.length : bIndex;
+    const aOrder = aIndex === -1 ? designationOrder.length : aIndex;
+    const bOrder = bIndex === -1 ? designationOrder.length : bIndex;
 
-          return aOrder - bOrder;
-        });
+    return aOrder - bOrder;
+  });
 
   const total = await prisma.committee.count({
     where: whereCondition,
