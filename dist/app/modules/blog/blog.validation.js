@@ -1,23 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BlogValidatoin = void 0;
 const zod_1 = require("zod");
-const blogValidation = zod_1.z.object({
+const CreateBlogSchema = zod_1.z.object({
     body: zod_1.z.object({
-        title: zod_1.z.string({ required_error: "Invalid user id" }),
-        content: zod_1.z.string({ required_error: 'Phone Number is Required' }),
-        author_id: zod_1.z.string({ required_error: "kind is Required" }),
-        approved_by_id: zod_1.z.string({ required_error: "kind is Required" }),
-    })
+        title: zod_1.z.string({ required_error: 'Title is required' }),
+        content: zod_1.z.string({ required_error: 'Content is required' }),
+        author_id: zod_1.z.string({ required_error: 'Author ID is required' }),
+    }),
 });
-const updateBlogValidation = zod_1.z.object({
+const UpdateBlogSchema = zod_1.z.object({
     body: zod_1.z.object({
-        title: zod_1.z.string({ required_error: "Invalid user id" }).optional(),
-        content: zod_1.z.string({ required_error: 'Phone Number is Required' }).optional(),
-        author_id: zod_1.z.string({ required_error: "kind is Required" }).optional(),
-    })
+        title: zod_1.z.string().optional(),
+        content: zod_1.z.string().optional(),
+        author_id: zod_1.z.string().optional(),
+        is_published: zod_1.z.boolean().optional(),
+    }),
 });
-exports.BlogValidatoin = {
-    blogValidation,
-    updateBlogValidation
+const BlogValidation = {
+    CreateBlogSchema,
+    UpdateBlogSchema,
 };
+exports.default = BlogValidation;

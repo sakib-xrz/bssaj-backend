@@ -9,15 +9,15 @@ const express_1 = require("express");
 const auth_1 = __importDefault(require("../../middlewares/auth"));
 const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
 const blog_controller_1 = require("./blog.controller");
-const blog_validation_1 = require("./blog.validation");
+const blog_validation_1 = __importDefault(require("./blog.validation"));
 const router = (0, express_1.Router)();
 router
     .route('/')
-    .post((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.USER, client_1.Role.USER), (0, validateRequest_1.default)(blog_validation_1.BlogValidatoin.blogValidation), blog_controller_1.BlogController.CreateBlog)
+    .post((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY, client_1.Role.STUDENT, client_1.Role.USER), (0, validateRequest_1.default)(blog_validation_1.default.CreateBlogSchema), blog_controller_1.BlogController.CreateBlog)
     .get(blog_controller_1.BlogController.GetAllBlog);
 router
     .route('/:id')
     .get(blog_controller_1.BlogController.GetSingleBlog)
-    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY, client_1.Role.USER), (0, validateRequest_1.default)(blog_validation_1.BlogValidatoin.updateBlogValidation), blog_controller_1.BlogController.UpdateBlog)
-    .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), blog_controller_1.BlogController.DeleteBlog);
+    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY, client_1.Role.STUDENT, client_1.Role.USER), (0, validateRequest_1.default)(blog_validation_1.default.UpdateBlogSchema), blog_controller_1.BlogController.UpdateBlog)
+    .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY, client_1.Role.STUDENT, client_1.Role.USER), blog_controller_1.BlogController.DeleteBlog);
 exports.BlogRouter = router;
