@@ -8,33 +8,30 @@ datasource db {
 }
 
 model User {
-  id                 String   @id @default(uuid())
+  id                 String             @id @default(uuid())
   name               String
-  email              String   @unique
+  email              String             @unique
   password           String
-  role               Role     @default(USER)
+  role               Role               @default(USER)
   profile_picture    String?
   address            String?
   current_study_info String?
-  is_deleted         Boolean  @default(false)
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
-
-  // Relations
-
-  payments           Payment[]
-  blogs              Blog[]
-  certifications     Certification[]
-  exam_registrations ExamRegistration[]
-  notifications      Notification[]
-  payments_approved  Payment[]          @relation("PaymentApprover")
-  member             Member?
-  approved_members   Member[]           @relation("MemberApprover")
-  approved_blogs     Blog[]             @relation("BlogApprover")
+  is_deleted         Boolean            @default(false)
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
   approved_agencies  Agency[]           @relation("AgencyApprover")
   agencies           Agency[]
-  event              Event[]            @relation("eventApprover")
-  Event              Event[]
+  approved_blogs     Blog[]             @relation("BlogApprover")
+  blogs              Blog[]
+  certifications     Certification[]
+  events_approved    Event[]            @relation("EventApprover")
+  events             Event[]
+  exam_registrations ExamRegistration[]
+  approved_members   Member[]           @relation("MemberApprover")
+  member             Member?
+  notifications      Notification[]
+  payments_approved  Payment[]          @relation("PaymentApprover")
+  payments           Payment[]
 
   @@map("users")
 }
@@ -53,20 +50,17 @@ model Member {
   approved_by_id String?
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
-
-  // Relations
-  user        User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  approved_by User? @relation("MemberApprover", fields: [approved_by_id], references: [id])
+  approved_by    User?            @relation("MemberApprover", fields: [approved_by_id], references: [id])
+  user           User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("members")
 }
 
 model Agency {
-  id               String       @id @default(uuid())
+  id               String               @id @default(uuid())
   user_id          String
   name             String
   logo             String?
-  cover_photo      String?
   description      String?
   website          String?
   contact_email    String
@@ -75,18 +69,17 @@ model Agency {
   facebook_url     String?
   established_year Int?
   director_name    String?
-  status           AgencyStatus @default(PENDING)
+  status           AgencyStatus         @default(PENDING)
   approved_at      DateTime?
   approved_by_id   String?
-  is_deleted       Boolean      @default(false)
-  created_at       DateTime     @default(now())
-  updated_at       DateTime     @updatedAt
-
-  // Relations
-  user            User?                @relation(fields: [user_id], references: [id])
-  approved_by     User?                @relation("AgencyApprover", fields: [approved_by_id], references: [id])
-  certifications  Certification[]
-  success_stories AgencySuccessStory[]
+  is_deleted       Boolean              @default(false)
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
+  cover_photo      String?
+  success_stories  AgencySuccessStory[]
+  approved_by      User?                @relation("AgencyApprover", fields: [approved_by_id], references: [id])
+  user             User                 @relation(fields: [user_id], references: [id])
+  certifications   Certification[]
 
   @@map("agencies")
 }
@@ -95,30 +88,26 @@ model AgencySuccessStory {
   id        String @id @default(uuid())
   agency_id String
   image     String
-
-  // Relations
-  agency Agency @relation(fields: [agency_id], references: [id], onDelete: Cascade)
+  agency    Agency @relation(fields: [agency_id], references: [id], onDelete: Cascade)
 }
 
 model Payment {
-  id               String        @id @default(uuid())
-  user_id          String
-  amount           Int
-  status           PaymentStatus @default(PENDING)
-  transaction_id   String?       @unique
-  paid_at          DateTime      @default(now())
-  approved_at      DateTime?
-  approved_by_id   String?
-  payment_for_type PaymentType
-  payment_for_id   String?
-  is_deleted       Boolean       @default(false)
-  created_at       DateTime      @default(now())
-  updated_at       DateTime      @updatedAt
-
-  // Relations
-  paid_by           User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  approved_by       User?             @relation("PaymentApprover", fields: [approved_by_id], references: [id])
+  id                String            @id @default(uuid())
+  user_id           String
+  amount            Int
+  status            PaymentStatus     @default(PENDING)
+  transaction_id    String?           @unique
+  paid_at           DateTime          @default(now())
+  approved_at       DateTime?
+  approved_by_id    String?
+  payment_for_type  PaymentType
+  payment_for_id    String?
+  is_deleted        Boolean           @default(false)
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
   exam_registration ExamRegistration?
+  approved_by       User?             @relation("PaymentApprover", fields: [approved_by_id], references: [id])
+  paid_by           User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("payments")
 }
@@ -137,10 +126,8 @@ model Blog {
   is_deleted     Boolean   @default(false)
   created_at     DateTime  @default(now())
   updated_at     DateTime  @updatedAt
-
-  // Relations
-  author      User  @relation(fields: [author_id], references: [id], onDelete: Cascade)
-  approved_by User? @relation("BlogApprover", fields: [approved_by_id], references: [id])
+  approved_by    User?     @relation("BlogApprover", fields: [approved_by_id], references: [id])
+  author         User      @relation(fields: [author_id], references: [id], onDelete: Cascade)
 
   @@map("blogs")
 }
@@ -159,9 +146,8 @@ model Event {
   is_deleted     Boolean     @default(false)
   created_at     DateTime    @default(now())
   updated_at     DateTime    @updatedAt
-
-  author      User  @relation(fields: [author_id], references: [id])
-  approved_by User? @relation("eventApprover", fields: [approved_by_id], references: [id])
+  approved_by    User?       @relation("EventApprover", fields: [approved_by_id], references: [id])
+  author         User        @relation(fields: [author_id], references: [id])
 
   @@map("events")
 }
@@ -196,19 +182,17 @@ model Scholarship {
 }
 
 model Certification {
-  id               String    @id @default(uuid())
-  student_id       String
-  file_url         String
-  certificate_type String
-  issued_at        DateTime  @default(now())
-  expires_at       DateTime?
-  agency_id        String
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
-
-  // Relations
-  student           User              @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  id                String            @id @default(uuid())
+  student_id        String
+  file_url          String
+  certificate_type  String
+  issued_at         DateTime          @default(now())
+  expires_at        DateTime?
+  agency_id         String
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
   agency            Agency            @relation(fields: [agency_id], references: [id], onDelete: Cascade)
+  student           User              @relation(fields: [student_id], references: [id], onDelete: Cascade)
   exam_registration ExamRegistration?
 
   @@map("certifications")
@@ -228,11 +212,9 @@ model ExamRegistration {
   is_deleted            Boolean                @default(false)
   created_at            DateTime               @default(now())
   updated_at            DateTime               @updatedAt
-
-  // Relations
-  user        User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  payment     Payment        @relation(fields: [payment_id], references: [id])
-  certificate Certification? @relation(fields: [issued_certificate_id], references: [id])
+  certificate           Certification?         @relation(fields: [issued_certificate_id], references: [id])
+  payment               Payment                @relation(fields: [payment_id], references: [id])
+  user                  User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("exam_registrations")
 }
@@ -246,9 +228,7 @@ model Notification {
   is_deleted Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
@@ -271,7 +251,18 @@ model Job {
   @@map("jobs")
 }
 
-// ===================================Enums========================================
+model Committee {
+  id              String   @id @default(uuid())
+  name            String
+  designation     String
+  term_start_year String
+  term_end_year   String
+  profile_picture String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("committees")
+}
 
 enum PaymentStatus {
   PENDING

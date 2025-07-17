@@ -3,6 +3,7 @@ import { AdminRoute } from '../modules/admin/admin.routes';
 import { AgencyRouter } from '../modules/agency/agency.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { BlogRouter } from '../modules/blog/blog.routes';
+import { CommitteeRouter } from '../modules/committee/committee.routes';
 import { EventRouter } from '../modules/event/event.routes';
 import { MemberRouter } from '../modules/member/member.router';
 import { UserRoute } from '../modules/user/user.routes';
@@ -14,6 +15,7 @@ type Route = { path: string; route: express.Router };
 const routes: Route[] = [
   { path: '/auth', route: AuthRoutes },
   { path: '/members', route: MemberRouter },
+  { path: '/committees', route: CommitteeRouter },
   { path: '/agencies', route: AgencyRouter },
   { path: '/users', route: UserRoute },
   { path: '/blogs', route: BlogRouter },
