@@ -119,17 +119,60 @@ const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0,
     }
 });
 const ApprovedOrRejectBlog = (approvedId, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const reuslt = yield prisma_1.default.blog.update({
+    const existingBlog = yield prisma_1.default.blog.findUnique({
         where: {
             id: payload.id,
         },
-        data: {
-            approved_by_id: approvedId,
-            is_published: payload.is_published,
-            is_approved: payload.is_approved,
-        },
     });
-    return reuslt;
+    if (!existingBlog) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This blog is not found');
+    }
+    if (existingBlog.is_approved === true) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'This blog is already approved');
+    }
+    // If approving the blog
+    if (payload.is_approved === true) {
+        const result = yield prisma_1.default.blog.update({
+            where: {
+                id: payload.id,
+            },
+            data: {
+                approved_by_id: approvedId,
+                is_published: payload.is_published,
+                is_approved: payload.is_approved,
+                approved_at: new Date(),
+            },
+        });
+        return result;
+    }
+    // If rejecting the blog (hard delete)
+    if (payload.is_approved === false) {
+        const filesToDelete = [];
+        // If blog has a cover image, prepare it for deletion
+        if (existingBlog.cover_image) {
+            const coverImageKey = (0, handelFile_1.extractKeyFromUrl)(existingBlog.cover_image);
+            if (coverImageKey)
+                filesToDelete.push(coverImageKey);
+        }
+        // Delete the blog from database
+        yield prisma_1.default.blog.delete({
+            where: {
+                id: payload.id,
+            },
+        });
+        // Clean up files from cloud storage
+        if (filesToDelete.length > 0) {
+            try {
+                yield (0, handelFile_1.deleteMultipleFromSpaces)(filesToDelete);
+            }
+            catch (error) {
+                console.error('Failed to delete some files from DigitalOcean Spaces:', error);
+                // Don't throw error for file cleanup failures
+            }
+        }
+        return { message: 'Blog rejected and deleted successfully' };
+    }
+    throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Invalid approval status');
 });
 exports.AdminService = {
     ApprovedOrRejectMember,
