@@ -6,7 +6,10 @@ import { BlogService } from './blog.services';
 
 const CreateBlog = catchAsync(async (req, res) => {
   const file = req.file;
-  const result = await BlogService.CreateBlog(req.body, file);
+  const user = req.user;
+  console.log(req.body);
+
+  const result = await BlogService.CreateBlog(req.body, file, user);
 
   sendResponse(res, {
     success: true,
@@ -36,8 +39,8 @@ const GetAllBlog = catchAsync(async (req, res) => {
 });
 
 const GetSingleBlog = catchAsync(async (req, res) => {
-  const { identifier } = req.params;
-  const result = await BlogService.GetSingleBlog(identifier);
+  const { id } = req.params;
+  const result = await BlogService.GetSingleBlog(id);
 
   sendResponse(res, {
     success: true,

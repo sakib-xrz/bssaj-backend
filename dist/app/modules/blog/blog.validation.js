@@ -5,7 +5,6 @@ const CreateBlogSchema = zod_1.z.object({
     body: zod_1.z.object({
         title: zod_1.z.string({ required_error: 'Title is required' }),
         content: zod_1.z.string({ required_error: 'Content is required' }),
-        author_id: zod_1.z.string({ required_error: 'Author ID is required' }),
     }),
 });
 const UpdateBlogSchema = zod_1.z.object({

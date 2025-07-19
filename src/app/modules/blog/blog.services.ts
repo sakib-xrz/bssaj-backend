@@ -29,13 +29,14 @@ interface BlogCreatePayload
 const CreateBlog = async (
   payload: BlogCreatePayload,
   file?: Express.Multer.File,
+  user?: JwtPayload,
 ) => {
   let coverImageUrl: string | null = null;
 
   try {
     // Validate author exists
     const isValidUser = await prisma.user.findUnique({
-      where: { id: payload.author_id },
+      where: { id: user?.id },
     });
 
     if (!isValidUser) {
@@ -52,13 +53,12 @@ const CreateBlog = async (
     }
 
     // Generate unique slug if not provided
-    const slug =
-      payload.slug ||
-      (await BlogUtils.generateUniqueSlug(payload.title, prisma));
+    const slug = await BlogUtils.generateUniqueSlug(payload.title, prisma);
 
     const result = await prisma.blog.create({
       data: {
         ...payload,
+        author_id: user?.id,
         slug,
         cover_image: coverImageUrl,
       },

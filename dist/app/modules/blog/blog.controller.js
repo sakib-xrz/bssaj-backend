@@ -20,7 +20,9 @@ const pick_1 = __importDefault(require("../../utils/pick"));
 const blog_services_1 = require("./blog.services");
 const CreateBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
-    const result = yield blog_services_1.BlogService.CreateBlog(req.body, file);
+    const user = req.user;
+    console.log(req.body);
+    const result = yield blog_services_1.BlogService.CreateBlog(req.body, file, user);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.CREATED,
@@ -46,8 +48,8 @@ const GetAllBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const GetSingleBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { identifier } = req.params;
-    const result = yield blog_services_1.BlogService.GetSingleBlog(identifier);
+    const { id } = req.params;
+    const result = yield blog_services_1.BlogService.GetSingleBlog(id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

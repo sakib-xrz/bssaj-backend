@@ -22,12 +22,12 @@ const prisma_1 = __importDefault(require("../../utils/prisma"));
 const path_1 = __importDefault(require("path"));
 const handelFile_1 = require("../../utils/handelFile");
 const blog_utils_1 = __importDefault(require("./blog.utils"));
-const CreateBlog = (payload, file) => __awaiter(void 0, void 0, void 0, function* () {
+const CreateBlog = (payload, file, user) => __awaiter(void 0, void 0, void 0, function* () {
     let coverImageUrl = null;
     try {
         // Validate author exists
         const isValidUser = yield prisma_1.default.user.findUnique({
-            where: { id: payload.author_id },
+            where: { id: user === null || user === void 0 ? void 0 : user.id },
         });
         if (!isValidUser) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Author not found');
@@ -41,10 +41,9 @@ const CreateBlog = (payload, file) => __awaiter(void 0, void 0, void 0, function
             coverImageUrl = (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.url) || null;
         }
         // Generate unique slug if not provided
-        const slug = payload.slug ||
-            (yield blog_utils_1.default.generateUniqueSlug(payload.title, prisma_1.default));
+        const slug = yield blog_utils_1.default.generateUniqueSlug(payload.title, prisma_1.default);
         const result = yield prisma_1.default.blog.create({
-            data: Object.assign(Object.assign({}, payload), { slug, cover_image: coverImageUrl }),
+            data: Object.assign(Object.assign({}, payload), { author_id: user === null || user === void 0 ? void 0 : user.id, slug, cover_image: coverImageUrl }),
             include: {
                 author: {
                     select: {
