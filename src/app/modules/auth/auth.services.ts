@@ -153,7 +153,24 @@ const GetMyProfile = async (user: JwtPayload) => {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  return userProfile;
+  let is_member = false;
+  let has_pending_member_request = false;
+
+  const member = await prisma.member.findUnique({
+    where: {
+      user_id: user.id,
+    },
+  });
+
+  if (member && member.status === 'APPROVED' && member.approved_at !== null) {
+    is_member = true;
+  }
+
+  if (member && member.status === 'PENDING' && member.approved_at === null) {
+    has_pending_member_request = true;
+  }
+
+  return { ...userProfile, is_member, has_pending_member_request };
 };
 
 const AuthService = {

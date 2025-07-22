@@ -16,6 +16,7 @@ router
     .post((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.USER), (0, validateRequest_1.default)(member_validation_1.MemberValidation.memberValidation), member_controller_1.MembersController.CreateMember)
     .get(member_controller_1.MembersController.GetAllMember);
 router.get('/stats', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), member_controller_1.MembersController.GetMemberStats);
+router.get('/me', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY, client_1.Role.STUDENT, client_1.Role.USER), member_controller_1.MembersController.GetMyMember);
 router
     .route('/:id')
     .get(member_controller_1.MembersController.SingleMember)

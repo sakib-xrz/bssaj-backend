@@ -177,6 +177,21 @@ const GetMemberStats = () => __awaiter(void 0, void 0, void 0, function* () {
         total_pending_members: totalPendingMember,
     };
 });
+const GetMyMember = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    const member = yield prisma_1.default.member.findUnique({
+        where: { user_id: user.id },
+        include: {
+            approved_by: {
+                select: {
+                    id: true,
+                    name: true,
+                    profile_picture: true,
+                },
+            },
+        },
+    });
+    return member;
+});
 const UpdateMember = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const member = yield prisma_1.default.member.findUnique({
         where: {
@@ -218,6 +233,7 @@ exports.MembersService = {
     GetSingleMember,
     GetAllMember,
     GetMemberStats,
+    GetMyMember,
     UpdateMember,
     DeleteMember,
 };

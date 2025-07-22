@@ -48,6 +48,16 @@ const GetMemberStats = catchAsync(async (req, res) => {
   });
 });
 
+const GetMyMember = catchAsync(async (req, res) => {
+  const result = await MembersService.GetMyMember(req.user);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'My member fetched successfully',
+    data: result,
+  });
+});
+
 const UpdateMember = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await MembersService.UpdateMember(id, req.body);
@@ -75,6 +85,7 @@ export const MembersController = {
   GetAllMember,
   SingleMember,
   GetMemberStats,
+  GetMyMember,
   UpdateMember,
   DeleteMember,
 };

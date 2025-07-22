@@ -7,7 +7,6 @@ import { BlogService } from './blog.services';
 const CreateBlog = catchAsync(async (req, res) => {
   const file = req.file;
   const user = req.user;
-  console.log(req.body);
 
   const result = await BlogService.CreateBlog(req.body, file, user);
 

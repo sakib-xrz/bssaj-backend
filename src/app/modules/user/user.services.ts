@@ -152,26 +152,42 @@ const SearchUser = async (search: string) => {
 };
 
 const UpdateUser = async (id: string, data: any) => {
+  const userData = await prisma.user.findUnique({
+    where: { id },
+  });
+
+  if (!userData) {
+    throw new Error('User not found');
+  }
+
   const result = await prisma.user.update({
     where: { id },
-    data,
+    data: {
+      name: data.name || userData.name,
+      address: data.address || userData.address,
+      current_study_info:
+        data.current_study_info || userData.current_study_info,
+    },
   });
+
+  delete (result as any)?.password;
+
   return result;
 };
 
 const UpdateProfilePicture = async (id: string, file: Express.Multer.File) => {
-  const user = await prisma.user.findUnique({
+  const userData = await prisma.user.findUnique({
     where: { id },
   });
-  if (!user) {
+  if (!userData) {
     throw new Error('User not found');
   }
 
-  let profilePicture: string | null = user.profile_picture || null;
+  let profilePicture: string | null = userData.profile_picture || null;
 
   try {
-    if (user.profile_picture) {
-      const key = extractKeyFromUrl(user.profile_picture);
+    if (userData.profile_picture) {
+      const key = extractKeyFromUrl(userData.profile_picture);
       if (key) {
         await deleteFromSpaces(key);
       }
@@ -197,6 +213,8 @@ const UpdateProfilePicture = async (id: string, file: Express.Multer.File) => {
     where: { id },
     data: { profile_picture: profilePicture },
   });
+
+  delete (result as any)?.password;
 
   return result;
 };

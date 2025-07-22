@@ -21,7 +21,6 @@ const blog_services_1 = require("./blog.services");
 const CreateBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
     const user = req.user;
-    console.log(req.body);
     const result = yield blog_services_1.BlogService.CreateBlog(req.body, file, user);
     (0, sendResponse_1.default)(res, {
         success: true,

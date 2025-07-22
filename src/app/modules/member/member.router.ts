@@ -22,6 +22,12 @@ router.get(
   MembersController.GetMemberStats,
 );
 
+router.get(
+  '/me',
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  MembersController.GetMyMember,
+);
+
 router
   .route('/:id')
   .get(MembersController.SingleMember)

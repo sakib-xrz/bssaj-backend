@@ -105,7 +105,20 @@ const GetMyProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
     if (!userProfile) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
-    return userProfile;
+    let is_member = false;
+    let has_pending_member_request = false;
+    const member = yield prisma_1.default.member.findUnique({
+        where: {
+            user_id: user.id,
+        },
+    });
+    if (member && member.status === 'APPROVED' && member.approved_at !== null) {
+        is_member = true;
+    }
+    if (member && member.status === 'PENDING' && member.approved_at === null) {
+        has_pending_member_request = true;
+    }
+    return Object.assign(Object.assign({}, userProfile), { is_member, has_pending_member_request });
 });
 const AuthService = {
     Register,

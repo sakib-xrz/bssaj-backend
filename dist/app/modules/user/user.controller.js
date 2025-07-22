@@ -59,7 +59,7 @@ const SearchUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const UpdateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_services_1.UserService.UpdateUser(req.params.id, req.body);
+    const result = yield user_services_1.UserService.UpdateUser(req.user.id, req.body);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -71,7 +71,7 @@ const UpdateProfilePicture = (0, catchAsync_1.default)((req, res) => __awaiter(v
     if (!req.file) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Image is required');
     }
-    const result = yield user_services_1.UserService.UpdateProfilePicture(req.params.id, req.file);
+    const result = yield user_services_1.UserService.UpdateProfilePicture(req.user.id, req.file);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

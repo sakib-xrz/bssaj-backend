@@ -150,23 +150,34 @@ const SearchUser = (search) => __awaiter(void 0, void 0, void 0, function* () {
     return result;
 });
 const UpdateUser = (id, data) => __awaiter(void 0, void 0, void 0, function* () {
+    const userData = yield prisma_1.default.user.findUnique({
+        where: { id },
+    });
+    if (!userData) {
+        throw new Error('User not found');
+    }
     const result = yield prisma_1.default.user.update({
         where: { id },
-        data,
+        data: {
+            name: data.name || userData.name,
+            address: data.address || userData.address,
+            current_study_info: data.current_study_info || userData.current_study_info,
+        },
     });
+    result === null || result === void 0 ? true : delete result.password;
     return result;
 });
 const UpdateProfilePicture = (id, file) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield prisma_1.default.user.findUnique({
+    const userData = yield prisma_1.default.user.findUnique({
         where: { id },
     });
-    if (!user) {
+    if (!userData) {
         throw new Error('User not found');
     }
-    let profilePicture = user.profile_picture || null;
+    let profilePicture = userData.profile_picture || null;
     try {
-        if (user.profile_picture) {
-            const key = (0, handelFile_1.extractKeyFromUrl)(user.profile_picture);
+        if (userData.profile_picture) {
+            const key = (0, handelFile_1.extractKeyFromUrl)(userData.profile_picture);
             if (key) {
                 yield (0, handelFile_1.deleteFromSpaces)(key);
             }
@@ -185,6 +196,7 @@ const UpdateProfilePicture = (id, file) => __awaiter(void 0, void 0, void 0, fun
         where: { id },
         data: { profile_picture: profilePicture },
     });
+    result === null || result === void 0 ? true : delete result.password;
     return result;
 });
 const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {

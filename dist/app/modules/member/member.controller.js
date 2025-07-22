@@ -58,6 +58,15 @@ const GetMemberStats = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+const GetMyMember = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield member_service_1.MembersService.GetMyMember(req.user);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'My member fetched successfully',
+        data: result,
+    });
+}));
 const UpdateMember = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield member_service_1.MembersService.UpdateMember(id, req.body);
@@ -83,6 +92,7 @@ exports.MembersController = {
     GetAllMember,
     SingleMember,
     GetMemberStats,
+    GetMyMember,
     UpdateMember,
     DeleteMember,
 };

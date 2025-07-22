@@ -6,6 +6,7 @@ import calculatePagination from '../../utils/pagination';
 import prisma from '../../utils/prisma';
 import { memberSearchableFields } from './member.constant';
 import MemberUtils from './member.utils';
+import { JwtPayload } from 'jsonwebtoken';
 
 const CreateMember = async (payload: Member) => {
   const user = await prisma.user.findUnique({
@@ -173,6 +174,22 @@ const GetMemberStats = async () => {
   };
 };
 
+const GetMyMember = async (user: JwtPayload) => {
+  const member = await prisma.member.findUnique({
+    where: { user_id: user.id },
+    include: {
+      approved_by: {
+        select: {
+          id: true,
+          name: true,
+          profile_picture: true,
+        },
+      },
+    },
+  });
+  return member;
+};
+
 const UpdateMember = async (id: string, payload: Partial<Member>) => {
   const member = await prisma.member.findUnique({
     where: {
@@ -224,6 +241,7 @@ export const MembersService = {
   GetSingleMember,
   GetAllMember,
   GetMemberStats,
+  GetMyMember,
   UpdateMember,
   DeleteMember,
 };

@@ -49,7 +49,7 @@ const SearchUser = catchAsync(async (req, res) => {
 });
 
 const UpdateUser = catchAsync(async (req, res) => {
-  const result = await UserService.UpdateUser(req.params.id, req.body);
+  const result = await UserService.UpdateUser(req.user.id, req.body);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -63,10 +63,7 @@ const UpdateProfilePicture = catchAsync(async (req, res) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'Image is required');
   }
 
-  const result = await UserService.UpdateProfilePicture(
-    req.params.id,
-    req.file,
-  );
+  const result = await UserService.UpdateProfilePicture(req.user.id, req.file);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
