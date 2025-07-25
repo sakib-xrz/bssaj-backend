@@ -130,6 +130,7 @@ const GetAllBlog = async (query: any, options: any) => {
           id: true,
           name: true,
           email: true,
+          profile_picture: true,
         },
       },
       approved_by: {
@@ -168,6 +169,7 @@ const GetSingleBlog = async (identifier: string) => {
           id: true,
           name: true,
           email: true,
+          profile_picture: true,
         },
       },
       approved_by: {
@@ -254,6 +256,7 @@ const UpdateBlog = async (
             id: true,
             name: true,
             email: true,
+            profile_picture: true,
           },
         },
         approved_by: {

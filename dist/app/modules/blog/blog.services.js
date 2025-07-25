@@ -102,6 +102,7 @@ const GetAllBlog = (query, options) => __awaiter(void 0, void 0, void 0, functio
                     id: true,
                     name: true,
                     email: true,
+                    profile_picture: true,
                 },
             },
             approved_by: {
@@ -137,6 +138,7 @@ const GetSingleBlog = (identifier) => __awaiter(void 0, void 0, void 0, function
                     id: true,
                     name: true,
                     email: true,
+                    profile_picture: true,
                 },
             },
             approved_by: {
@@ -196,6 +198,7 @@ const UpdateBlog = (id, payload, file, user) => __awaiter(void 0, void 0, void 0
                         id: true,
                         name: true,
                         email: true,
+                        profile_picture: true,
                     },
                 },
                 approved_by: {
