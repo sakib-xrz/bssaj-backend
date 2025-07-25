@@ -153,14 +153,12 @@ model Event {
 }
 
 model News {
-  id           String   @id @default(uuid())
-  title        String
-  content      String
-  is_active    Boolean  @default(true)
-  is_deleted   Boolean  @default(false)
-  published_at DateTime @default(now())
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id         String   @id @default(uuid())
+  title      String
+  content    String
+  is_deleted Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("news")
 }
@@ -173,7 +171,6 @@ model Scholarship {
   amount          Int?
   deadline        DateTime
   application_url String
-  is_active       Boolean  @default(true)
   is_deleted      Boolean  @default(false)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt

@@ -1199,6 +1199,149 @@
           }
         }
       ]
+    },
+    {
+      "name": "News",
+      "item": [
+        {
+          "name": "Create News",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Sample News Title\",\n    \"content\": \"This is the news content with details about the announcement or update.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/news",
+              "host": ["{{base_url}}"],
+              "path": ["news"]
+            }
+          }
+        },
+        {
+          "name": "Get All News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/news?page=1&limit=10&search=&sort_by=&sort_order=",
+              "host": ["{{base_url}}"],
+              "path": ["news"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "sort_by",
+                  "value": ""
+                },
+                {
+                  "key": "sort_order",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/news/:id",
+              "host": ["{{base_url}}"],
+              "path": ["news", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update News",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Updated News Title\",\n    \"content\": \"Updated news content with new information.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/news/:id",
+              "host": ["{{base_url}}"],
+              "path": ["news", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete News",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/news/:id?hard_delete=false",
+              "host": ["{{base_url}}"],
+              "path": ["news", ":id"],
+              "query": [
+                {
+                  "key": "hard_delete",
+                  "value": "false",
+                  "description": "Set to true for permanent deletion"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
     }
   ],
   "auth": {

@@ -6,6 +6,7 @@ import { BlogRouter } from '../modules/blog/blog.routes';
 import { CommitteeRouter } from '../modules/committee/committee.routes';
 import { EventRouter } from '../modules/event/event.routes';
 import { MemberRouter } from '../modules/member/member.router';
+import { NewsRouter } from '../modules/news/news.routes';
 import { UserRoute } from '../modules/user/user.routes';
 
 const router = express.Router();
@@ -20,6 +21,7 @@ const routes: Route[] = [
   { path: '/users', route: UserRoute },
   { path: '/blogs', route: BlogRouter },
   { path: '/events', route: EventRouter },
+  { path: '/news', route: NewsRouter },
   { path: '/admin', route: AdminRoute },
 ];
 
