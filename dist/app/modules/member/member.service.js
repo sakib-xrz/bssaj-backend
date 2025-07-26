@@ -126,6 +126,7 @@ const GetAllMember = (query, options) => __awaiter(void 0, void 0, void 0, funct
             status: true,
             approved_at: true,
             created_at: true,
+            member_id: true,
             user: {
                 select: {
                     profile_picture: true,

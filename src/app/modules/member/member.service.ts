@@ -117,6 +117,7 @@ const GetAllMember = async (query: any, options: any) => {
       status: true,
       approved_at: true,
       created_at: true,
+      member_id: true,
       user: {
         select: {
           profile_picture: true,

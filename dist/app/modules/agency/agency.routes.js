@@ -14,7 +14,7 @@ const handelFile_1 = require("../../utils/handelFile");
 const router = (0, express_1.Router)();
 router
     .route('/')
-    .post((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.USER), handelFile_1.upload.any(), (0, validateRequest_1.default)(agency_validation_1.agencySchema), agency_controller_1.AgencyController.CreateAgency)
+    .post(handelFile_1.upload.any(), (0, validateRequest_1.default)(agency_validation_1.agencySchema), agency_controller_1.AgencyController.CreateAgency)
     .get(agency_controller_1.AgencyController.GetAllAgency);
 router.route('/stats').get(agency_controller_1.AgencyController.GetAgencyStats);
 router

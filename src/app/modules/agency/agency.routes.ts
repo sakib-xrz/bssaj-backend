@@ -11,7 +11,6 @@ const router = Router();
 router
   .route('/')
   .post(
-    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.USER),
     upload.any(),
     validateRequest(agencySchema),
     AgencyController.CreateAgency,
