@@ -1,11 +1,16 @@
 import { AgencyStatus, Blog, MembershipStatus } from '@prisma/client';
 import httpStatus from 'http-status';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
+import sendMail from '../../utils/mailer';
+import AgencyUtils from '../agency/agency.utils';
 import {
   deleteMultipleFromSpaces,
   extractKeyFromUrl,
 } from '../../utils/handelFile';
+import { createAgencyApprovalEmailTemplate } from '../../templates';
 
 const ApprovedOrRejectMember = async (
   id: string,
@@ -76,6 +81,13 @@ const ApprovedOrRejectAgency = async (
   }
 
   if (status === AgencyStatus.APPROVED) {
+    // Generate new password for the agency user
+    const newPassword = AgencyUtils.generateRandomPassword(12);
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      Number(config.bcrypt_salt_rounds),
+    );
+
     const result = await prisma.$transaction(async (tx) => {
       const updatedAgency = await tx.agency.update({
         where: { id },
@@ -88,11 +100,32 @@ const ApprovedOrRejectAgency = async (
 
       await tx.user.update({
         where: { id: existingAgency.user_id },
-        data: { role: 'AGENCY' },
+        data: {
+          role: 'AGENCY',
+          password: hashedPassword,
+        },
       });
 
       return updatedAgency;
     });
+
+    try {
+      const emailTemplate = createAgencyApprovalEmailTemplate(
+        existingAgency.name,
+        existingAgency.user.name,
+        existingAgency.user.email,
+        newPassword,
+      );
+
+      await sendMail(
+        existingAgency.user.email,
+        '🎉 Congratulations! Your Agency Registration has been Approved',
+        emailTemplate,
+      );
+    } catch (emailError) {
+      console.error('Failed to send approval email:', emailError);
+      // Don't throw error for email failures - agency is still approved
+    }
 
     return result;
   }
