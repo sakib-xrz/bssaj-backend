@@ -57,29 +57,30 @@ model Member {
 }
 
 model Agency {
-  id               String               @id @default(uuid())
-  user_id          String
-  name             String
-  logo             String?
-  description      String?
-  website          String?
-  contact_email    String
-  contact_phone    String?
-  address          String?
-  facebook_url     String?
-  established_year Int?
-  director_name    String?
-  status           AgencyStatus         @default(PENDING)
-  approved_at      DateTime?
-  approved_by_id   String?
-  is_deleted       Boolean              @default(false)
-  created_at       DateTime             @default(now())
-  updated_at       DateTime             @updatedAt
-  cover_photo      String?
-  success_stories  AgencySuccessStory[]
-  approved_by      User?                @relation("AgencyApprover", fields: [approved_by_id], references: [id])
-  user             User                 @relation(fields: [user_id], references: [id])
-  certifications   Certification[]
+  id                  String               @id @default(uuid())
+  user_id             String
+  name                String
+  logo                String?
+  description         String?
+  website             String?
+  contact_email       String
+  contact_phone       String?
+  address             String?
+  facebook_url        String?
+  established_year    Int?
+  director_name       String?
+  status              AgencyStatus         @default(PENDING)
+  approved_at         DateTime?
+  approved_by_id      String?
+  is_deleted          Boolean              @default(false)
+  created_at          DateTime             @default(now())
+  updated_at          DateTime             @updatedAt
+  cover_photo         String?
+  user_selection_type UserSelectionType    @default(NEW)
+  success_stories     AgencySuccessStory[]
+  approved_by         User?                @relation("AgencyApprover", fields: [approved_by_id], references: [id])
+  user                User                 @relation(fields: [user_id], references: [id])
+  certifications      Certification[]
 
   @@map("agencies")
 }
@@ -336,4 +337,9 @@ enum ExamRegistrationStatus {
   REGISTERED
   CANCELLED
   COMPLETED
+}
+
+enum UserSelectionType {
+  NEW
+  EXISTING
 }

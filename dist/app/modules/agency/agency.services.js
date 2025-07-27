@@ -119,6 +119,9 @@ const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, funct
                 cover_photo: coverPhoto,
                 status: payload.status || 'PENDING',
                 is_deleted: payload.is_deleted === 'true' ? true : false,
+                user_selection_type: payload.user_selection_type === 'existing'
+                    ? client_1.UserSelectionType.EXISTING
+                    : client_1.UserSelectionType.NEW,
             };
             const agency = yield tx.agency.create({
                 data: agencyData,

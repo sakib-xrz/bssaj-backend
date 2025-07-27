@@ -1,4 +1,9 @@
-import { AgencyStatus, Blog, MembershipStatus } from '@prisma/client';
+import {
+  AgencyStatus,
+  Blog,
+  MembershipStatus,
+  UserSelectionType,
+} from '@prisma/client';
 import httpStatus from 'http-status';
 import bcrypt from 'bcrypt';
 import config from '../../config';
@@ -80,7 +85,12 @@ const ApprovedOrRejectAgency = async (
     );
   }
 
-  if (status === AgencyStatus.APPROVED) {
+  console.log('user_selection_type', existingAgency.user_selection_type);
+
+  if (
+    status === AgencyStatus.APPROVED &&
+    existingAgency.user_selection_type === UserSelectionType.NEW
+  ) {
     // Generate new password for the agency user
     const newPassword = AgencyUtils.generateRandomPassword(12);
     const hashedPassword = await bcrypt.hash(
@@ -127,6 +137,19 @@ const ApprovedOrRejectAgency = async (
       // Don't throw error for email failures - agency is still approved
     }
 
+    return result;
+  } else if (
+    status === AgencyStatus.APPROVED &&
+    existingAgency.user_selection_type === UserSelectionType.EXISTING
+  ) {
+    const result = await prisma.agency.update({
+      where: { id },
+      data: {
+        status: status,
+        approved_by_id,
+        approved_at: new Date(),
+      },
+    });
     return result;
   }
 

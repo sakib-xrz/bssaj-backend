@@ -18,6 +18,7 @@ app.use(
   cors({
     origin: [
       'http://localhost:3000',
+      'http://localhost:3001',
       'https://admin.bssaj.org',
       'https://admin-bssaj.vercel.app',
       'https://bssaj.org',

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Agency, Prisma, Role } from '@prisma/client';
+import { Agency, Prisma, Role, UserSelectionType } from '@prisma/client';
 import httpStatus from 'http-status';
 import bcrypt from 'bcrypt';
 import config from '../../config';
@@ -136,6 +136,10 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
         cover_photo: coverPhoto,
         status: payload.status || 'PENDING',
         is_deleted: payload.is_deleted === 'true' ? true : false,
+        user_selection_type:
+          payload.user_selection_type === 'existing'
+            ? UserSelectionType.EXISTING
+            : UserSelectionType.NEW,
       };
 
       const agency = await tx.agency.create({

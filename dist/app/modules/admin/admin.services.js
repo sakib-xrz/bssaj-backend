@@ -15,9 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminService = void 0;
 const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const config_1 = __importDefault(require("../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
+const mailer_1 = __importDefault(require("../../utils/mailer"));
+const agency_utils_1 = __importDefault(require("../agency/agency.utils"));
 const handelFile_1 = require("../../utils/handelFile");
+const templates_1 = require("../../templates");
 const ApprovedOrRejectMember = (id, status, approved_by_id) => __awaiter(void 0, void 0, void 0, function* () {
     const existingMember = yield prisma_1.default.member.findUnique({
         where: {
@@ -64,7 +69,12 @@ const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0,
     if (existingAgency.status === client_1.AgencyStatus.APPROVED) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'This agency is already approved');
     }
-    if (status === client_1.AgencyStatus.APPROVED) {
+    console.log('user_selection_type', existingAgency.user_selection_type);
+    if (status === client_1.AgencyStatus.APPROVED &&
+        existingAgency.user_selection_type === client_1.UserSelectionType.NEW) {
+        // Generate new password for the agency user
+        const newPassword = agency_utils_1.default.generateRandomPassword(12);
+        const hashedPassword = yield bcrypt_1.default.hash(newPassword, Number(config_1.default.bcrypt_salt_rounds));
         const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
             const updatedAgency = yield tx.agency.update({
                 where: { id },
@@ -76,10 +86,33 @@ const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0,
             });
             yield tx.user.update({
                 where: { id: existingAgency.user_id },
-                data: { role: 'AGENCY' },
+                data: {
+                    role: 'AGENCY',
+                    password: hashedPassword,
+                },
             });
             return updatedAgency;
         }));
+        try {
+            const emailTemplate = (0, templates_1.createAgencyApprovalEmailTemplate)(existingAgency.name, existingAgency.user.name, existingAgency.user.email, newPassword);
+            yield (0, mailer_1.default)(existingAgency.user.email, '🎉 Congratulations! Your Agency Registration has been Approved', emailTemplate);
+        }
+        catch (emailError) {
+            console.error('Failed to send approval email:', emailError);
+            // Don't throw error for email failures - agency is still approved
+        }
+        return result;
+    }
+    else if (status === client_1.AgencyStatus.APPROVED &&
+        existingAgency.user_selection_type === client_1.UserSelectionType.EXISTING) {
+        const result = yield prisma_1.default.agency.update({
+            where: { id },
+            data: {
+                status: status,
+                approved_by_id,
+                approved_at: new Date(),
+            },
+        });
         return result;
     }
     if (status === client_1.AgencyStatus.REJECTED) {
