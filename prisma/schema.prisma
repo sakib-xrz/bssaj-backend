@@ -24,7 +24,6 @@ model User {
   approved_blogs     Blog[]             @relation("BlogApprover")
   blogs              Blog[]
   certifications     Certification[]
-  events_approved    Event[]            @relation("EventApprover")
   events             Event[]
   exam_registrations ExamRegistration[]
   approved_members   Member[]           @relation("MemberApprover")
@@ -134,21 +133,17 @@ model Blog {
 }
 
 model Event {
-  id             String      @id @default(uuid())
-  title          String
-  slug           String      @unique
-  status         EventStatus @default(UPCOMING)
-  description    String
-  location       String
-  event_date     DateTime
-  cover_image    String?
-  author_id      String
-  approved_by_id String?
-  is_deleted     Boolean     @default(false)
-  created_at     DateTime    @default(now())
-  updated_at     DateTime    @updatedAt
-  approved_by    User?       @relation("EventApprover", fields: [approved_by_id], references: [id])
-  author         User        @relation(fields: [author_id], references: [id])
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  location    String
+  event_date  DateTime
+  cover_image String?
+  author_id   String
+  is_deleted  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  author      User     @relation(fields: [author_id], references: [id])
 
   @@map("events")
 }
@@ -315,13 +310,6 @@ enum AgencyStatus {
   APPROVED
   REJECTED
   EXPIRED
-}
-
-enum EventStatus {
-  UPCOMING
-  ONGOING
-  COMPLETED
-  CANCELLED
 }
 
 enum JobType {
