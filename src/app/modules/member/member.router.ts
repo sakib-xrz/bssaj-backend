@@ -28,6 +28,8 @@ router.get(
   MembersController.GetMyMember,
 );
 
+router.get('/member-id/:member_id', MembersController.SingleMemberByMemberId);
+
 router
   .route('/:id')
   .get(MembersController.SingleMember)

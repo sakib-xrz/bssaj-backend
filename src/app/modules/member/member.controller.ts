@@ -38,6 +38,17 @@ const SingleMember = catchAsync(async (req, res) => {
   });
 });
 
+const SingleMemberByMemberId = catchAsync(async (req, res) => {
+  const { member_id } = req.params;
+  const result = await MembersService.GetSingleMemberByMemberId(member_id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Single Member fetched successfully by member ID',
+    data: result,
+  });
+});
+
 const GetMemberStats = catchAsync(async (req, res) => {
   const result = await MembersService.GetMemberStats();
   sendResponse(res, {
@@ -84,6 +95,7 @@ export const MembersController = {
   CreateMember,
   GetAllMember,
   SingleMember,
+  SingleMemberByMemberId,
   GetMemberStats,
   GetMyMember,
   UpdateMember,

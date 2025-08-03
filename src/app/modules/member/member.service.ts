@@ -237,9 +237,50 @@ const DeleteMember = async (id: string) => {
   return null;
 };
 
+const GetSingleMemberByMemberId = async (member_id: string) => {
+  const existingMember = await prisma.member.findUnique({
+    where: {
+      member_id: member_id,
+      is_deleted: false,
+    },
+    select: {
+      id: true,
+      member_id: true,
+      name: true,
+      email: true,
+      phone: true,
+      kind: true,
+      status: true,
+      approved_at: true,
+      approved_by: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      created_at: true,
+      updated_at: true,
+      user: {
+        select: {
+          id: true,
+          role: true,
+          profile_picture: true,
+        },
+      },
+    },
+  });
+
+  if (!existingMember) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Invalid Member ID');
+  }
+
+  return existingMember;
+};
+
 export const MembersService = {
   CreateMember,
   GetSingleMember,
+  GetSingleMemberByMemberId,
   GetAllMember,
   GetMemberStats,
   GetMyMember,

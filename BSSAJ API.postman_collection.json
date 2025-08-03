@@ -1105,6 +1105,25 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Single Member by Member ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/member-id/:member_id",
+              "host": ["{{base_url}}"],
+              "path": ["members", "member-id", ":member_id"],
+              "variable": [
+                {
+                  "key": "member_id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },

@@ -229,9 +229,47 @@ const DeleteMember = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return null;
 });
+const GetSingleMemberByMemberId = (member_id) => __awaiter(void 0, void 0, void 0, function* () {
+    const existingMember = yield prisma_1.default.member.findUnique({
+        where: {
+            member_id: member_id,
+            is_deleted: false,
+        },
+        select: {
+            id: true,
+            member_id: true,
+            name: true,
+            email: true,
+            phone: true,
+            kind: true,
+            status: true,
+            approved_at: true,
+            approved_by: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            created_at: true,
+            updated_at: true,
+            user: {
+                select: {
+                    id: true,
+                    role: true,
+                    profile_picture: true,
+                },
+            },
+        },
+    });
+    if (!existingMember) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Invalid Member ID');
+    }
+    return existingMember;
+});
 exports.MembersService = {
     CreateMember,
     GetSingleMember,
+    GetSingleMemberByMemberId,
     GetAllMember,
     GetMemberStats,
     GetMyMember,

@@ -17,6 +17,7 @@ router
     .get(member_controller_1.MembersController.GetAllMember);
 router.get('/stats', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), member_controller_1.MembersController.GetMemberStats);
 router.get('/me', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY, client_1.Role.STUDENT, client_1.Role.USER), member_controller_1.MembersController.GetMyMember);
+router.get('/member-id/:member_id', member_controller_1.MembersController.SingleMemberByMemberId);
 router
     .route('/:id')
     .get(member_controller_1.MembersController.SingleMember)
