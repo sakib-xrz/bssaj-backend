@@ -8,6 +8,7 @@ const admin_routes_1 = require("../modules/admin/admin.routes");
 const agency_routes_1 = require("../modules/agency/agency.routes");
 const auth_routes_1 = require("../modules/auth/auth.routes");
 const blog_routes_1 = require("../modules/blog/blog.routes");
+const certification_routes_1 = require("../modules/certification/certification.routes");
 const committee_routes_1 = require("../modules/committee/committee.routes");
 const event_routes_1 = require("../modules/event/event.routes");
 const member_router_1 = require("../modules/member/member.router");
@@ -23,6 +24,7 @@ const routes = [
     { path: '/blogs', route: blog_routes_1.BlogRouter },
     { path: '/events', route: event_routes_1.EventRouter },
     { path: '/news', route: news_routes_1.NewsRouter },
+    { path: '/certifications', route: certification_routes_1.CertificationRouter },
     { path: '/admin', route: admin_routes_1.AdminRoute },
 ];
 routes.forEach((route) => {

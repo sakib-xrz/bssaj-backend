@@ -25,11 +25,13 @@ router.patch(
 );
 
 router.post('/', auth(Role.SUPER_ADMIN), UserController.CreateUser);
-router.get(
-  '/:id',
-  auth(Role.SUPER_ADMIN, Role.ADMIN),
-  UserController.GetUserById,
-);
+router
+  .get('/:id', auth(Role.SUPER_ADMIN, Role.ADMIN), UserController.GetUserById)
+  .patch(
+    '/:id',
+    auth(Role.SUPER_ADMIN, Role.ADMIN),
+    UserController.UpdateUserById,
+  );
 
 router.delete('/:id', auth(Role.SUPER_ADMIN), UserController.DeleteUser);
 

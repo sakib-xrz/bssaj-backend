@@ -80,6 +80,15 @@ const DeleteAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result,
     });
 }));
+const GetMyAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield agency_services_1.AgencyService.GetMyAgency(req.user);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Agencies retrieved successfully',
+        data: result,
+    });
+}));
 exports.AgencyController = {
     CreateAgency,
     GetAllAgency,
@@ -87,4 +96,5 @@ exports.AgencyController = {
     GetSingleAgency,
     UpdateAgency,
     DeleteAgency,
+    GetMyAgency,
 };

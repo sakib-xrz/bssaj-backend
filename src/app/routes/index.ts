@@ -3,6 +3,7 @@ import { AdminRoute } from '../modules/admin/admin.routes';
 import { AgencyRouter } from '../modules/agency/agency.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { BlogRouter } from '../modules/blog/blog.routes';
+import { CertificationRouter } from '../modules/certification/certification.routes';
 import { CommitteeRouter } from '../modules/committee/committee.routes';
 import { EventRouter } from '../modules/event/event.routes';
 import { MemberRouter } from '../modules/member/member.router';
@@ -22,6 +23,7 @@ const routes: Route[] = [
   { path: '/blogs', route: BlogRouter },
   { path: '/events', route: EventRouter },
   { path: '/news', route: NewsRouter },
+  { path: '/certifications', route: CertificationRouter },
   { path: '/admin', route: AdminRoute },
 ];
 

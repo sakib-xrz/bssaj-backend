@@ -105,14 +105,23 @@ const ApprovedOrRejectAgency = (id, status, approved_by_id) => __awaiter(void 0,
     }
     else if (status === client_1.AgencyStatus.APPROVED &&
         existingAgency.user_selection_type === client_1.UserSelectionType.EXISTING) {
-        const result = yield prisma_1.default.agency.update({
-            where: { id },
-            data: {
-                status: status,
-                approved_by_id,
-                approved_at: new Date(),
-            },
-        });
+        const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+            const updatedAgency = yield tx.agency.update({
+                where: { id },
+                data: {
+                    status: status,
+                    approved_by_id,
+                    approved_at: new Date(),
+                },
+            });
+            yield tx.user.update({
+                where: { id: existingAgency.user_id },
+                data: {
+                    role: 'AGENCY',
+                },
+            });
+            return updatedAgency;
+        }));
         return result;
     }
     if (status === client_1.AgencyStatus.REJECTED) {

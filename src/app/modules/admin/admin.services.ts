@@ -142,14 +142,26 @@ const ApprovedOrRejectAgency = async (
     status === AgencyStatus.APPROVED &&
     existingAgency.user_selection_type === UserSelectionType.EXISTING
   ) {
-    const result = await prisma.agency.update({
-      where: { id },
-      data: {
-        status: status,
-        approved_by_id,
-        approved_at: new Date(),
-      },
+    const result = await prisma.$transaction(async (tx) => {
+      const updatedAgency = await tx.agency.update({
+        where: { id },
+        data: {
+          status: status,
+          approved_by_id,
+          approved_at: new Date(),
+        },
+      });
+
+      await tx.user.update({
+        where: { id: existingAgency.user_id },
+        data: {
+          role: 'AGENCY',
+        },
+      });
+
+      return updatedAgency;
     });
+
     return result;
   }
 

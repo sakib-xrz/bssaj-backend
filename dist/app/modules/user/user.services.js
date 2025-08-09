@@ -254,6 +254,19 @@ const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }));
     return transaction;
 });
+const UpdateUserById = (id, data) => __awaiter(void 0, void 0, void 0, function* () {
+    const userData = yield prisma_1.default.user.findUnique({
+        where: { id },
+    });
+    if (!userData) {
+        throw new Error('User not found');
+    }
+    const result = yield prisma_1.default.user.update({
+        where: { id },
+        data,
+    });
+    return result;
+});
 exports.UserService = {
     CreateUser,
     GetAllUser,
@@ -262,4 +275,5 @@ exports.UserService = {
     UpdateUser,
     UpdateProfilePicture,
     DeleteUser,
+    UpdateUserById,
 };

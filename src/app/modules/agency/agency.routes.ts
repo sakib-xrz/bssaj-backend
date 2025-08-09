@@ -19,6 +19,8 @@ router
 
 router.route('/stats').get(AgencyController.GetAgencyStats);
 
+router.route('/my-agency').get(auth(Role.AGENCY), AgencyController.GetMyAgency);
+
 router
   .route('/:id')
   .get(AgencyController.GetSingleAgency)

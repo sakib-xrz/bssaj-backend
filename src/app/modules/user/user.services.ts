@@ -289,6 +289,22 @@ const DeleteUser = async (id: string) => {
   return transaction;
 };
 
+const UpdateUserById = async (id: string, data: any) => {
+  const userData = await prisma.user.findUnique({
+    where: { id },
+  });
+  if (!userData) {
+    throw new Error('User not found');
+  }
+
+  const result = await prisma.user.update({
+    where: { id },
+    data,
+  });
+
+  return result;
+};
+
 export const UserService = {
   CreateUser,
   GetAllUser,
@@ -297,4 +313,5 @@ export const UserService = {
   UpdateUser,
   UpdateProfilePicture,
   DeleteUser,
+  UpdateUserById,
 };

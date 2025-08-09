@@ -428,6 +428,22 @@ const DeleteAgency = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
     return { message: 'Agency and associated user deleted successfully' };
 });
+const GetMyAgency = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.agency.findMany({
+        where: {
+            is_deleted: false,
+            user_id: user.id,
+        },
+        select: {
+            id: true,
+            name: true,
+        },
+        orderBy: {
+            name: 'asc',
+        },
+    });
+    return result;
+});
 exports.AgencyService = {
     CreateAgency,
     GetAllAgency,
@@ -435,4 +451,5 @@ exports.AgencyService = {
     GetSingleAgency,
     UpdateAgency,
     DeleteAgency,
+    GetMyAgency,
 };

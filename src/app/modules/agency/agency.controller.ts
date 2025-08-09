@@ -72,6 +72,16 @@ const DeleteAgency = catchAsync(async (req, res) => {
   });
 });
 
+const GetMyAgency = catchAsync(async (req, res) => {
+  const result = await AgencyService.GetMyAgency(req.user);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Agencies retrieved successfully',
+    data: result,
+  });
+});
+
 export const AgencyController = {
   CreateAgency,
   GetAllAgency,
@@ -79,4 +89,5 @@ export const AgencyController = {
   GetSingleAgency,
   UpdateAgency,
   DeleteAgency,
+  GetMyAgency,
 };

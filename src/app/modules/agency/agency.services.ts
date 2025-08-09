@@ -14,6 +14,7 @@ import {
   extractKeyFromUrl,
 } from '../../utils/handelFile';
 import AgencyUtils from './agency.utils';
+import { JwtPayload } from 'jsonwebtoken';
 
 const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
   let logo: string | null = null;
@@ -510,6 +511,24 @@ const DeleteAgency = async (id: string) => {
   return { message: 'Agency and associated user deleted successfully' };
 };
 
+const GetMyAgency = async (user: JwtPayload) => {
+  const result = await prisma.agency.findMany({
+    where: {
+      is_deleted: false,
+      user_id: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: 'asc',
+    },
+  });
+
+  return result;
+};
+
 export const AgencyService = {
   CreateAgency,
   GetAllAgency,
@@ -517,4 +536,5 @@ export const AgencyService = {
   GetSingleAgency,
   UpdateAgency,
   DeleteAgency,
+  GetMyAgency,
 };

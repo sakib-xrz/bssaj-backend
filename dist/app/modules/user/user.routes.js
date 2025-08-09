@@ -15,6 +15,8 @@ router.patch('/', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.A
 router.get('/search', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.SearchUser);
 router.patch('/profile-picture', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY, client_1.Role.STUDENT, client_1.Role.USER), handelFile_1.upload.single('image'), user_controller_1.UserController.UpdateProfilePicture);
 router.post('/', (0, auth_1.default)(client_1.Role.SUPER_ADMIN), user_controller_1.UserController.CreateUser);
-router.get('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.GetUserById);
+router
+    .get('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.GetUserById)
+    .patch('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), user_controller_1.UserController.UpdateUserById);
 router.delete('/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN), user_controller_1.UserController.DeleteUser);
 exports.UserRoute = router;

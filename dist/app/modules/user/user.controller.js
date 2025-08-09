@@ -87,6 +87,15 @@ const DeleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         message: 'User deleted successfully',
     });
 }));
+const UpdateUserById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_services_1.UserService.UpdateUserById(req.params.id, req.body);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'User updated successfully',
+        data: result,
+    });
+}));
 exports.UserController = {
     CreateUser,
     GetAllUser,
@@ -95,4 +104,5 @@ exports.UserController = {
     UpdateUser,
     UpdateProfilePicture,
     DeleteUser,
+    UpdateUserById,
 };

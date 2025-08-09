@@ -23,7 +23,6 @@ model User {
   agencies           Agency[]
   approved_blogs     Blog[]             @relation("BlogApprover")
   blogs              Blog[]
-  certifications     Certification[]
   events             Event[]
   exam_registrations ExamRegistration[]
   approved_members   Member[]           @relation("MemberApprover")
@@ -175,18 +174,24 @@ model Scholarship {
 }
 
 model Certification {
-  id                String            @id @default(uuid())
-  student_id        String
-  file_url          String
-  certificate_type  String
-  issued_at         DateTime          @default(now())
-  expires_at        DateTime?
-  agency_id         String
-  created_at        DateTime          @default(now())
-  updated_at        DateTime          @updatedAt
-  agency            Agency            @relation(fields: [agency_id], references: [id], onDelete: Cascade)
-  student           User              @relation(fields: [student_id], references: [id], onDelete: Cascade)
-  exam_registration ExamRegistration?
+  id              String   @id @default(uuid())
+  sl_no           String
+  name            String
+  date_of_birth   DateTime
+  gender          String
+  father_name     String
+  mother_name     String
+  student_id      String
+  completed_hours String
+  grade           String
+  course_duration String
+  issued_at       DateTime
+  institute_name  String
+  agency_id       String
+  certificate_url String?
+  agency          Agency?  @relation(fields: [agency_id], references: [id])
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   @@map("certifications")
 }
@@ -205,7 +210,6 @@ model ExamRegistration {
   is_deleted            Boolean                @default(false)
   created_at            DateTime               @default(now())
   updated_at            DateTime               @updatedAt
-  certificate           Certification?         @relation(fields: [issued_certificate_id], references: [id])
   payment               Payment                @relation(fields: [payment_id], references: [id])
   user                  User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
