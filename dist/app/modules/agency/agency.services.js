@@ -106,6 +106,7 @@ const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, funct
                 user_id: finalUserId,
                 name: payload.name,
                 contact_email: payload.contact_email,
+                agency_email: payload.agency_email || null,
                 contact_phone: payload.contact_phone || null,
                 website: payload.website || null,
                 director_name: payload.director_name || null,
@@ -183,6 +184,7 @@ const GetAllAgency = (query, options) => __awaiter(void 0, void 0, void 0, funct
                 { name: { contains: search, mode: 'insensitive' } },
                 { director_name: { contains: search, mode: 'insensitive' } },
                 { contact_email: { contains: search, mode: 'insensitive' } },
+                { agency_email: { contains: search, mode: 'insensitive' } },
             ],
         });
     }
@@ -354,7 +356,7 @@ const UpdateAgency = (payload, id, files) => __awaiter(void 0, void 0, void 0, f
             }));
             yield Promise.all(successStoryPromises);
         }
-        const updateData = Object.assign(Object.assign({}, payload), { logo, cover_photo: coverPhoto });
+        const updateData = Object.assign(Object.assign(Object.assign({}, payload), { logo, cover_photo: coverPhoto }), (payload.agency_email !== undefined && { agency_email: payload.agency_email }));
         const result = yield prisma_1.default.agency.update({
             where: { id },
             data: updateData,

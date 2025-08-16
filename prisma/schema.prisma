@@ -12,7 +12,7 @@ model User {
   name               String
   email              String             @unique
   password           String
-  role               Role               @default(USER)
+  role               Role               @default(STUDENT)
   profile_picture    String?
   address            String?
   current_study_info String?
@@ -62,6 +62,7 @@ model Agency {
   description         String?
   website             String?
   contact_email       String
+  agency_email        String?
   contact_phone       String?
   address             String?
   facebook_url        String?

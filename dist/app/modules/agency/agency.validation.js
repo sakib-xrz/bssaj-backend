@@ -9,6 +9,11 @@ exports.agencySchema = zod_1.z.object({
         contact_email: zod_1.z
             .string({ required_error: 'Contact email is required' })
             .email('Must be a valid email'),
+        agency_email: zod_1.z
+            .string()
+            .email('Must be a valid email')
+            .optional()
+            .or(zod_1.z.literal('')),
         contact_phone: zod_1.z.string().optional(),
         website: zod_1.z
             .string()
@@ -42,6 +47,11 @@ exports.agencyUpdateSchema = zod_1.z.object({
     body: zod_1.z.object({
         name: zod_1.z.string().optional(),
         contact_email: zod_1.z.string().email('Must be a valid email').optional(),
+        agency_email: zod_1.z
+            .string()
+            .email('Must be a valid email')
+            .optional()
+            .or(zod_1.z.literal('')),
         contact_phone: zod_1.z.string().optional(),
         website: zod_1.z
             .string()

@@ -124,6 +124,7 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
         user_id: finalUserId,
         name: payload.name,
         contact_email: payload.contact_email,
+        agency_email: payload.agency_email || null,
         contact_phone: payload.contact_phone || null,
         website: payload.website || null,
         director_name: payload.director_name || null,
@@ -210,6 +211,7 @@ const GetAllAgency = async (query: any, options: any) => {
         { name: { contains: search, mode: 'insensitive' } },
         { director_name: { contains: search, mode: 'insensitive' } },
         { contact_email: { contains: search, mode: 'insensitive' } },
+        { agency_email: { contains: search, mode: 'insensitive' } },
       ],
     });
   }
@@ -426,6 +428,8 @@ const UpdateAgency = async (
       ...payload,
       logo,
       cover_photo: coverPhoto,
+      // Ensure agency_email is included in the update if provided
+      ...(payload.agency_email !== undefined && { agency_email: payload.agency_email }),
     };
 
     const result = await prisma.agency.update({
