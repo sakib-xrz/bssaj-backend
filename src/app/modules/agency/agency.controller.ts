@@ -82,6 +82,40 @@ const GetMyAgency = catchAsync(async (req, res) => {
   });
 });
 
+const UploadSuccessStory = catchAsync(async (req, res) => {
+  const files = req.files as Express.Multer.File[];
+  const result = await AgencyService.UploadSuccessStory(req.body, files);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: 'Success stories uploaded successfully',
+    data: result,
+  });
+});
+
+const ReplaceSuccessStory = catchAsync(async (req, res) => {
+  const id = req.params.id;
+  const files = req.files as Express.Multer.File[];
+  const result = await AgencyService.ReplaceSuccessStory(id, files);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Success story replaced successfully',
+    data: result,
+  });
+});
+
+const DeleteSuccessStory = catchAsync(async (req, res) => {
+  const id = req.params.id;
+  const result = await AgencyService.DeleteSuccessStory(id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Success story deleted successfully',
+    data: result,
+  });
+});
+
 export const AgencyController = {
   CreateAgency,
   GetAllAgency,
@@ -90,4 +124,7 @@ export const AgencyController = {
   UpdateAgency,
   DeleteAgency,
   GetMyAgency,
+  UploadSuccessStory,
+  ReplaceSuccessStory,
+  DeleteSuccessStory,
 };

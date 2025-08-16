@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "ecac6946-d179-4171-adb8-73ae1b63bbf8",
+    "_postman_id": "f9dbdd4b-d94a-4d48-9b3f-d1504b3cf917",
     "name": "BSSAJ API - Complete",
     "description": "Complete API collection for BSSAJ project with all available endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -71,8 +71,9 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [],
-                "type": "text/javascript"
+                "exec": [""],
+                "type": "text/javascript",
+                "packages": {}
               }
             }
           ],
@@ -908,15 +909,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/agencies/:id",
+              "raw": "{{base_url}}/agencies/111eb213-5c64-4d95-9f06-2e7e78fb8119",
               "host": ["{{base_url}}"],
-              "path": ["agencies", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": ""
-                }
-              ]
+              "path": ["agencies", "111eb213-5c64-4d95-9f06-2e7e78fb8119"]
             }
           },
           "response": []
@@ -937,30 +932,32 @@
                 {
                   "key": "name",
                   "value": "Updated Agency Name",
-                  "type": "text"
+                  "type": "text",
+                  "disabled": true
                 },
                 {
                   "key": "description",
                   "value": "Updated description",
-                  "type": "text"
+                  "type": "text",
+                  "disabled": true
                 },
                 {
                   "key": "cover_photo",
                   "type": "file",
-                  "src": []
+                  "src": "/C:/Users/sakib/Downloads/ss-checker-small-rice.jpg"
+                },
+                {
+                  "key": "agency_email",
+                  "value": "sonarbangla@gmail.com",
+                  "type": "text",
+                  "disabled": true
                 }
               ]
             },
             "url": {
-              "raw": "{{base_url}}/agencies/:id",
+              "raw": "{{base_url}}/agencies/111eb213-5c64-4d95-9f06-2e7e78fb8119",
               "host": ["{{base_url}}"],
-              "path": ["agencies", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": ""
-                }
-              ]
+              "path": ["agencies", "111eb213-5c64-4d95-9f06-2e7e78fb8119"]
             }
           },
           "response": []
@@ -986,6 +983,132 @@
                 }
               ]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Success Stories",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "agency_id",
+                  "value": "",
+                  "type": "text",
+                  "description": "Agency UUID"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": [],
+                  "description": "Multiple success story images"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": [],
+                  "description": "Additional success story image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/agencies/success-stories",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "success-stories"]
+            },
+            "description": "Upload multiple new success story images for an agency"
+          },
+          "response": []
+        },
+        {
+          "name": "Replace Success Story",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [],
+                  "description": "New success story image to replace the existing one"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/agencies/success-stories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "success-stories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Success Story ID to replace"
+                }
+              ]
+            },
+            "description": "Replace an existing success story image with a new one"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Success Story",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agencies/success-stories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "success-stories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Success Story ID to delete"
+                }
+              ]
+            },
+            "description": "Delete a specific success story (removes both database record and cloud image)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Agency Success Stories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agencies/:agencyId/success-stories",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", ":agencyId", "success-stories"],
+              "variable": [
+                {
+                  "key": "agencyId",
+                  "value": "",
+                  "description": "Agency ID to get success stories for"
+                }
+              ]
+            },
+            "description": "Retrieve all success stories for a specific agency (public endpoint)"
           },
           "response": []
         }
@@ -1719,6 +1842,19 @@
                   "description": "Agency ID"
                 }
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My All Certifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/certifications/my-agencies",
+              "host": ["{{base_url}}"],
+              "path": ["certifications", "my-agencies"]
             }
           },
           "response": []

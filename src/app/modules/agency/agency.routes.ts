@@ -3,7 +3,11 @@ import { Router } from 'express';
 import auth from '../../middlewares/auth';
 import validateRequest from '../../middlewares/validateRequest';
 import { AgencyController } from './agency.controller';
-import { agencySchema, agencyUpdateSchema } from './agency.validation';
+import {
+  agencySchema,
+  agencyUpdateSchema,
+  successStoryCreateSchema,
+} from './agency.validation';
 import { upload } from '../../utils/handelFile';
 
 const router = Router();
@@ -20,6 +24,28 @@ router
 router.route('/stats').get(AgencyController.GetAgencyStats);
 
 router.route('/my-agency').get(auth(Role.AGENCY), AgencyController.GetMyAgency);
+
+// Success Stories routes
+router
+  .route('/success-stories')
+  .post(
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
+    upload.array('images'),
+    validateRequest(successStoryCreateSchema),
+    AgencyController.UploadSuccessStory,
+  );
+
+router
+  .route('/success-stories/:id')
+  .patch(
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
+    upload.single('image'),
+    AgencyController.ReplaceSuccessStory,
+  )
+  .delete(
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
+    AgencyController.DeleteSuccessStory,
+  );
 
 router
   .route('/:id')

@@ -429,7 +429,9 @@ const UpdateAgency = async (
       logo,
       cover_photo: coverPhoto,
       // Ensure agency_email is included in the update if provided
-      ...(payload.agency_email !== undefined && { agency_email: payload.agency_email }),
+      ...(payload.agency_email !== undefined && {
+        agency_email: payload.agency_email,
+      }),
     };
 
     const result = await prisma.agency.update({
@@ -533,6 +535,158 @@ const GetMyAgency = async (user: JwtPayload) => {
   return result;
 };
 
+const UploadSuccessStory = async (
+  payload: any,
+  files: Express.Multer.File[],
+) => {
+  const { agency_id } = payload;
+
+  // Verify agency exists and user has permission
+  const agency = await prisma.agency.findUnique({
+    where: { id: agency_id, is_deleted: false },
+  });
+
+  if (!agency) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Agency not found');
+  }
+
+  if (!files || files.length === 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'At least one image is required',
+    );
+  }
+
+  let uploadedSuccessStories: string[] = [];
+
+  try {
+    // Upload new success story images
+    const uploadPromises = files.map((file, index) =>
+      uploadToSpaces(file, {
+        folder: 'agency-success-stories',
+        filename: `success_story_${Date.now()}_${index}${path.extname(file.originalname)}`,
+      }),
+    );
+
+    const uploadResults = await Promise.all(uploadPromises);
+    uploadedSuccessStories = uploadResults
+      .map((result) => result?.url)
+      .filter((url) => url !== undefined) as string[];
+
+    // Create success story records
+    const successStoryData = uploadedSuccessStories.map((imageUrl) => ({
+      agency_id,
+      image: imageUrl,
+    }));
+
+    await prisma.agencySuccessStory.createMany({
+      data: successStoryData,
+    });
+
+    // Return the created success stories
+    const createdStories = await prisma.agencySuccessStory.findMany({
+      where: { agency_id },
+      orderBy: { id: 'desc' },
+      take: uploadedSuccessStories.length,
+    });
+
+    return createdStories;
+  } catch (error) {
+    // Clean up uploaded files on error
+    if (uploadedSuccessStories.length > 0) {
+      const keys = uploadedSuccessStories
+        .map((url) => extractKeyFromUrl(url))
+        .filter((key) => key) as string[];
+      if (keys.length > 0) await deleteMultipleFromSpaces(keys).catch(() => {});
+    }
+    throw error;
+  }
+};
+
+const ReplaceSuccessStory = async (
+  id: string,
+  files: Express.Multer.File[],
+) => {
+  // Find the existing success story
+  const existingStory = await prisma.agencySuccessStory.findUnique({
+    where: { id },
+  });
+
+  if (!existingStory) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Success story not found');
+  }
+
+  if (!files || files.length === 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Image file is required');
+  }
+
+  const file = files[0]; // Take the first file
+  let newImageUrl: string | null = null;
+
+  try {
+    // Upload new image
+    const uploadResult = await uploadToSpaces(file, {
+      folder: 'agency-success-stories',
+      filename: `success_story_${Date.now()}${path.extname(file.originalname)}`,
+    });
+    newImageUrl = uploadResult?.url || null;
+
+    if (!newImageUrl) {
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to upload image',
+      );
+    }
+
+    // Update the success story
+    const result = await prisma.agencySuccessStory.update({
+      where: { id },
+      data: { image: newImageUrl },
+    });
+
+    // Delete old image from cloud storage
+    const oldKey = extractKeyFromUrl(existingStory.image);
+    if (oldKey) {
+      await deleteFromSpaces(oldKey).catch(() => {});
+    }
+
+    return result;
+  } catch (error) {
+    // Clean up newly uploaded file on error
+    if (newImageUrl) {
+      const key = extractKeyFromUrl(newImageUrl);
+      if (key) await deleteFromSpaces(key).catch(() => {});
+    }
+    throw error;
+  }
+};
+
+const DeleteSuccessStory = async (id: string) => {
+  // Find the existing success story
+  const existingStory = await prisma.agencySuccessStory.findUnique({
+    where: { id },
+  });
+
+  if (!existingStory) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Success story not found');
+  }
+
+  // Delete from database
+  await prisma.agencySuccessStory.delete({
+    where: { id },
+  });
+
+  // Delete image from cloud storage
+  const key = extractKeyFromUrl(existingStory.image);
+  if (key) {
+    await deleteFromSpaces(key).catch(() => {
+      console.error('Failed to delete image from DigitalOcean Spaces');
+    });
+  }
+
+  return { message: 'Success story deleted successfully' };
+};
+
 export const AgencyService = {
   CreateAgency,
   GetAllAgency,
@@ -541,4 +695,7 @@ export const AgencyService = {
   UpdateAgency,
   DeleteAgency,
   GetMyAgency,
+  UploadSuccessStory,
+  ReplaceSuccessStory,
+  DeleteSuccessStory,
 };

@@ -89,6 +89,37 @@ const GetMyAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
         data: result,
     });
 }));
+const UploadSuccessStory = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const files = req.files;
+    const result = yield agency_services_1.AgencyService.UploadSuccessStory(req.body, files);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.CREATED,
+        message: 'Success stories uploaded successfully',
+        data: result,
+    });
+}));
+const ReplaceSuccessStory = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const files = req.files;
+    const result = yield agency_services_1.AgencyService.ReplaceSuccessStory(id, files);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Success story replaced successfully',
+        data: result,
+    });
+}));
+const DeleteSuccessStory = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const result = yield agency_services_1.AgencyService.DeleteSuccessStory(id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Success story deleted successfully',
+        data: result,
+    });
+}));
 exports.AgencyController = {
     CreateAgency,
     GetAllAgency,
@@ -97,4 +128,7 @@ exports.AgencyController = {
     UpdateAgency,
     DeleteAgency,
     GetMyAgency,
+    UploadSuccessStory,
+    ReplaceSuccessStory,
+    DeleteSuccessStory,
 };

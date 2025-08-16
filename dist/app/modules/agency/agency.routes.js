@@ -18,6 +18,14 @@ router
     .get(agency_controller_1.AgencyController.GetAllAgency);
 router.route('/stats').get(agency_controller_1.AgencyController.GetAgencyStats);
 router.route('/my-agency').get((0, auth_1.default)(client_1.Role.AGENCY), agency_controller_1.AgencyController.GetMyAgency);
+// Success Stories routes
+router
+    .route('/success-stories')
+    .post((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), handelFile_1.upload.array('images'), (0, validateRequest_1.default)(agency_validation_1.successStoryCreateSchema), agency_controller_1.AgencyController.UploadSuccessStory);
+router
+    .route('/success-stories/:id')
+    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), handelFile_1.upload.single('image'), agency_controller_1.AgencyController.ReplaceSuccessStory)
+    .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), agency_controller_1.AgencyController.DeleteSuccessStory);
 router
     .route('/:id')
     .get(agency_controller_1.AgencyController.GetSingleAgency)

@@ -80,3 +80,15 @@ export const agencyUpdateSchema = z.object({
       .optional(),
   }),
 });
+
+export const successStoryCreateSchema = z.object({
+  body: z.object({
+    agency_id: z.string({ required_error: 'Agency ID is required' }),
+  }),
+});
+
+export const successStoryUpdateSchema = z.object({
+  body: z.object({
+    agency_id: z.string().optional(),
+  }),
+});

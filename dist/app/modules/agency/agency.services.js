@@ -356,7 +356,9 @@ const UpdateAgency = (payload, id, files) => __awaiter(void 0, void 0, void 0, f
             }));
             yield Promise.all(successStoryPromises);
         }
-        const updateData = Object.assign(Object.assign(Object.assign({}, payload), { logo, cover_photo: coverPhoto }), (payload.agency_email !== undefined && { agency_email: payload.agency_email }));
+        const updateData = Object.assign(Object.assign(Object.assign({}, payload), { logo, cover_photo: coverPhoto }), (payload.agency_email !== undefined && {
+            agency_email: payload.agency_email,
+        }));
         const result = yield prisma_1.default.agency.update({
             where: { id },
             data: updateData,
@@ -446,6 +448,123 @@ const GetMyAgency = (user) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+const UploadSuccessStory = (payload, files) => __awaiter(void 0, void 0, void 0, function* () {
+    const { agency_id } = payload;
+    // Verify agency exists and user has permission
+    const agency = yield prisma_1.default.agency.findUnique({
+        where: { id: agency_id, is_deleted: false },
+    });
+    if (!agency) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Agency not found');
+    }
+    if (!files || files.length === 0) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'At least one image is required');
+    }
+    let uploadedSuccessStories = [];
+    try {
+        // Upload new success story images
+        const uploadPromises = files.map((file, index) => (0, handelFile_1.uploadToSpaces)(file, {
+            folder: 'agency-success-stories',
+            filename: `success_story_${Date.now()}_${index}${path_1.default.extname(file.originalname)}`,
+        }));
+        const uploadResults = yield Promise.all(uploadPromises);
+        uploadedSuccessStories = uploadResults
+            .map((result) => result === null || result === void 0 ? void 0 : result.url)
+            .filter((url) => url !== undefined);
+        // Create success story records
+        const successStoryData = uploadedSuccessStories.map((imageUrl) => ({
+            agency_id,
+            image: imageUrl,
+        }));
+        yield prisma_1.default.agencySuccessStory.createMany({
+            data: successStoryData,
+        });
+        // Return the created success stories
+        const createdStories = yield prisma_1.default.agencySuccessStory.findMany({
+            where: { agency_id },
+            orderBy: { id: 'desc' },
+            take: uploadedSuccessStories.length,
+        });
+        return createdStories;
+    }
+    catch (error) {
+        // Clean up uploaded files on error
+        if (uploadedSuccessStories.length > 0) {
+            const keys = uploadedSuccessStories
+                .map((url) => (0, handelFile_1.extractKeyFromUrl)(url))
+                .filter((key) => key);
+            if (keys.length > 0)
+                yield (0, handelFile_1.deleteMultipleFromSpaces)(keys).catch(() => { });
+        }
+        throw error;
+    }
+});
+const ReplaceSuccessStory = (id, files) => __awaiter(void 0, void 0, void 0, function* () {
+    // Find the existing success story
+    const existingStory = yield prisma_1.default.agencySuccessStory.findUnique({
+        where: { id },
+    });
+    if (!existingStory) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Success story not found');
+    }
+    if (!files || files.length === 0) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Image file is required');
+    }
+    const file = files[0]; // Take the first file
+    let newImageUrl = null;
+    try {
+        // Upload new image
+        const uploadResult = yield (0, handelFile_1.uploadToSpaces)(file, {
+            folder: 'agency-success-stories',
+            filename: `success_story_${Date.now()}${path_1.default.extname(file.originalname)}`,
+        });
+        newImageUrl = (uploadResult === null || uploadResult === void 0 ? void 0 : uploadResult.url) || null;
+        if (!newImageUrl) {
+            throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Failed to upload image');
+        }
+        // Update the success story
+        const result = yield prisma_1.default.agencySuccessStory.update({
+            where: { id },
+            data: { image: newImageUrl },
+        });
+        // Delete old image from cloud storage
+        const oldKey = (0, handelFile_1.extractKeyFromUrl)(existingStory.image);
+        if (oldKey) {
+            yield (0, handelFile_1.deleteFromSpaces)(oldKey).catch(() => { });
+        }
+        return result;
+    }
+    catch (error) {
+        // Clean up newly uploaded file on error
+        if (newImageUrl) {
+            const key = (0, handelFile_1.extractKeyFromUrl)(newImageUrl);
+            if (key)
+                yield (0, handelFile_1.deleteFromSpaces)(key).catch(() => { });
+        }
+        throw error;
+    }
+});
+const DeleteSuccessStory = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    // Find the existing success story
+    const existingStory = yield prisma_1.default.agencySuccessStory.findUnique({
+        where: { id },
+    });
+    if (!existingStory) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Success story not found');
+    }
+    // Delete from database
+    yield prisma_1.default.agencySuccessStory.delete({
+        where: { id },
+    });
+    // Delete image from cloud storage
+    const key = (0, handelFile_1.extractKeyFromUrl)(existingStory.image);
+    if (key) {
+        yield (0, handelFile_1.deleteFromSpaces)(key).catch(() => {
+            console.error('Failed to delete image from DigitalOcean Spaces');
+        });
+    }
+    return { message: 'Success story deleted successfully' };
+});
 exports.AgencyService = {
     CreateAgency,
     GetAllAgency,
@@ -454,4 +573,7 @@ exports.AgencyService = {
     UpdateAgency,
     DeleteAgency,
     GetMyAgency,
+    UploadSuccessStory,
+    ReplaceSuccessStory,
+    DeleteSuccessStory,
 };
