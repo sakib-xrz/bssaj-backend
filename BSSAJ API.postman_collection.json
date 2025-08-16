@@ -1,2180 +1,1904 @@
 {
-	"info": {
-		"_postman_id": "ecac6946-d179-4171-adb8-73ae1b63bbf8",
-		"name": "BSSAJ API - Complete",
-		"description": "Complete API collection for BSSAJ project with all available endpoints",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "25329986"
-	},
-	"item": [
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    const response = pm.response.json();",
-									"    pm.collectionVariables.set('access_token', response.data.access_token);",
-									"    pm.test('Register successful', function () {",
-									"        pm.expect(response.success).to.be.true;",
-									"    });",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"123456\",\n    \"name\": \"Test User\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (pm.response.code === 200) {",
-									"    const response = pm.response.json();",
-									"    pm.collectionVariables.set('access_token', response.data.access_token);",
-									"    pm.test('Login successful', function () {",
-									"        pm.expect(response.success).to.be.true;",
-									"    });",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "// {\n//     \"email\": \"superadmin@bssaj.com\",\n//     \"password\": \"123456\"\n// }\n{\n    \"email\": \"sakibxrz21@gmail.com\",\n    \"password\": \"Sakib@123\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/login",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get My Profile",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/auth/me",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Change Password",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"currentPassword\": \"123456\",\n    \"newPassword\": \"newpassword123\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/change-password",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"change-password"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Admin",
-			"item": [
-				{
-					"name": "Approve/Reject Member",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"APPROVED\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/admin/approve-reject-member/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"admin",
-								"approve-reject-member",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Approve/Reject Agency",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"APPROVED\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/admin/approve-reject-agency/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"admin",
-								"approve-reject-agency",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Approve/Reject Blog",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"APPROVED\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/admin/approve-reject-blog/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"admin",
-								"approve-reject-blog",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "User",
-			"item": [
-				{
-					"name": "Get All Users",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/users?page=1&limit=10",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Search Users",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/users/search?searchTerm=",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users",
-								"search"
-							],
-							"query": [
-								{
-									"key": "searchTerm",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get User By Id",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/users/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create User",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"123456\",\n    \"name\": \"New User\",\n    \"role\": \"USER\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/users",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update User",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Updated User Name\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/users",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update User By Id",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"role\": \"AGENCY\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/users/7c43f071-4f9e-4a93-86fb-48e1b52ab128",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users",
-								"7c43f071-4f9e-4a93-86fb-48e1b52ab128"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Profile Picture",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "image",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/users/profile-picture",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users",
-								"profile-picture"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete User",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/users/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"users",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Blog",
-			"item": [
-				{
-					"name": "Create Blog",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "Sample Blog Title",
-									"type": "text"
-								},
-								{
-									"key": "content",
-									"value": "This is the blog content",
-									"type": "text"
-								},
-								{
-									"key": "cover_image",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/blogs",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"blogs"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Blogs",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/blogs?page=1&limit=10",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"blogs"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Blog",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/blogs/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"blogs",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Blog",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "Updated Blog Title",
-									"type": "text"
-								},
-								{
-									"key": "content",
-									"value": "Updated blog content",
-									"type": "text"
-								},
-								{
-									"key": "cover_image",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/blogs/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"blogs",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Blog",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/blogs/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"blogs",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Event",
-			"item": [
-				{
-					"name": "Create Event",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "Sample Event Title",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "This is a sample event description with detailed information about the event.",
-									"type": "text"
-								},
-								{
-									"key": "location",
-									"value": "Sample Event Location, City",
-									"type": "text"
-								},
-								{
-									"key": "event_date",
-									"value": "2024-12-31T10:00:00.000Z",
-									"type": "text"
-								},
-								{
-									"key": "cover_image",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/events",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"events"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Events",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/events?page=1&limit=10&search=&author_id=&sort_by=&sort_order=",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"events"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "search",
-									"value": "",
-									"description": "Search in title, description, and location"
-								},
-								{
-									"key": "author_id",
-									"value": "",
-									"description": "Filter by author/creator ID"
-								},
-								{
-									"key": "sort_by",
-									"value": "",
-									"description": "Field to sort by (e.g., created_at, title, event_date)"
-								},
-								{
-									"key": "sort_order",
-									"value": "",
-									"description": "Sort order: asc or desc"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Event",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/events/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"events",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "",
-									"description": "Event ID"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Event",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "Updated Event Title",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "Updated event description with new information.",
-									"type": "text"
-								},
-								{
-									"key": "location",
-									"value": "Updated Event Location",
-									"type": "text"
-								},
-								{
-									"key": "event_date",
-									"value": "2025-01-15T14:00:00.000Z",
-									"type": "text"
-								},
-								{
-									"key": "cover_image",
-									"description": "New cover image (optional)",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/events/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"events",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "",
-									"description": "Event ID to update"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Event",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/events/:id?hard_delete=false",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"events",
-								":id"
-							],
-							"query": [
-								{
-									"key": "hard_delete",
-									"value": "false",
-									"description": "Set to true for permanent deletion, false for soft delete"
-								}
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "",
-									"description": "Event ID to delete"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Agency",
-			"item": [
-				{
-					"name": "Create Agency",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "Sample Agency",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "Agency description",
-									"type": "text"
-								},
-								{
-									"key": "cover_photo",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/agencies",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"agencies"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Agencies",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/agencies?page=1&limit=10",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"agencies"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Agency Stats",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/agencies/stats",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"agencies",
-								"stats"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get My Agency",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/agencies/my-agency",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"agencies",
-								"my-agency"
-							]
-						},
-						"description": "Get all agencies with only ID and name (no pagination, search, or filters)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Agency",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/agencies/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"agencies",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Agency",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "Updated Agency Name",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "Updated description",
-									"type": "text"
-								},
-								{
-									"key": "cover_photo",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/agencies/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"agencies",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Agency",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/agencies/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"agencies",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Member",
-			"item": [
-				{
-					"name": "Create Member",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Member Name\",\n    \"email\": \"member@example.com\",\n    \"phone\": \"+1234567890\",\n    \"membershipType\": \"REGULAR\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/members",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Members",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/members?page=1&limit=10",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Member Stats",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/members/stats",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members",
-								"stats"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get My Member",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/members/me",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Member",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/members/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Member",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Updated Member Name\",\n    \"phone\": \"+9876543210\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/members/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Member",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/members/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Member by Member ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/members/member-id/:member_id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"members",
-								"member-id",
-								":member_id"
-							],
-							"variable": [
-								{
-									"key": "member_id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Committee",
-			"item": [
-				{
-					"name": "Create Committee",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "John Doe",
-									"type": "text"
-								},
-								{
-									"key": "designation",
-									"value": "President",
-									"type": "text"
-								},
-								{
-									"key": "term_start_year",
-									"value": "2023",
-									"type": "text"
-								},
-								{
-									"key": "term_end_year",
-									"value": "2024",
-									"type": "text"
-								},
-								{
-									"key": "profile_picture",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/committees",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"committees"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Committees",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/committees?page=1&limit=10&designation=&term_start_year=&term_end_year=&name=&sort_by=&sort_order=",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"committees"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "designation",
-									"value": ""
-								},
-								{
-									"key": "term_start_year",
-									"value": ""
-								},
-								{
-									"key": "term_end_year",
-									"value": ""
-								},
-								{
-									"key": "name",
-									"value": ""
-								},
-								{
-									"key": "sort_by",
-									"value": ""
-								},
-								{
-									"key": "sort_order",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Unique Term Pairs",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/committees/years",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"committees",
-								"years"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Committee",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/committees/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"committees",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Committee",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "John Doe Updated",
-									"type": "text"
-								},
-								{
-									"key": "designation",
-									"value": "Vice President",
-									"type": "text"
-								},
-								{
-									"key": "term_start_year",
-									"value": "2024",
-									"type": "text"
-								},
-								{
-									"key": "term_end_year",
-									"value": "2025",
-									"type": "text"
-								},
-								{
-									"key": "profile_picture",
-									"type": "file",
-									"src": []
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/committees/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"committees",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Committee",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/committees/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"committees",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "News",
-			"item": [
-				{
-					"name": "Create News",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"Sample News Title\",\n    \"content\": \"This is the news content with details about the announcement or update.\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/news",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"news"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All News",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/news?page=1&limit=10&search=&sort_by=&sort_order=",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"news"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "search",
-									"value": ""
-								},
-								{
-									"key": "sort_by",
-									"value": ""
-								},
-								{
-									"key": "sort_order",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single News",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/news/08dbfd64-94fc-40bb-8f9d-2d2a856c42a5",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"news",
-								"08dbfd64-94fc-40bb-8f9d-2d2a856c42a5"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update News",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"Updated News Title\",\n    \"content\": \"Updated news content with new information.\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/news/08dbfd64-94fc-40bb-8f9d-2d2a856c42a5",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"news",
-								"08dbfd64-94fc-40bb-8f9d-2d2a856c42a5"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete News",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/news/08dbfd64-94fc-40bb-8f9d-2d2a856c42a5?hard_delete=false",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"news",
-								"08dbfd64-94fc-40bb-8f9d-2d2a856c42a5"
-							],
-							"query": [
-								{
-									"key": "hard_delete",
-									"value": "false",
-									"description": "Set to true for permanent deletion"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Certification",
-			"item": [
-				{
-					"name": "Create Certification",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "John Doe",
-									"type": "text"
-								},
-								{
-									"key": "date_of_birth",
-									"value": "1995-06-15",
-									"description": "Date format: YYYY-MM-DD",
-									"type": "text"
-								},
-								{
-									"key": "gender",
-									"value": "Male",
-									"type": "text"
-								},
-								{
-									"key": "father_name",
-									"value": "Robert Doe",
-									"type": "text"
-								},
-								{
-									"key": "mother_name",
-									"value": "Mary Doe",
-									"type": "text"
-								},
-								{
-									"key": "student_id",
-									"value": "001",
-									"type": "text"
-								},
-								{
-									"key": "completed_hours",
-									"value": "120",
-									"type": "text"
-								},
-								{
-									"key": "grade",
-									"value": "A",
-									"type": "text"
-								},
-								{
-									"key": "course_duration",
-									"value": "6",
-									"description": "Duration in months",
-									"type": "text"
-								},
-								{
-									"key": "issued_at",
-									"value": "2024-08-25",
-									"description": "Date format: YYYY-MM-DD",
-									"type": "text"
-								},
-								{
-									"key": "institute_name",
-									"value": "Sonar Bangla",
-									"type": "text"
-								},
-								{
-									"key": "agency_id",
-									"value": "111eb213-5c64-4d95-9f06-2e7e78fb8119",
-									"description": "Agency UUID",
-									"type": "text"
-								},
-								{
-									"key": "certificate_file",
-									"description": "Certificate PDF/document file",
-									"type": "file",
-									"src": "/C:/Users/sakib/Downloads/b771de77-259c-4dba-bc0b-e007a61b9994.pdf"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/certifications",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"certifications"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get All Certifications",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/certifications?page=1&limit=10",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"certifications"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "search",
-									"value": "",
-									"description": "Search by sl_no only",
-									"disabled": true
-								},
-								{
-									"key": "agency_id",
-									"value": "",
-									"description": "Filter by agency ID",
-									"disabled": true
-								},
-								{
-									"key": "sort_by",
-									"value": "",
-									"description": "Field to sort by",
-									"disabled": true
-								},
-								{
-									"key": "sort_order",
-									"value": "",
-									"description": "Sort order: asc or desc",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Single Certification",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/certifications/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"certifications",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "",
-									"description": "Certification ID"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Certifications by Agency",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/certifications/agency/:agency_id?page=1&limit=10&search=&sort_by=&sort_order=",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"certifications",
-								"agency",
-								":agency_id"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "search",
-									"value": "",
-									"description": "Search by sl_no only"
-								},
-								{
-									"key": "sort_by",
-									"value": "",
-									"description": "Field to sort by"
-								},
-								{
-									"key": "sort_order",
-									"value": "",
-									"description": "Sort order: asc or desc"
-								}
-							],
-							"variable": [
-								{
-									"key": "agency_id",
-									"value": "",
-									"description": "Agency ID"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Verify Certificate",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/certifications/verify/BSSAJ-SB-0825-0001",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"certifications",
-								"verify",
-								"BSSAJ-SB-0825-0001"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Certification",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "John Doe Updated",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "date_of_birth",
-									"value": "1995-06-15",
-									"description": "Date format: YYYY-MM-DD",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "gender",
-									"value": "Male",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "father_name",
-									"value": "Robert Doe Updated",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "mother_name",
-									"value": "Mary Doe Updated",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "student_id",
-									"value": "STU001",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "completed_hours",
-									"value": "150",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "grade",
-									"value": "A+",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "course_duration",
-									"value": "8",
-									"description": "Duration in months",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "issued_at",
-									"value": "2024-08-25",
-									"description": "Date format: YYYY-MM-DD",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "institute_name",
-									"value": "Updated Institute Name",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "certificate_file",
-									"description": "New certificate file (optional)",
-									"type": "file",
-									"src": [],
-									"disabled": true
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/certifications/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"certifications",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "",
-									"description": "Certification ID to update"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Certification",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/certifications/bdbd36f9-7ebd-4314-a8be-b9a40889b606",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"certifications",
-								"bdbd36f9-7ebd-4314-a8be-b9a40889b606"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "{{access_token}}",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8000/api/v1",
-			"type": "string"
-		},
-		{
-			"key": "access_token",
-			"value": "",
-			"type": "string"
-		}
-	]
+  "info": {
+    "_postman_id": "ecac6946-d179-4171-adb8-73ae1b63bbf8",
+    "name": "BSSAJ API - Complete",
+    "description": "Complete API collection for BSSAJ project with all available endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "25329986"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', response.data.access_token);",
+                  "    pm.test('Register successful', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"123456\",\n    \"name\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', response.data.access_token);",
+                  "    pm.test('Login successful', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\n//     \"email\": \"superadmin@bssaj.com\",\n//     \"password\": \"123456\"\n// }\n{\n    \"email\": \"sakibxrz21@gmail.com\",\n    \"password\": \"Sakib@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"currentPassword\": \"123456\",\n    \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "change-password"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Approve/Reject Member",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"APPROVED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/approve-reject-member/:id",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "approve-reject-member", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve/Reject Agency",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"APPROVED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/approve-reject-agency/:id",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "approve-reject-agency", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve/Reject Blog",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"APPROVED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/approve-reject-blog/:id",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "approve-reject-blog", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/search?searchTerm=",
+              "host": ["{{base_url}}"],
+              "path": ["users", "search"],
+              "query": [
+                {
+                  "key": "searchTerm",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"123456\",\n    \"name\": \"New User\",\n    \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated User Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User By Id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"role\": \"AGENCY\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/7c43f071-4f9e-4a93-86fb-48e1b52ab128",
+              "host": ["{{base_url}}"],
+              "path": ["users", "7c43f071-4f9e-4a93-86fb-48e1b52ab128"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile Picture",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/users/profile-picture",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile-picture"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/:id",
+              "host": ["{{base_url}}"],
+              "path": ["users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Blog",
+      "item": [
+        {
+          "name": "Create Blog",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Sample Blog Title",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "This is the blog content",
+                  "type": "text"
+                },
+                {
+                  "key": "cover_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/blogs",
+              "host": ["{{base_url}}"],
+              "path": ["blogs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Blogs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/blogs?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["blogs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Blog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/blogs/:id",
+              "host": ["{{base_url}}"],
+              "path": ["blogs", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Blog",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Updated Blog Title",
+                  "type": "text"
+                },
+                {
+                  "key": "content",
+                  "value": "Updated blog content",
+                  "type": "text"
+                },
+                {
+                  "key": "cover_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/blogs/:id",
+              "host": ["{{base_url}}"],
+              "path": ["blogs", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Blog",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blogs/:id",
+              "host": ["{{base_url}}"],
+              "path": ["blogs", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Event",
+      "item": [
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Sample Event Title",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "This is a sample event description with detailed information about the event.",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "Sample Event Location, City",
+                  "type": "text"
+                },
+                {
+                  "key": "event_date",
+                  "value": "2024-12-31T10:00:00.000Z",
+                  "type": "text"
+                },
+                {
+                  "key": "cover_image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["events"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/events?page=1&limit=10&search=&author_id=&sort_by=&sort_order=",
+              "host": ["{{base_url}}"],
+              "path": ["events"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search in title, description, and location"
+                },
+                {
+                  "key": "author_id",
+                  "value": "",
+                  "description": "Filter by author/creator ID"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "",
+                  "description": "Field to sort by (e.g., created_at, title, event_date)"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "",
+                  "description": "Sort order: asc or desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Event",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Event ID"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Updated Event Title",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated event description with new information.",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "Updated Event Location",
+                  "type": "text"
+                },
+                {
+                  "key": "event_date",
+                  "value": "2025-01-15T14:00:00.000Z",
+                  "type": "text"
+                },
+                {
+                  "key": "cover_image",
+                  "description": "New cover image (optional)",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/events/:id",
+              "host": ["{{base_url}}"],
+              "path": ["events", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Event ID to update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/:id?hard_delete=false",
+              "host": ["{{base_url}}"],
+              "path": ["events", ":id"],
+              "query": [
+                {
+                  "key": "hard_delete",
+                  "value": "false",
+                  "description": "Set to true for permanent deletion, false for soft delete"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Event ID to delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Agency",
+      "item": [
+        {
+          "name": "Create Agency",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Sample Agency",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Agency description",
+                  "type": "text"
+                },
+                {
+                  "key": "cover_photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/agencies",
+              "host": ["{{base_url}}"],
+              "path": ["agencies"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Agencies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agencies?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["agencies"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Agency Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agencies/stats",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Agency",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agencies/my-agency",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "my-agency"]
+            },
+            "description": "Get all agencies with only ID and name (no pagination, search, or filters)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Agency",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agencies/:id",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Agency",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Agency Name",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text"
+                },
+                {
+                  "key": "cover_photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/agencies/:id",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Agency",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agencies/:id",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "item": [
+        {
+          "name": "Create Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Member Name\",\n    \"email\": \"member@example.com\",\n    \"phone\": \"+1234567890\",\n    \"membershipType\": \"REGULAR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["members"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["members"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Member Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members/stats",
+              "host": ["{{base_url}}"],
+              "path": ["members", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Member",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members/me",
+              "host": ["{{base_url}}"],
+              "path": ["members", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Member",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/:id",
+              "host": ["{{base_url}}"],
+              "path": ["members", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Member",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Member Name\",\n    \"phone\": \"+9876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/members/:id",
+              "host": ["{{base_url}}"],
+              "path": ["members", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Member",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/members/:id",
+              "host": ["{{base_url}}"],
+              "path": ["members", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Member by Member ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/members/member-id/:member_id",
+              "host": ["{{base_url}}"],
+              "path": ["members", "member-id", ":member_id"],
+              "variable": [
+                {
+                  "key": "member_id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Committee",
+      "item": [
+        {
+          "name": "Create Committee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "John Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "designation",
+                  "value": "President",
+                  "type": "text"
+                },
+                {
+                  "key": "term_start_year",
+                  "value": "2023",
+                  "type": "text"
+                },
+                {
+                  "key": "term_end_year",
+                  "value": "2024",
+                  "type": "text"
+                },
+                {
+                  "key": "profile_picture",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/committees",
+              "host": ["{{base_url}}"],
+              "path": ["committees"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Committees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/committees?page=1&limit=10&designation=&term_start_year=&term_end_year=&name=&sort_by=&sort_order=",
+              "host": ["{{base_url}}"],
+              "path": ["committees"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "designation",
+                  "value": ""
+                },
+                {
+                  "key": "term_start_year",
+                  "value": ""
+                },
+                {
+                  "key": "term_end_year",
+                  "value": ""
+                },
+                {
+                  "key": "name",
+                  "value": ""
+                },
+                {
+                  "key": "sort_by",
+                  "value": ""
+                },
+                {
+                  "key": "sort_order",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unique Term Pairs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/committees/years",
+              "host": ["{{base_url}}"],
+              "path": ["committees", "years"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Committee",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/committees/:id",
+              "host": ["{{base_url}}"],
+              "path": ["committees", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Committee",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "John Doe Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "designation",
+                  "value": "Vice President",
+                  "type": "text"
+                },
+                {
+                  "key": "term_start_year",
+                  "value": "2024",
+                  "type": "text"
+                },
+                {
+                  "key": "term_end_year",
+                  "value": "2025",
+                  "type": "text"
+                },
+                {
+                  "key": "profile_picture",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/committees/:id",
+              "host": ["{{base_url}}"],
+              "path": ["committees", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Committee",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/committees/:id",
+              "host": ["{{base_url}}"],
+              "path": ["committees", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "News",
+      "item": [
+        {
+          "name": "Create News",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Sample News Title\",\n    \"content\": \"This is the news content with details about the announcement or update.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/news",
+              "host": ["{{base_url}}"],
+              "path": ["news"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/news?page=1&limit=10&search=&sort_by=&sort_order=",
+              "host": ["{{base_url}}"],
+              "path": ["news"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "sort_by",
+                  "value": ""
+                },
+                {
+                  "key": "sort_order",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/news/08dbfd64-94fc-40bb-8f9d-2d2a856c42a5",
+              "host": ["{{base_url}}"],
+              "path": ["news", "08dbfd64-94fc-40bb-8f9d-2d2a856c42a5"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update News",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Updated News Title\",\n    \"content\": \"Updated news content with new information.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/news/08dbfd64-94fc-40bb-8f9d-2d2a856c42a5",
+              "host": ["{{base_url}}"],
+              "path": ["news", "08dbfd64-94fc-40bb-8f9d-2d2a856c42a5"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete News",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/news/08dbfd64-94fc-40bb-8f9d-2d2a856c42a5?hard_delete=false",
+              "host": ["{{base_url}}"],
+              "path": ["news", "08dbfd64-94fc-40bb-8f9d-2d2a856c42a5"],
+              "query": [
+                {
+                  "key": "hard_delete",
+                  "value": "false",
+                  "description": "Set to true for permanent deletion"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Certification",
+      "item": [
+        {
+          "name": "Create Certification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "John Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "date_of_birth",
+                  "value": "1995-06-15",
+                  "description": "Date format: YYYY-MM-DD",
+                  "type": "text"
+                },
+                {
+                  "key": "gender",
+                  "value": "Male",
+                  "type": "text"
+                },
+                {
+                  "key": "father_name",
+                  "value": "Robert Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "mother_name",
+                  "value": "Mary Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "student_id",
+                  "value": "001",
+                  "type": "text"
+                },
+                {
+                  "key": "completed_hours",
+                  "value": "120",
+                  "type": "text"
+                },
+                {
+                  "key": "grade",
+                  "value": "A",
+                  "type": "text"
+                },
+                {
+                  "key": "course_duration",
+                  "value": "6",
+                  "description": "Duration in months",
+                  "type": "text"
+                },
+                {
+                  "key": "issued_at",
+                  "value": "2024-08-25",
+                  "description": "Date format: YYYY-MM-DD",
+                  "type": "text"
+                },
+                {
+                  "key": "institute_name",
+                  "value": "Sonar Bangla",
+                  "type": "text"
+                },
+                {
+                  "key": "agency_id",
+                  "value": "111eb213-5c64-4d95-9f06-2e7e78fb8119",
+                  "description": "Agency UUID",
+                  "type": "text"
+                },
+                {
+                  "key": "certificate_file",
+                  "description": "Certificate PDF/document file",
+                  "type": "file",
+                  "src": "/C:/Users/sakib/Downloads/b771de77-259c-4dba-bc0b-e007a61b9994.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/certifications",
+              "host": ["{{base_url}}"],
+              "path": ["certifications"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Certifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/certifications?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["certifications"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by sl_no only",
+                  "disabled": true
+                },
+                {
+                  "key": "agency_id",
+                  "value": "",
+                  "description": "Filter by agency ID",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_by",
+                  "value": "",
+                  "description": "Field to sort by",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_order",
+                  "value": "",
+                  "description": "Sort order: asc or desc",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Certification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/certifications/:id",
+              "host": ["{{base_url}}"],
+              "path": ["certifications", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Certification ID"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Certifications by Agency",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/certifications/agency/:agency_id?page=1&limit=10&search=&sort_by=&sort_order=",
+              "host": ["{{base_url}}"],
+              "path": ["certifications", "agency", ":agency_id"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by sl_no only"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "",
+                  "description": "Field to sort by"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "",
+                  "description": "Sort order: asc or desc"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "agency_id",
+                  "value": "",
+                  "description": "Agency ID"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/certifications/verify/BSSAJ-SB-0825-0001",
+              "host": ["{{base_url}}"],
+              "path": ["certifications", "verify", "BSSAJ-SB-0825-0001"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Certification",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "John Doe Updated",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "date_of_birth",
+                  "value": "1995-06-15",
+                  "description": "Date format: YYYY-MM-DD",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "gender",
+                  "value": "Male",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "father_name",
+                  "value": "Robert Doe Updated",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "mother_name",
+                  "value": "Mary Doe Updated",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "student_id",
+                  "value": "STU001",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "completed_hours",
+                  "value": "150",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "grade",
+                  "value": "A+",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "course_duration",
+                  "value": "8",
+                  "description": "Duration in months",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "issued_at",
+                  "value": "2024-08-25",
+                  "description": "Date format: YYYY-MM-DD",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "institute_name",
+                  "value": "Updated Institute Name",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "certificate_file",
+                  "description": "New certificate file (optional)",
+                  "type": "file",
+                  "src": [],
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/certifications/:id",
+              "host": ["{{base_url}}"],
+              "path": ["certifications", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Certification ID to update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Certification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/certifications/bdbd36f9-7ebd-4314-a8be-b9a40889b606",
+              "host": ["{{base_url}}"],
+              "path": ["certifications", "bdbd36f9-7ebd-4314-a8be-b9a40889b606"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
 }

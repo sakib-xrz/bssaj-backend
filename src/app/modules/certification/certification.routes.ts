@@ -14,7 +14,15 @@ router.get('/verify/:sl_no', CertificationController.VerifyCertification);
 // Get certifications by agency
 router.get(
   '/agency/:agency_id',
+  auth(Role.AGENCY),
   CertificationController.GetCertificationsByAgency,
+);
+
+// Get my all agencies certifications list
+router.get(
+  '/my-agencies',
+  auth(Role.AGENCY),
+  CertificationController.GetMyAgenciesCertifications,
 );
 
 router

@@ -15,7 +15,9 @@ const router = (0, express_1.Router)();
 // Verify certificate endpoint (public)
 router.get('/verify/:sl_no', certification_controller_1.CertificationController.VerifyCertification);
 // Get certifications by agency
-router.get('/agency/:agency_id', certification_controller_1.CertificationController.GetCertificationsByAgency);
+router.get('/agency/:agency_id', (0, auth_1.default)(client_1.Role.AGENCY), certification_controller_1.CertificationController.GetCertificationsByAgency);
+// Get my all agencies certifications list
+router.get('/my-agencies', (0, auth_1.default)(client_1.Role.AGENCY), certification_controller_1.CertificationController.GetMyAgenciesCertifications);
 router
     .route('/')
     .post((0, auth_1.default)(client_1.Role.AGENCY), handelFile_1.upload.single('certificate_file'), (0, validateRequest_1.default)(certification_validation_1.default.CreateCertificationSchema), certification_controller_1.CertificationController.CreateCertification)

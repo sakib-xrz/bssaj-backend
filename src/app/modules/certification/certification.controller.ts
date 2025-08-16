@@ -102,6 +102,18 @@ const VerifyCertification = catchAsync(async (req, res) => {
   });
 });
 
+const GetMyAgenciesCertifications = catchAsync(async (req, res) => {
+  const result = await CertificationService.GetMyAgenciesCertifications(
+    req.user.id,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'My agencies certifications retrieved successfully',
+    data: result,
+  });
+});
+
 export const CertificationController = {
   CreateCertification,
   GetAllCertification,
@@ -110,4 +122,5 @@ export const CertificationController = {
   DeleteCertification,
   GetCertificationsByAgency,
   VerifyCertification,
+  GetMyAgenciesCertifications,
 };

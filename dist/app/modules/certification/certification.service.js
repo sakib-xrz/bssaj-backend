@@ -281,6 +281,43 @@ const VerifyCertification = (slNo) => __awaiter(void 0, void 0, void 0, function
     }
     return certification;
 });
+const GetMyAgenciesCertifications = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const userAgencies = yield prisma_1.default.agency.findMany({
+        where: {
+            user_id: userId,
+            is_deleted: false,
+        },
+        select: {
+            id: true,
+        },
+    });
+    // Extract agency IDs
+    const agencyIds = userAgencies.map((agency) => agency.id);
+    // If user has no agencies, return empty result
+    if (agencyIds.length === 0) {
+        return [];
+    }
+    // Get all certifications for these agencies
+    const certifications = yield prisma_1.default.certification.findMany({
+        where: {
+            agency_id: {
+                in: agencyIds,
+            },
+        },
+        include: {
+            agency: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+        orderBy: {
+            issued_at: 'desc',
+        },
+    });
+    return certifications;
+});
 exports.CertificationService = {
     CreateCertification,
     GetAllCertification,
@@ -289,4 +326,5 @@ exports.CertificationService = {
     DeleteCertification,
     GetCertificationsByAgency,
     VerifyCertification,
+    GetMyAgenciesCertifications,
 };

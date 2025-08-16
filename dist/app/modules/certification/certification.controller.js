@@ -94,6 +94,15 @@ const VerifyCertification = (0, catchAsync_1.default)((req, res) => __awaiter(vo
         data: result,
     });
 }));
+const GetMyAgenciesCertifications = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield certification_service_1.CertificationService.GetMyAgenciesCertifications(req.user.id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'My agencies certifications retrieved successfully',
+        data: result,
+    });
+}));
 exports.CertificationController = {
     CreateCertification,
     GetAllCertification,
@@ -102,4 +111,5 @@ exports.CertificationController = {
     DeleteCertification,
     GetCertificationsByAgency,
     VerifyCertification,
+    GetMyAgenciesCertifications,
 };
