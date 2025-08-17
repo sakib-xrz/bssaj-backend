@@ -28,7 +28,7 @@ const CreateMember = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 const GetAllMember = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = (0, pick_1.default)(req.query, ['name', 'email', 'search', 'phone']);
+    const query = (0, pick_1.default)(req.query, ['name', 'email', 'search', 'phone', 'status']);
     const options = (0, pick_1.default)(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
     const result = yield member_service_1.MembersService.GetAllMember(query, options);
     (0, sendResponse_1.default)(res, {

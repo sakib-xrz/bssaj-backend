@@ -426,6 +426,9 @@ const UpdateAgency = async (
 
     const updateData = {
       ...payload,
+      established_year: payload?.established_year
+        ? Number(payload.established_year)
+        : existingAgency.established_year,
       logo,
       cover_photo: coverPhoto,
       // Ensure agency_email is included in the update if provided

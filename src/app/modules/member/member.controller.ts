@@ -15,7 +15,7 @@ const CreateMember = catchAsync(async (req, res) => {
 });
 
 const GetAllMember = catchAsync(async (req, res) => {
-  const query = pick(req.query, ['name', 'email', 'search', 'phone']);
+  const query = pick(req.query, ['name', 'email', 'search', 'phone', 'status']);
   const options = pick(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
   const result = await MembersService.GetAllMember(query, options);
   sendResponse(res, {

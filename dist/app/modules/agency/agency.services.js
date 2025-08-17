@@ -356,7 +356,9 @@ const UpdateAgency = (payload, id, files) => __awaiter(void 0, void 0, void 0, f
             }));
             yield Promise.all(successStoryPromises);
         }
-        const updateData = Object.assign(Object.assign(Object.assign({}, payload), { logo, cover_photo: coverPhoto }), (payload.agency_email !== undefined && {
+        const updateData = Object.assign(Object.assign(Object.assign({}, payload), { established_year: (payload === null || payload === void 0 ? void 0 : payload.established_year)
+                ? Number(payload.established_year)
+                : existingAgency.established_year, logo, cover_photo: coverPhoto }), (payload.agency_email !== undefined && {
             agency_email: payload.agency_email,
         }));
         const result = yield prisma_1.default.agency.update({
