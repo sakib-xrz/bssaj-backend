@@ -92,6 +92,7 @@ const GetSingleMember = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const GetAllMember = (query, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { search } = query, filterData = __rest(query, ["search"]);
+    console.log(filterData);
     const { limit, page, sort_order, sort_by, skip } = (0, pagination_1.default)(options);
     const andCondition = [];
     if (search) {
@@ -109,7 +110,6 @@ const GetAllMember = (query, options) => __awaiter(void 0, void 0, void 0, funct
             AND: Object.keys(filterData).map((field) => ({
                 [field]: {
                     equals: filterData[field],
-                    mode: 'insensitive',
                 },
             })),
         });

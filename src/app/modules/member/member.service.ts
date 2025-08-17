@@ -79,6 +79,7 @@ const GetSingleMember = async (id: string) => {
 
 const GetAllMember = async (query: any, options: any) => {
   const { search, ...filterData } = query;
+  console.log(filterData);
   const { limit, page, sort_order, sort_by, skip } =
     calculatePagination(options);
   const andCondition: Prisma.MemberWhereInput[] = [];
@@ -98,7 +99,6 @@ const GetAllMember = async (query: any, options: any) => {
       AND: Object.keys(filterData).map((field) => ({
         [field]: {
           equals: filterData[field],
-          mode: 'insensitive',
         },
       })),
     });
