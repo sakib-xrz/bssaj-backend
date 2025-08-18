@@ -2,6 +2,7 @@ import express from 'express';
 import { AdminRoute } from '../modules/admin/admin.routes';
 import { AgencyRouter } from '../modules/agency/agency.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
+import { BannerRouter } from '../modules/banner/banner.routes';
 import { BlogRouter } from '../modules/blog/blog.routes';
 import { CertificationRouter } from '../modules/certification/certification.routes';
 import { CommitteeRouter } from '../modules/committee/committee.routes';
@@ -24,6 +25,7 @@ const routes: Route[] = [
   { path: '/events', route: EventRouter },
   { path: '/news', route: NewsRouter },
   { path: '/certifications', route: CertificationRouter },
+  { path: '/banners', route: BannerRouter },
   { path: '/admin', route: AdminRoute },
 ];
 

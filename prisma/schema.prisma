@@ -262,6 +262,18 @@ model Committee {
   @@map("committees")
 }
 
+model Banner {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  image       String
+  link        String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("banners")
+}
+
 enum PaymentStatus {
   PENDING
   APPROVED

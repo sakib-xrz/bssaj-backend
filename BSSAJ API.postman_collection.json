@@ -1639,6 +1639,188 @@
       ]
     },
     {
+      "name": "Banner",
+      "item": [
+        {
+          "name": "Create Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Sample Banner Title",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "This is a sample banner description with details about the promotion or announcement.",
+                  "type": "text"
+                },
+                {
+                  "key": "link",
+                  "value": "https://example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/banners",
+              "host": ["{{base_url}}"],
+              "path": ["banners"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Banners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/banners?page=1&limit=10&search=&sort_by=&sort_order=",
+              "host": ["{{base_url}}"],
+              "path": ["banners"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search in title and description"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "",
+                  "description": "Field to sort by (e.g., created_at, title)"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "",
+                  "description": "Sort order: asc or desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Banner",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/banners/:id",
+              "host": ["{{base_url}}"],
+              "path": ["banners", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Banner ID"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Banner",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Updated Banner Title",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated banner description with new information.",
+                  "type": "text"
+                },
+                {
+                  "key": "link",
+                  "value": "https://updated-example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "description": "New banner image (optional)",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/banners/:id",
+              "host": ["{{base_url}}"],
+              "path": ["banners", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Banner ID to update"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Banner",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/banners/:id",
+              "host": ["{{base_url}}"],
+              "path": ["banners", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "",
+                  "description": "Banner ID to delete"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Certification",
       "item": [
         {

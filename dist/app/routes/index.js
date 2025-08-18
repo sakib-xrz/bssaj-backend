@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const admin_routes_1 = require("../modules/admin/admin.routes");
 const agency_routes_1 = require("../modules/agency/agency.routes");
 const auth_routes_1 = require("../modules/auth/auth.routes");
+const banner_routes_1 = require("../modules/banner/banner.routes");
 const blog_routes_1 = require("../modules/blog/blog.routes");
 const certification_routes_1 = require("../modules/certification/certification.routes");
 const committee_routes_1 = require("../modules/committee/committee.routes");
@@ -25,6 +26,7 @@ const routes = [
     { path: '/events', route: event_routes_1.EventRouter },
     { path: '/news', route: news_routes_1.NewsRouter },
     { path: '/certifications', route: certification_routes_1.CertificationRouter },
+    { path: '/banners', route: banner_routes_1.BannerRouter },
     { path: '/admin', route: admin_routes_1.AdminRoute },
 ];
 routes.forEach((route) => {
