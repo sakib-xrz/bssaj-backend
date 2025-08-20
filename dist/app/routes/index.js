@@ -14,6 +14,7 @@ const committee_routes_1 = require("../modules/committee/committee.routes");
 const event_routes_1 = require("../modules/event/event.routes");
 const member_router_1 = require("../modules/member/member.router");
 const news_routes_1 = require("../modules/news/news.routes");
+const payment_routes_1 = require("../modules/payment/payment.routes");
 const user_routes_1 = require("../modules/user/user.routes");
 const router = express_1.default.Router();
 const routes = [
@@ -27,6 +28,7 @@ const routes = [
     { path: '/news', route: news_routes_1.NewsRouter },
     { path: '/certifications', route: certification_routes_1.CertificationRouter },
     { path: '/banners', route: banner_routes_1.BannerRouter },
+    { path: '/payments', route: payment_routes_1.PaymentRouter },
     { path: '/admin', route: admin_routes_1.AdminRoute },
 ];
 routes.forEach((route) => {

@@ -8,28 +8,27 @@ datasource db {
 }
 
 model User {
-  id                 String             @id @default(uuid())
-  name               String
-  email              String             @unique
-  password           String
-  role               Role               @default(STUDENT)
-  profile_picture    String?
-  address            String?
-  current_study_info String?
-  is_deleted         Boolean            @default(false)
-  created_at         DateTime           @default(now())
-  updated_at         DateTime           @updatedAt
-  approved_agencies  Agency[]           @relation("AgencyApprover")
-  agencies           Agency[]
-  approved_blogs     Blog[]             @relation("BlogApprover")
-  blogs              Blog[]
-  events             Event[]
-  exam_registrations ExamRegistration[]
-  approved_members   Member[]           @relation("MemberApprover")
-  member             Member?
-  notifications      Notification[]
-  payments_approved  Payment[]          @relation("PaymentApprover")
-  payments           Payment[]
+  id                       String                      @id @default(uuid())
+  name                     String
+  email                    String                      @unique
+  password                 String
+  role                     Role                        @default(STUDENT)
+  profile_picture          String?
+  address                  String?
+  current_study_info       String?
+  is_deleted               Boolean                     @default(false)
+  created_at               DateTime                    @default(now())
+  updated_at               DateTime                    @updatedAt
+  approved_agencies        Agency[]                    @relation("AgencyApprover")
+  agencies                 Agency[]
+  approved_blogs           Blog[]                      @relation("BlogApprover")
+  blogs                    Blog[]
+  events                   Event[]
+  exam_registrations       ExamRegistration[]
+  approved_members         Member[]                    @relation("MemberApprover")
+  member                   Member?
+  notifications            Notification[]
+  approved_agency_payments AgencySubscriptionPayment[] @relation("PaymentApprover")
 
   @@map("users")
 }
@@ -55,31 +54,36 @@ model Member {
 }
 
 model Agency {
-  id                  String               @id @default(uuid())
-  user_id             String
-  name                String
-  logo                String?
-  description         String?
-  website             String?
-  contact_email       String
-  agency_email        String?
-  contact_phone       String?
-  address             String?
-  facebook_url        String?
-  established_year    Int?
-  director_name       String?
-  status              AgencyStatus         @default(PENDING)
-  approved_at         DateTime?
-  approved_by_id      String?
-  is_deleted          Boolean              @default(false)
-  created_at          DateTime             @default(now())
-  updated_at          DateTime             @updatedAt
-  cover_photo         String?
-  user_selection_type UserSelectionType    @default(NEW)
-  success_stories     AgencySuccessStory[]
-  approved_by         User?                @relation("AgencyApprover", fields: [approved_by_id], references: [id])
-  user                User                 @relation(fields: [user_id], references: [id])
-  certifications      Certification[]
+  id                    String                      @id @default(uuid())
+  user_id               String
+  name                  String
+  logo                  String?
+  description           String?
+  website               String?
+  contact_email         String
+  agency_email          String?
+  contact_phone         String?
+  address               String?
+  facebook_url          String?
+  established_year      Int?
+  director_name         String?
+  status                AgencyStatus                @default(PENDING)
+  subscription_status   SubscriptionStatus          @default(ACTIVE)
+  is_visible            Boolean                     @default(true)
+  last_payment_month    String? // Format: "YYYY-MM" (e.g., "2025-09")
+  subscription_end_date DateTime?
+  approved_at           DateTime?
+  approved_by_id        String?
+  is_deleted            Boolean                     @default(false)
+  created_at            DateTime                    @default(now())
+  updated_at            DateTime                    @updatedAt
+  cover_photo           String?
+  user_selection_type   UserSelectionType           @default(NEW)
+  success_stories       AgencySuccessStory[]
+  approved_by           User?                       @relation("AgencyApprover", fields: [approved_by_id], references: [id])
+  user                  User                        @relation(fields: [user_id], references: [id])
+  certifications        Certification[]
+  subscription_payments AgencySubscriptionPayment[]
 
   @@map("agencies")
 }
@@ -89,27 +93,6 @@ model AgencySuccessStory {
   agency_id String
   image     String
   agency    Agency @relation(fields: [agency_id], references: [id], onDelete: Cascade)
-}
-
-model Payment {
-  id                String            @id @default(uuid())
-  user_id           String
-  amount            Int
-  status            PaymentStatus     @default(PENDING)
-  transaction_id    String?           @unique
-  paid_at           DateTime          @default(now())
-  approved_at       DateTime?
-  approved_by_id    String?
-  payment_for_type  PaymentType
-  payment_for_id    String?
-  is_deleted        Boolean           @default(false)
-  created_at        DateTime          @default(now())
-  updated_at        DateTime          @updatedAt
-  exam_registration ExamRegistration?
-  approved_by       User?             @relation("PaymentApprover", fields: [approved_by_id], references: [id])
-  paid_by           User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("payments")
 }
 
 model Blog {
@@ -205,13 +188,11 @@ model ExamRegistration {
   registration_date     DateTime               @default(now())
   status                ExamRegistrationStatus @default(PENDING_PAYMENT)
   exam_link             String
-  payment_id            String                 @unique
   certificate_issued    Boolean                @default(false)
   issued_certificate_id String?                @unique
   is_deleted            Boolean                @default(false)
   created_at            DateTime               @default(now())
   updated_at            DateTime               @updatedAt
-  payment               Payment                @relation(fields: [payment_id], references: [id])
   user                  User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("exam_registrations")
@@ -274,10 +255,26 @@ model Banner {
   @@map("banners")
 }
 
-enum PaymentStatus {
-  PENDING
-  APPROVED
-  REJECTED
+model AgencySubscriptionPayment {
+  id             String        @id @default(uuid())
+  agency_id      String
+  payment_month  String // Format: "YYYY-MM" (e.g., "2025-09")
+  amount         Decimal       @db.Decimal(10, 2)
+  payment_date   DateTime
+  payment_status PaymentStatus @default(PENDING)
+  payment_method String? // e.g., "bank_transfer", "mobile_banking", etc.
+  transaction_id String? // External transaction reference
+  notes          String? // Any additional notes about the payment
+  approved_at    DateTime? // When payment was approved
+  approved_by_id String? // Who approved the payment
+  is_deleted     Boolean       @default(false)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  agency         Agency        @relation(fields: [agency_id], references: [id], onDelete: Cascade)
+  approved_by    User?         @relation("PaymentApprover", fields: [approved_by_id], references: [id])
+
+  @@unique([agency_id, payment_month])
+  @@map("agency_subscription_payments")
 }
 
 enum ComplainStatus {
@@ -300,12 +297,6 @@ enum Role {
   AGENCY
   STUDENT
   USER
-}
-
-enum PaymentType {
-  MEMBERSHIP
-  EXAM_REGISTRATION
-  DONATION
 }
 
 enum ParticipantStatus {
@@ -347,4 +338,19 @@ enum ExamRegistrationStatus {
 enum UserSelectionType {
   NEW
   EXISTING
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  SUSPENDED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  OVERDUE
 }

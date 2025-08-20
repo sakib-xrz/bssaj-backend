@@ -204,7 +204,7 @@ const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
         yield tx.notification.deleteMany({
             where: { user_id: id },
         });
-        yield tx.payment.updateMany({
+        yield tx.agencySubscriptionPayment.updateMany({
             where: { approved_by_id: id },
             data: { approved_by_id: null },
         });
@@ -226,8 +226,12 @@ const DeleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
         yield tx.agency.deleteMany({
             where: { user_id: id },
         });
-        yield tx.payment.deleteMany({
-            where: { user_id: id },
+        yield tx.agencySubscriptionPayment.updateMany({
+            where: { approved_by_id: id },
+            data: { approved_by_id: null },
+        });
+        yield tx.agencySubscriptionPayment.deleteMany({
+            where: { agency_id: id },
         });
         yield tx.blog.deleteMany({
             where: { author_id: id },

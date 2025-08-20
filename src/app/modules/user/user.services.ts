@@ -225,7 +225,7 @@ const DeleteUser = async (id: string) => {
       where: { user_id: id },
     });
 
-    await tx.payment.updateMany({
+    await tx.agencySubscriptionPayment.updateMany({
       where: { approved_by_id: id },
       data: { approved_by_id: null },
     });
@@ -253,8 +253,13 @@ const DeleteUser = async (id: string) => {
       where: { user_id: id },
     });
 
-    await tx.payment.deleteMany({
-      where: { user_id: id },
+    await tx.agencySubscriptionPayment.updateMany({
+      where: { approved_by_id: id },
+      data: { approved_by_id: null },
+    });
+
+    await tx.agencySubscriptionPayment.deleteMany({
+      where: { agency_id: id },
     });
 
     await tx.blog.deleteMany({
