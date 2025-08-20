@@ -103,14 +103,19 @@ const VerifyCertification = catchAsync(async (req, res) => {
 });
 
 const GetMyAgenciesCertifications = catchAsync(async (req, res) => {
+  const query = pick(req.query, ['search', 'agency_id']);
+  const options = pick(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
   const result = await CertificationService.GetMyAgenciesCertifications(
     req.user.id,
+    query,
+    options,
   );
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'My agencies certifications retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 

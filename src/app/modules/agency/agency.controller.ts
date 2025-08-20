@@ -16,7 +16,12 @@ const CreateAgency = catchAsync(async (req, res) => {
 });
 
 const GetAllAgency = catchAsync(async (req, res) => {
-  const query = pick(req.query, ['name', 'search', 'status']);
+  const query = pick(req.query, [
+    'name',
+    'search',
+    'status',
+    'subscription_status',
+  ]);
   const options = pick(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
   const result = await AgencyService.GetAllAgency(query, options);
   sendResponse(res, {
@@ -116,6 +121,16 @@ const DeleteSuccessStory = catchAsync(async (req, res) => {
   });
 });
 
+const CheckExpiredSubscriptions = catchAsync(async (req, res) => {
+  const result = await AgencyService.CheckAndUpdateExpiredSubscriptions();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Expired subscriptions checked successfully',
+    data: result,
+  });
+});
+
 export const AgencyController = {
   CreateAgency,
   GetAllAgency,
@@ -127,4 +142,5 @@ export const AgencyController = {
   UploadSuccessStory,
   ReplaceSuccessStory,
   DeleteSuccessStory,
+  CheckExpiredSubscriptions,
 };

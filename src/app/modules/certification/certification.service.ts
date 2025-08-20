@@ -355,7 +355,10 @@ const VerifyCertification = async (slNo: string) => {
   return certification;
 };
 
-const GetMyAgenciesCertifications = async (userId: string) => {
+const GetMyAgenciesCertifications = async (userId: string, query: any, options: any) => {
+  const { search, agency_id } = query;
+  const { limit, page, sort_order, sort_by, skip } = calculatePagination(options);
+
   const userAgencies = await prisma.agency.findMany({
     where: {
       user_id: userId,
@@ -371,16 +374,50 @@ const GetMyAgenciesCertifications = async (userId: string) => {
 
   // If user has no agencies, return empty result
   if (agencyIds.length === 0) {
-    return [];
+    return {
+      meta: {
+        page,
+        limit,
+        total: 0,
+      },
+      data: [],
+    };
   }
 
-  // Get all certifications for these agencies
-  const certifications = await prisma.certification.findMany({
-    where: {
+  // Build where conditions
+  const andCondition: Prisma.CertificationWhereInput[] = [
+    {
       agency_id: {
         in: agencyIds,
       },
     },
+  ];
+
+  // Search by sl_no
+  if (search) {
+    andCondition.push({
+      sl_no: { contains: search, mode: 'insensitive' },
+    });
+  }
+
+  // Filter by specific agency_id (if provided and user owns that agency)
+  if (agency_id && agencyIds.includes(agency_id)) {
+    andCondition.push({
+      agency_id,
+    });
+  }
+
+  const whereCondition: Prisma.CertificationWhereInput = { AND: andCondition };
+
+  // Get certifications with pagination
+  const certifications = await prisma.certification.findMany({
+    where: whereCondition,
+    skip,
+    take: limit,
+    orderBy:
+      sort_by && sort_order
+        ? { [sort_by]: sort_order }
+        : { issued_at: 'desc' },
     include: {
       agency: {
         select: {
@@ -389,12 +426,21 @@ const GetMyAgenciesCertifications = async (userId: string) => {
         },
       },
     },
-    orderBy: {
-      issued_at: 'desc',
-    },
   });
 
-  return certifications;
+  // Get total count
+  const total = await prisma.certification.count({
+    where: whereCondition,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: certifications,
+  };
 };
 
 export const CertificationService = {

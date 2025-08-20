@@ -29,7 +29,12 @@ const CreateAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 const GetAllAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = (0, pick_1.default)(req.query, ['name', 'search', 'status']);
+    const query = (0, pick_1.default)(req.query, [
+        'name',
+        'search',
+        'status',
+        'subscription_status',
+    ]);
     const options = (0, pick_1.default)(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
     const result = yield agency_services_1.AgencyService.GetAllAgency(query, options);
     (0, sendResponse_1.default)(res, {
@@ -120,6 +125,15 @@ const DeleteSuccessStory = (0, catchAsync_1.default)((req, res) => __awaiter(voi
         data: result,
     });
 }));
+const CheckExpiredSubscriptions = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield agency_services_1.AgencyService.CheckAndUpdateExpiredSubscriptions();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Expired subscriptions checked successfully',
+        data: result,
+    });
+}));
 exports.AgencyController = {
     CreateAgency,
     GetAllAgency,
@@ -131,4 +145,5 @@ exports.AgencyController = {
     UploadSuccessStory,
     ReplaceSuccessStory,
     DeleteSuccessStory,
+    CheckExpiredSubscriptions,
 };

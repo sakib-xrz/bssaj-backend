@@ -199,7 +199,13 @@ const CreateAgency = async (payload: any, files: Express.Multer.File[]) => {
 };
 
 const GetAllAgency = async (query: any, options: any) => {
-  const { search, status } = query;
+  // Automatically check and update expired subscriptions before fetching
+  await CheckAndUpdateExpiredSubscriptions().catch((error) => {
+    console.error('Failed to check expired subscriptions:', error);
+    // Don't throw error as this is a background check
+  });
+
+  const { search, status, subscription_status } = query;
   const { limit, page, sort_order, sort_by, skip } =
     calculatePagination(options);
 
@@ -218,6 +224,10 @@ const GetAllAgency = async (query: any, options: any) => {
 
   if (status) {
     andCondition.push({ status });
+  }
+
+  if (subscription_status) {
+    andCondition.push({ subscription_status });
   }
 
   // Filter out deleted agencies by default
@@ -296,6 +306,11 @@ const GetAgencyStats = async () => {
 };
 
 const GetSingleAgency = async (id: string) => {
+  // Check expired subscriptions for this specific agency
+  await CheckAndUpdateExpiredSubscriptions().catch((error) => {
+    console.error('Failed to check expired subscriptions:', error);
+  });
+
   const result = await prisma.agency.findUnique({
     where: { id, is_deleted: false },
     include: {
@@ -690,6 +705,66 @@ const DeleteSuccessStory = async (id: string) => {
   return { message: 'Success story deleted successfully' };
 };
 
+const CheckAndUpdateExpiredSubscriptions = async () => {
+  try {
+    const currentDate = new Date();
+
+    // Find all agencies where subscription_end_date has passed and is_visible is still true
+    const expiredAgencies = await prisma.agency.findMany({
+      where: {
+        subscription_end_date: {
+          lt: currentDate, // Less than current date (expired)
+        },
+        is_visible: true, // Still visible
+        is_deleted: false, // Not deleted
+      },
+      select: {
+        id: true,
+        name: true,
+        subscription_end_date: true,
+      },
+    });
+
+    if (expiredAgencies.length === 0) {
+      return {
+        message: 'No expired subscriptions found',
+        updatedCount: 0,
+      };
+    }
+
+    // Update all expired agencies to set is_visible to false
+    const updateResult = await prisma.agency.updateMany({
+      where: {
+        id: {
+          in: expiredAgencies.map((agency) => agency.id),
+        },
+      },
+      data: {
+        is_visible: false,
+        subscription_status: 'EXPIRED',
+      },
+    });
+
+    console.log(`Updated ${updateResult.count} expired agency subscriptions`);
+
+    return {
+      message: `Successfully updated ${updateResult.count} expired agency subscriptions`,
+      updatedCount: updateResult.count,
+      expiredAgencies: expiredAgencies.map((agency) => ({
+        id: agency.id,
+        name: agency.name,
+        subscription_end_date: agency.subscription_end_date,
+      })),
+    };
+  } catch (error) {
+    console.error('Error checking expired subscriptions:', error);
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Failed to check expired subscriptions',
+    );
+  }
+};
+
 export const AgencyService = {
   CreateAgency,
   GetAllAgency,
@@ -701,4 +776,5 @@ export const AgencyService = {
   UploadSuccessStory,
   ReplaceSuccessStory,
   DeleteSuccessStory,
+  CheckAndUpdateExpiredSubscriptions,
 };

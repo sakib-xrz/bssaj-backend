@@ -281,7 +281,9 @@ const VerifyCertification = (slNo) => __awaiter(void 0, void 0, void 0, function
     }
     return certification;
 });
-const GetMyAgenciesCertifications = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const GetMyAgenciesCertifications = (userId, query, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { search, agency_id } = query;
+    const { limit, page, sort_order, sort_by, skip } = (0, pagination_1.default)(options);
     const userAgencies = yield prisma_1.default.agency.findMany({
         where: {
             user_id: userId,
@@ -295,15 +297,44 @@ const GetMyAgenciesCertifications = (userId) => __awaiter(void 0, void 0, void 0
     const agencyIds = userAgencies.map((agency) => agency.id);
     // If user has no agencies, return empty result
     if (agencyIds.length === 0) {
-        return [];
+        return {
+            meta: {
+                page,
+                limit,
+                total: 0,
+            },
+            data: [],
+        };
     }
-    // Get all certifications for these agencies
-    const certifications = yield prisma_1.default.certification.findMany({
-        where: {
+    // Build where conditions
+    const andCondition = [
+        {
             agency_id: {
                 in: agencyIds,
             },
         },
+    ];
+    // Search by sl_no
+    if (search) {
+        andCondition.push({
+            sl_no: { contains: search, mode: 'insensitive' },
+        });
+    }
+    // Filter by specific agency_id (if provided and user owns that agency)
+    if (agency_id && agencyIds.includes(agency_id)) {
+        andCondition.push({
+            agency_id,
+        });
+    }
+    const whereCondition = { AND: andCondition };
+    // Get certifications with pagination
+    const certifications = yield prisma_1.default.certification.findMany({
+        where: whereCondition,
+        skip,
+        take: limit,
+        orderBy: sort_by && sort_order
+            ? { [sort_by]: sort_order }
+            : { issued_at: 'desc' },
         include: {
             agency: {
                 select: {
@@ -312,11 +343,19 @@ const GetMyAgenciesCertifications = (userId) => __awaiter(void 0, void 0, void 0
                 },
             },
         },
-        orderBy: {
-            issued_at: 'desc',
-        },
     });
-    return certifications;
+    // Get total count
+    const total = yield prisma_1.default.certification.count({
+        where: whereCondition,
+    });
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: certifications,
+    };
 });
 exports.CertificationService = {
     CreateCertification,

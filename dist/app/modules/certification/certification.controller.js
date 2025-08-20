@@ -95,12 +95,15 @@ const VerifyCertification = (0, catchAsync_1.default)((req, res) => __awaiter(vo
     });
 }));
 const GetMyAgenciesCertifications = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield certification_service_1.CertificationService.GetMyAgenciesCertifications(req.user.id);
+    const query = (0, pick_1.default)(req.query, ['search', 'agency_id']);
+    const options = (0, pick_1.default)(req.query, ['page', 'limit', 'sort_by', 'sort_order']);
+    const result = yield certification_service_1.CertificationService.GetMyAgenciesCertifications(req.user.id, query, options);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
         message: 'My agencies certifications retrieved successfully',
-        data: result,
+        meta: result.meta,
+        data: result.data,
     });
 }));
 exports.CertificationController = {

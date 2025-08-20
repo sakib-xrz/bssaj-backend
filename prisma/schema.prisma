@@ -345,6 +345,7 @@ enum SubscriptionStatus {
   PAUSED
   SUSPENDED
   CANCELLED
+  EXPIRED
 }
 
 enum PaymentStatus {

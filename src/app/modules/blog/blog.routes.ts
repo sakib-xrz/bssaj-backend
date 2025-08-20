@@ -18,6 +18,12 @@ router
   )
   .get(BlogController.GetAllBlog);
 
+router.get(
+  '/my-blogs',
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  BlogController.GetMyBlogs,
+);
+
 router
   .route('/:id')
   .get(BlogController.GetSingleBlog)

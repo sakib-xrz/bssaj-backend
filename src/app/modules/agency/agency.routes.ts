@@ -23,6 +23,12 @@ router
 
 router.route('/stats').get(AgencyController.GetAgencyStats);
 
+router.patch(
+  '/check-expired-subscriptions',
+  auth(Role.SUPER_ADMIN, Role.ADMIN),
+  AgencyController.CheckExpiredSubscriptions,
+);
+
 router.route('/my-agency').get(auth(Role.AGENCY), AgencyController.GetMyAgency);
 
 // Success Stories routes

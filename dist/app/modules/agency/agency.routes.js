@@ -17,6 +17,7 @@ router
     .post(handelFile_1.upload.any(), (0, validateRequest_1.default)(agency_validation_1.agencySchema), agency_controller_1.AgencyController.CreateAgency)
     .get(agency_controller_1.AgencyController.GetAllAgency);
 router.route('/stats').get(agency_controller_1.AgencyController.GetAgencyStats);
+router.patch('/check-expired-subscriptions', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), agency_controller_1.AgencyController.CheckExpiredSubscriptions);
 router.route('/my-agency').get((0, auth_1.default)(client_1.Role.AGENCY), agency_controller_1.AgencyController.GetMyAgency);
 // Success Stories routes
 router

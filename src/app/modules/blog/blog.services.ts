@@ -328,10 +328,82 @@ const DeleteBlog = async (
   return null;
 };
 
+const GetMyBlogs = async (userId: string, query: any, options: any) => {
+  const { search, is_published, is_approved } = query;
+  const { limit, page, sort_order, sort_by, skip } =
+    calculatePagination(options);
+
+  const andCondition: Prisma.BlogWhereInput[] = [
+    { is_deleted: false },
+    { author_id: userId },
+  ];
+
+  if (search) {
+    andCondition.push({
+      OR: [
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ],
+    });
+  }
+
+  if (is_published !== undefined) {
+    andCondition.push({ is_published: is_published === 'true' });
+  }
+
+  if (is_approved !== undefined) {
+    andCondition.push({ is_approved: is_approved === 'true' });
+  }
+
+  const whereCondition: Prisma.BlogWhereInput = { AND: andCondition };
+
+  const result = await prisma.blog.findMany({
+    where: whereCondition,
+    skip,
+    take: limit,
+    orderBy:
+      sort_by && sort_order
+        ? { [sort_by]: sort_order }
+        : { created_at: 'desc' },
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profile_picture: true,
+        },
+      },
+      approved_by: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  const total = await prisma.blog.count({
+    where: whereCondition,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 export const BlogService = {
   CreateBlog,
   GetAllBlog,
   GetSingleBlog,
   UpdateBlog,
   DeleteBlog,
+  GetMyBlogs,
 };

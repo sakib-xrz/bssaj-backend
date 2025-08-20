@@ -175,7 +175,12 @@ const CreateAgency = (payload, files) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 const GetAllAgency = (query, options) => __awaiter(void 0, void 0, void 0, function* () {
-    const { search, status } = query;
+    // Automatically check and update expired subscriptions before fetching
+    yield CheckAndUpdateExpiredSubscriptions().catch((error) => {
+        console.error('Failed to check expired subscriptions:', error);
+        // Don't throw error as this is a background check
+    });
+    const { search, status, subscription_status } = query;
     const { limit, page, sort_order, sort_by, skip } = (0, pagination_1.default)(options);
     const andCondition = [];
     if (search) {
@@ -190,6 +195,9 @@ const GetAllAgency = (query, options) => __awaiter(void 0, void 0, void 0, funct
     }
     if (status) {
         andCondition.push({ status });
+    }
+    if (subscription_status) {
+        andCondition.push({ subscription_status });
     }
     // Filter out deleted agencies by default
     andCondition.push({ is_deleted: false });
@@ -256,6 +264,10 @@ const GetAgencyStats = () => __awaiter(void 0, void 0, void 0, function* () {
     };
 });
 const GetSingleAgency = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    // Check expired subscriptions for this specific agency
+    yield CheckAndUpdateExpiredSubscriptions().catch((error) => {
+        console.error('Failed to check expired subscriptions:', error);
+    });
     const result = yield prisma_1.default.agency.findUnique({
         where: { id, is_deleted: false },
         include: {
@@ -567,6 +579,58 @@ const DeleteSuccessStory = (id) => __awaiter(void 0, void 0, void 0, function* (
     }
     return { message: 'Success story deleted successfully' };
 });
+const CheckAndUpdateExpiredSubscriptions = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const currentDate = new Date();
+        // Find all agencies where subscription_end_date has passed and is_visible is still true
+        const expiredAgencies = yield prisma_1.default.agency.findMany({
+            where: {
+                subscription_end_date: {
+                    lt: currentDate, // Less than current date (expired)
+                },
+                is_visible: true, // Still visible
+                is_deleted: false, // Not deleted
+            },
+            select: {
+                id: true,
+                name: true,
+                subscription_end_date: true,
+            },
+        });
+        if (expiredAgencies.length === 0) {
+            return {
+                message: 'No expired subscriptions found',
+                updatedCount: 0,
+            };
+        }
+        // Update all expired agencies to set is_visible to false
+        const updateResult = yield prisma_1.default.agency.updateMany({
+            where: {
+                id: {
+                    in: expiredAgencies.map((agency) => agency.id),
+                },
+            },
+            data: {
+                is_visible: false,
+                subscription_status: 'EXPIRED',
+            },
+        });
+        console.log(`Updated ${updateResult.count} expired agency subscriptions`);
+        return {
+            message: `Successfully updated ${updateResult.count} expired agency subscriptions`,
+            updatedCount: updateResult.count,
+            expiredAgencies: expiredAgencies.map((agency) => ({
+                id: agency.id,
+                name: agency.name,
+                subscription_end_date: agency.subscription_end_date,
+            })),
+        };
+    }
+    catch (error) {
+        console.error('Error checking expired subscriptions:', error);
+        throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'Failed to check expired subscriptions');
+    }
+});
 exports.AgencyService = {
     CreateAgency,
     GetAllAgency,
@@ -578,4 +642,5 @@ exports.AgencyService = {
     UploadSuccessStory,
     ReplaceSuccessStory,
     DeleteSuccessStory,
+    CheckAndUpdateExpiredSubscriptions,
 };

@@ -256,10 +256,71 @@ const DeleteBlog = (id, isHardDelete, user) => __awaiter(void 0, void 0, void 0,
     }
     return null;
 });
+const GetMyBlogs = (userId, query, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { search, is_published, is_approved } = query;
+    const { limit, page, sort_order, sort_by, skip } = (0, pagination_1.default)(options);
+    const andCondition = [
+        { is_deleted: false },
+        { author_id: userId },
+    ];
+    if (search) {
+        andCondition.push({
+            OR: [
+                { title: { contains: search, mode: 'insensitive' } },
+                { content: { contains: search, mode: 'insensitive' } },
+                { slug: { contains: search, mode: 'insensitive' } },
+            ],
+        });
+    }
+    if (is_published !== undefined) {
+        andCondition.push({ is_published: is_published === 'true' });
+    }
+    if (is_approved !== undefined) {
+        andCondition.push({ is_approved: is_approved === 'true' });
+    }
+    const whereCondition = { AND: andCondition };
+    const result = yield prisma_1.default.blog.findMany({
+        where: whereCondition,
+        skip,
+        take: limit,
+        orderBy: sort_by && sort_order
+            ? { [sort_by]: sort_order }
+            : { created_at: 'desc' },
+        include: {
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    profile_picture: true,
+                },
+            },
+            approved_by: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+        },
+    });
+    const total = yield prisma_1.default.blog.count({
+        where: whereCondition,
+    });
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
+});
 exports.BlogService = {
     CreateBlog,
     GetAllBlog,
     GetSingleBlog,
     UpdateBlog,
     DeleteBlog,
+    GetMyBlogs,
 };
