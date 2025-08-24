@@ -7,6 +7,7 @@ import { BlogRouter } from '../modules/blog/blog.routes';
 import { CertificationRouter } from '../modules/certification/certification.routes';
 import { CommitteeRouter } from '../modules/committee/committee.routes';
 import { EventRouter } from '../modules/event/event.routes';
+import { JobRouter } from '../modules/job/job.routes';
 import { MemberRouter } from '../modules/member/member.router';
 import { NewsRouter } from '../modules/news/news.routes';
 import { PaymentRouter } from '../modules/payment/payment.routes';
@@ -28,6 +29,7 @@ const routes: Route[] = [
   { path: '/certifications', route: CertificationRouter },
   { path: '/banners', route: BannerRouter },
   { path: '/payments', route: PaymentRouter },
+  { path: '/jobs', route: JobRouter },
   { path: '/admin', route: AdminRoute },
 ];
 

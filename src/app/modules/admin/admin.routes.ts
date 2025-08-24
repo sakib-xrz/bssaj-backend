@@ -20,5 +20,10 @@ router.put(
   auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
   AdminController.ApprovedOrRejectBlog,
 );
+router.put(
+  '/approve-reject-job/:id',
+  auth(Role.SUPER_ADMIN, Role.ADMIN),
+  AdminController.ApprovedOrRejectJob,
+);
 
 export const AdminRoute = router;

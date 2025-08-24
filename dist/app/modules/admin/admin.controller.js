@@ -47,8 +47,20 @@ const ApprovedOrRejectBlog = (0, catchAsync_1.default)((req, res) => __awaiter(v
         data: result,
     });
 }));
+const ApprovedOrRejectJob = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const approvedId = (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a.id;
+    const result = yield admin_services_1.AdminService.ApprovedOrRejectJob(approvedId, req.body);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: `Successfully processed the job.`,
+        data: result,
+    });
+}));
 exports.AdminController = {
     ApprovedOrRejectMember,
     ApprovedOrRejectAgency,
     ApprovedOrRejectBlog,
+    ApprovedOrRejectJob,
 };

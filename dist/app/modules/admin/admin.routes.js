@@ -12,4 +12,5 @@ const router = express_1.default.Router();
 router.put('/approve-reject-member/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), admin_controller_1.AdminController.ApprovedOrRejectMember);
 router.put('/approve-reject-agency/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), admin_controller_1.AdminController.ApprovedOrRejectAgency);
 router.put('/approve-reject-blog/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), admin_controller_1.AdminController.ApprovedOrRejectBlog);
+router.put('/approve-reject-job/:id', (0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), admin_controller_1.AdminController.ApprovedOrRejectJob);
 exports.AdminRoute = router;

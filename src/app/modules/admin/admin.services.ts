@@ -280,8 +280,93 @@ const ApprovedOrRejectBlog = async (
   throw new AppError(httpStatus.BAD_REQUEST, 'Invalid approval status');
 };
 
+const ApprovedOrRejectJob = async (
+  approvedId: string,
+  payload: { id: string; is_approved: boolean },
+) => {
+  const existingJob = await prisma.job.findUnique({
+    where: {
+      id: payload.id,
+    },
+  });
+
+  if (!existingJob) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This job is not found');
+  }
+
+  if (existingJob.approved_at) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'This job is already approved');
+  }
+
+  // If approving the job
+  if (payload.is_approved === true) {
+    const result = await prisma.job.update({
+      where: {
+        id: payload.id,
+      },
+      data: {
+        approved_by_id: approvedId,
+        approved_at: new Date(),
+      },
+      include: {
+        posted_by_agency: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+          },
+        },
+        approved_by: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+    return result;
+  }
+
+  // If rejecting the job (hard delete)
+  if (payload.is_approved === false) {
+    const filesToDelete: string[] = [];
+
+    // If job has a company logo, prepare it for deletion
+    if (existingJob.company_logo) {
+      const logoKey = extractKeyFromUrl(existingJob.company_logo);
+      if (logoKey) filesToDelete.push(logoKey);
+    }
+
+    // Delete the job from database
+    await prisma.job.delete({
+      where: {
+        id: payload.id,
+      },
+    });
+
+    // Clean up files from cloud storage
+    if (filesToDelete.length > 0) {
+      try {
+        await deleteMultipleFromSpaces(filesToDelete);
+      } catch (error) {
+        console.error(
+          'Failed to delete some files from DigitalOcean Spaces:',
+          error,
+        );
+        // Don't throw error for file cleanup failures
+      }
+    }
+
+    return { message: 'Job rejected and deleted successfully' };
+  }
+
+  throw new AppError(httpStatus.BAD_REQUEST, 'Invalid approval status');
+};
+
 export const AdminService = {
   ApprovedOrRejectMember,
   ApprovedOrRejectAgency,
   ApprovedOrRejectBlog,
+  ApprovedOrRejectJob,
 };

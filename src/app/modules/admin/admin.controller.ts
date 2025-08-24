@@ -41,8 +41,20 @@ const ApprovedOrRejectBlog = catchAsync(async (req, res) => {
   });
 });
 
+const ApprovedOrRejectJob = catchAsync(async (req, res) => {
+  const approvedId = req?.user?.id;
+  const result = await AdminService.ApprovedOrRejectJob(approvedId, req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Successfully processed the job.`,
+    data: result,
+  });
+});
+
 export const AdminController = {
   ApprovedOrRejectMember,
   ApprovedOrRejectAgency,
   ApprovedOrRejectBlog,
+  ApprovedOrRejectJob,
 };

@@ -216,8 +216,79 @@ const ApprovedOrRejectBlog = (approvedId, payload) => __awaiter(void 0, void 0, 
     }
     throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Invalid approval status');
 });
+const ApprovedOrRejectJob = (approvedId, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const existingJob = yield prisma_1.default.job.findUnique({
+        where: {
+            id: payload.id,
+        },
+    });
+    if (!existingJob) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This job is not found');
+    }
+    if (existingJob.approved_at) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'This job is already approved');
+    }
+    // If approving the job
+    if (payload.is_approved === true) {
+        const result = yield prisma_1.default.job.update({
+            where: {
+                id: payload.id,
+            },
+            data: {
+                approved_by_id: approvedId,
+                approved_at: new Date(),
+            },
+            include: {
+                posted_by_agency: {
+                    select: {
+                        id: true,
+                        name: true,
+                        logo: true,
+                    },
+                },
+                approved_by: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+        return result;
+    }
+    // If rejecting the job (hard delete)
+    if (payload.is_approved === false) {
+        const filesToDelete = [];
+        // If job has a company logo, prepare it for deletion
+        if (existingJob.company_logo) {
+            const logoKey = (0, handelFile_1.extractKeyFromUrl)(existingJob.company_logo);
+            if (logoKey)
+                filesToDelete.push(logoKey);
+        }
+        // Delete the job from database
+        yield prisma_1.default.job.delete({
+            where: {
+                id: payload.id,
+            },
+        });
+        // Clean up files from cloud storage
+        if (filesToDelete.length > 0) {
+            try {
+                yield (0, handelFile_1.deleteMultipleFromSpaces)(filesToDelete);
+            }
+            catch (error) {
+                console.error('Failed to delete some files from DigitalOcean Spaces:', error);
+                // Don't throw error for file cleanup failures
+            }
+        }
+        return { message: 'Job rejected and deleted successfully' };
+    }
+    throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Invalid approval status');
+});
 exports.AdminService = {
     ApprovedOrRejectMember,
     ApprovedOrRejectAgency,
     ApprovedOrRejectBlog,
+    ApprovedOrRejectJob,
 };
