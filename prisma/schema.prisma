@@ -29,6 +29,7 @@ model User {
   member                   Member?
   notifications            Notification[]
   approved_agency_payments AgencySubscriptionPayment[] @relation("PaymentApprover")
+  approved_jobs            Job[]                       @relation("JobApprover")
 
   @@map("users")
 }
@@ -70,7 +71,7 @@ model Agency {
   status                AgencyStatus                @default(PENDING)
   subscription_status   SubscriptionStatus          @default(ACTIVE)
   is_visible            Boolean                     @default(true)
-  last_payment_month    String? // Format: "YYYY-MM" (e.g., "2025-09")
+  last_payment_month    String?
   subscription_end_date DateTime?
   approved_at           DateTime?
   approved_by_id        String?
@@ -84,6 +85,7 @@ model Agency {
   user                  User                        @relation(fields: [user_id], references: [id])
   certifications        Certification[]
   subscription_payments AgencySubscriptionPayment[]
+  jobs                  Job[]
 
   @@map("agencies")
 }
@@ -213,19 +215,33 @@ model Notification {
 }
 
 model Job {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  location    String
-  type        JobType
-  salary_min  Int?
-  salary_max  Int?
-  deadline    DateTime
-  apply_link  String
-  is_active   Boolean  @default(true)
-  is_deleted  Boolean  @default(false)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  title               String
+  description         String
+  kind                JobKind
+  type                JobType
+  company_name        String
+  company_logo        String?
+  company_website     String?
+  company_email       String?
+  company_phone       String?
+  company_address     String?
+  experience_min      Int?
+  salary_min          Int?
+  salary_max          Int?
+  deadline            DateTime
+  apply_link          String
+  number_of_vacancies Int?
+  posted_by_id        String
+  is_deleted          Boolean  @default(false)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  posted_by_agency_id String?
+  approved_at         DateTime?
+  approved_by_id      String?
+  posted_by_agency    Agency?   @relation(fields: [posted_by_agency_id], references: [id], onDelete: Cascade)
+  approved_by         User?     @relation("JobApprover", fields: [approved_by_id], references: [id], onDelete: Cascade)
 
   @@map("jobs")
 }
@@ -258,15 +274,15 @@ model Banner {
 model AgencySubscriptionPayment {
   id             String        @id @default(uuid())
   agency_id      String
-  payment_month  String // Format: "YYYY-MM" (e.g., "2025-09")
+  payment_month  String
   amount         Decimal       @db.Decimal(10, 2)
   payment_date   DateTime
   payment_status PaymentStatus @default(PENDING)
-  payment_method String? // e.g., "bank_transfer", "mobile_banking", etc.
-  transaction_id String? // External transaction reference
-  notes          String? // Any additional notes about the payment
-  approved_at    DateTime? // When payment was approved
-  approved_by_id String? // Who approved the payment
+  payment_method String?
+  transaction_id String?
+  notes          String?
+  approved_at    DateTime?
+  approved_by_id String?
   is_deleted     Boolean       @default(false)
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt
@@ -326,6 +342,12 @@ enum JobType {
   INTERNSHIP
   CONTRACT
   FREELANCE
+}
+
+enum JobKind {
+  ON_SITE
+  REMOTE
+  HYBRID
 }
 
 enum ExamRegistrationStatus {
