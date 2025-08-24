@@ -27,38 +27,20 @@ const CreateJob = (payload, file, user) => __awaiter(void 0, void 0, void 0, fun
     try {
         // Validate user exists
         const isValidUser = yield prisma_1.default.user.findUnique({
-            where: { id: user === null || user === void 0 ? void 0 : user.id },
-            include: {
-                agencies: {
-                    where: {
-                        status: 'APPROVED',
-                        subscription_status: client_1.SubscriptionStatus.ACTIVE,
-                    },
+            where: {
+                id: user === null || user === void 0 ? void 0 : user.id,
+                role: {
+                    in: [client_1.Role.ADMIN, client_1.Role.SUPER_ADMIN, client_1.Role.AGENCY],
                 },
             },
         });
         if (!isValidUser) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
         }
-        // Check authorization: only admin, super_admin, and approved active agencies can post
+        // Check authorization: only admin, super_admin, and users can post
         const isAdmin = (user === null || user === void 0 ? void 0 : user.role) === client_1.Role.SUPER_ADMIN || (user === null || user === void 0 ? void 0 : user.role) === client_1.Role.ADMIN;
-        const hasActiveAgency = isValidUser.agencies.length > 0;
-        if (!isAdmin && !hasActiveAgency) {
-            throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'Only admins and approved agencies with active subscription can post jobs');
-        }
-        // If agency is posting, validate agency and set agency id
-        if (payload.posted_by_agency_id) {
-            const agency = yield prisma_1.default.agency.findFirst({
-                where: {
-                    id: payload.posted_by_agency_id,
-                    user_id: user === null || user === void 0 ? void 0 : user.id,
-                    status: 'APPROVED',
-                    subscription_status: client_1.SubscriptionStatus.ACTIVE,
-                },
-            });
-            if (!agency) {
-                throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'Agency not found or not authorized to post jobs');
-            }
+        if (!isAdmin && (user === null || user === void 0 ? void 0 : user.role) !== client_1.Role.AGENCY) {
+            throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'Only admins and users can post jobs');
         }
         // Handle file upload if present
         if (file) {
@@ -71,11 +53,11 @@ const CreateJob = (payload, file, user) => __awaiter(void 0, void 0, void 0, fun
         const result = yield prisma_1.default.job.create({
             data: Object.assign(Object.assign({}, payload), { posted_by_id: user === null || user === void 0 ? void 0 : user.id, company_logo: companyLogoUrl }),
             include: {
-                posted_by_agency: {
+                posted_by: {
                     select: {
                         id: true,
                         name: true,
-                        logo: true,
+                        email: true,
                     },
                 },
                 approved_by: {
@@ -100,7 +82,7 @@ const CreateJob = (payload, file, user) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 const GetAllJobs = (query, options) => __awaiter(void 0, void 0, void 0, function* () {
-    const { search, kind, type, posted_by_id, posted_by_agency_id, is_approved, company_name, } = query;
+    const { search, kind, type, posted_by_id, is_approved, company_name } = query;
     const { limit, page, sort_order, sort_by, skip } = (0, pagination_1.default)(options);
     const andCondition = [{ is_deleted: false }];
     if (search) {
@@ -118,9 +100,6 @@ const GetAllJobs = (query, options) => __awaiter(void 0, void 0, void 0, functio
     }
     if (posted_by_id) {
         andCondition.push({ posted_by_id });
-    }
-    if (posted_by_agency_id) {
-        andCondition.push({ posted_by_agency_id });
     }
     if (is_approved !== undefined) {
         andCondition.push({
@@ -141,11 +120,11 @@ const GetAllJobs = (query, options) => __awaiter(void 0, void 0, void 0, functio
             ? { [sort_by]: sort_order }
             : { created_at: 'desc' },
         include: {
-            posted_by_agency: {
+            posted_by: {
                 select: {
                     id: true,
                     name: true,
-                    logo: true,
+                    email: true,
                 },
             },
             approved_by: {
@@ -176,14 +155,11 @@ const GetSingleJob = (id) => __awaiter(void 0, void 0, void 0, function* () {
             is_deleted: false,
         },
         include: {
-            posted_by_agency: {
+            posted_by: {
                 select: {
                     id: true,
                     name: true,
-                    logo: true,
-                    contact_email: true,
-                    contact_phone: true,
-                    website: true,
+                    email: true,
                 },
             },
             approved_by: {
@@ -240,11 +216,11 @@ const UpdateJob = (id, payload, file, user) => __awaiter(void 0, void 0, void 0,
                 approved_by_id: null,
             })),
             include: {
-                posted_by_agency: {
+                posted_by: {
                     select: {
                         id: true,
                         name: true,
-                        logo: true,
+                        email: true,
                     },
                 },
                 approved_by: {
@@ -334,11 +310,11 @@ const GetMyJobs = (userId, query, options) => __awaiter(void 0, void 0, void 0, 
             ? { [sort_by]: sort_order }
             : { created_at: 'desc' },
         include: {
-            posted_by_agency: {
+            posted_by: {
                 select: {
                     id: true,
                     name: true,
-                    logo: true,
+                    email: true,
                 },
             },
             approved_by: {

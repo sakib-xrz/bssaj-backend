@@ -239,11 +239,11 @@ const ApprovedOrRejectJob = (approvedId, payload) => __awaiter(void 0, void 0, v
                 approved_at: new Date(),
             },
             include: {
-                posted_by_agency: {
+                posted_by: {
                     select: {
                         id: true,
                         name: true,
-                        logo: true,
+                        email: true,
                     },
                 },
                 approved_by: {

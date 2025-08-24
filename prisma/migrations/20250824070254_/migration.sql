@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "jobs" ALTER COLUMN "salary_min" SET DATA TYPE TEXT,
+ALTER COLUMN "salary_max" SET DATA TYPE TEXT,
+ALTER COLUMN "experience_min" SET DATA TYPE TEXT,
+ALTER COLUMN "number_of_vacancies" SET DATA TYPE TEXT;

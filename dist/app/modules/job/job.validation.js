@@ -13,13 +13,36 @@ const CreateJobSchema = zod_1.z.object({
         company_email: zod_1.z.string().email().optional(),
         company_phone: zod_1.z.string().optional(),
         company_address: zod_1.z.string().optional(),
-        experience_min: zod_1.z.number().int().min(0).optional(),
-        salary_min: zod_1.z.number().int().min(0).optional(),
-        salary_max: zod_1.z.number().int().min(0).optional(),
+        experience_min: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 0), {
+            message: 'Experience min must be a non-negative integer',
+        }),
+        salary_min: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 0), {
+            message: 'Salary min must be a non-negative integer',
+        }),
+        salary_max: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 0), {
+            message: 'Salary max must be a non-negative integer',
+        }),
         deadline: zod_1.z.string().transform((str) => new Date(str)),
         apply_link: zod_1.z.string({ required_error: 'Apply link is required' }).url(),
-        number_of_vacancies: zod_1.z.number().int().min(1).optional(),
-        posted_by_agency_id: zod_1.z.string().optional(),
+        number_of_vacancies: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 1), {
+            message: 'Number of vacancies must be at least 1',
+        }),
     }),
 });
 const UpdateJobSchema = zod_1.z.object({
@@ -33,16 +56,39 @@ const UpdateJobSchema = zod_1.z.object({
         company_email: zod_1.z.string().email().optional(),
         company_phone: zod_1.z.string().optional(),
         company_address: zod_1.z.string().optional(),
-        experience_min: zod_1.z.number().int().min(0).optional(),
-        salary_min: zod_1.z.number().int().min(0).optional(),
-        salary_max: zod_1.z.number().int().min(0).optional(),
+        experience_min: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 0), {
+            message: 'Experience min must be a non-negative integer',
+        }),
+        salary_min: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 0), {
+            message: 'Salary min must be a non-negative integer',
+        }),
+        salary_max: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 0), {
+            message: 'Salary max must be a non-negative integer',
+        }),
         deadline: zod_1.z
             .string()
             .transform((str) => new Date(str))
             .optional(),
         apply_link: zod_1.z.string().url().optional(),
-        number_of_vacancies: zod_1.z.number().int().min(1).optional(),
-        posted_by_agency_id: zod_1.z.string().optional(),
+        number_of_vacancies: zod_1.z
+            .string()
+            .optional()
+            .transform((str) => (str ? parseInt(str, 10) : undefined))
+            .refine((val) => val === undefined || (Number.isInteger(val) && val >= 1), {
+            message: 'Number of vacancies must be at least 1',
+        }),
     }),
 });
 const JobValidation = {

@@ -12,13 +12,48 @@ const CreateJobSchema = z.object({
     company_email: z.string().email().optional(),
     company_phone: z.string().optional(),
     company_address: z.string().optional(),
-    experience_min: z.number().int().min(0).optional(),
-    salary_min: z.number().int().min(0).optional(),
-    salary_max: z.number().int().min(0).optional(),
+    experience_min: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 0),
+        {
+          message: 'Experience min must be a non-negative integer',
+        },
+      ),
+    salary_min: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 0),
+        {
+          message: 'Salary min must be a non-negative integer',
+        },
+      ),
+    salary_max: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 0),
+        {
+          message: 'Salary max must be a non-negative integer',
+        },
+      ),
     deadline: z.string().transform((str) => new Date(str)),
     apply_link: z.string({ required_error: 'Apply link is required' }).url(),
-    number_of_vacancies: z.number().int().min(1).optional(),
-    posted_by_agency_id: z.string().optional(),
+    number_of_vacancies: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 1),
+        {
+          message: 'Number of vacancies must be at least 1',
+        },
+      ),
   }),
 });
 
@@ -33,16 +68,51 @@ const UpdateJobSchema = z.object({
     company_email: z.string().email().optional(),
     company_phone: z.string().optional(),
     company_address: z.string().optional(),
-    experience_min: z.number().int().min(0).optional(),
-    salary_min: z.number().int().min(0).optional(),
-    salary_max: z.number().int().min(0).optional(),
+    experience_min: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 0),
+        {
+          message: 'Experience min must be a non-negative integer',
+        },
+      ),
+    salary_min: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 0),
+        {
+          message: 'Salary min must be a non-negative integer',
+        },
+      ),
+    salary_max: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 0),
+        {
+          message: 'Salary max must be a non-negative integer',
+        },
+      ),
     deadline: z
       .string()
       .transform((str) => new Date(str))
       .optional(),
     apply_link: z.string().url().optional(),
-    number_of_vacancies: z.number().int().min(1).optional(),
-    posted_by_agency_id: z.string().optional(),
+    number_of_vacancies: z
+      .string()
+      .optional()
+      .transform((str) => (str ? parseInt(str, 10) : undefined))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val >= 1),
+        {
+          message: 'Number of vacancies must be at least 1',
+        },
+      ),
   }),
 });
 

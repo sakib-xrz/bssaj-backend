@@ -6,7 +6,6 @@ const JobConstants = {
         'kind',
         'type',
         'posted_by_id',
-        'posted_by_agency_id',
         'is_approved',
         'company_name',
     ],

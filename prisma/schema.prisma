@@ -30,6 +30,7 @@ model User {
   notifications            Notification[]
   approved_agency_payments AgencySubscriptionPayment[] @relation("PaymentApprover")
   approved_jobs            Job[]                       @relation("JobApprover")
+  jobs                     Job[]
 
   @@map("users")
 }
@@ -85,7 +86,6 @@ model Agency {
   user                  User                        @relation(fields: [user_id], references: [id])
   certifications        Certification[]
   subscription_payments AgencySubscriptionPayment[]
-  jobs                  Job[]
 
   @@map("agencies")
 }
@@ -226,22 +226,21 @@ model Job {
   company_email       String?
   company_phone       String?
   company_address     String?
-  experience_min      Int?
-  salary_min          Int?
-  salary_max          Int?
+  experience_min      String?
+  salary_min          String?
+  salary_max          String?
   deadline            DateTime
   apply_link          String
-  number_of_vacancies Int?
+  number_of_vacancies String?
   posted_by_id        String
   is_deleted          Boolean  @default(false)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
 
-  posted_by_agency_id String?
-  approved_at         DateTime?
-  approved_by_id      String?
-  posted_by_agency    Agency?   @relation(fields: [posted_by_agency_id], references: [id], onDelete: Cascade)
-  approved_by         User?     @relation("JobApprover", fields: [approved_by_id], references: [id], onDelete: Cascade)
+  posted_by      User      @relation(fields: [posted_by_id], references: [id], onDelete: Cascade)
+  approved_at    DateTime?
+  approved_by_id String?
+  approved_by    User?     @relation("JobApprover", fields: [approved_by_id], references: [id], onDelete: Cascade)
 
   @@map("jobs")
 }

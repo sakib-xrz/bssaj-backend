@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Job, Prisma, Role, SubscriptionStatus } from '@prisma/client';
+import { Job, Prisma, Role } from '@prisma/client';
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import calculatePagination from '../../utils/pagination';
@@ -23,13 +23,10 @@ const CreateJob = async (
   try {
     // Validate user exists
     const isValidUser = await prisma.user.findUnique({
-      where: { id: user?.id },
-      include: {
-        agencies: {
-          where: {
-            status: 'APPROVED',
-            subscription_status: SubscriptionStatus.ACTIVE,
-          },
+      where: {
+        id: user?.id,
+        role: {
+          in: [Role.ADMIN, Role.SUPER_ADMIN, Role.AGENCY],
         },
       },
     });
@@ -38,35 +35,15 @@ const CreateJob = async (
       throw new AppError(httpStatus.NOT_FOUND, 'User not found');
     }
 
-    // Check authorization: only admin, super_admin, and approved active agencies can post
+    // Check authorization: only admin, super_admin, and users can post
     const isAdmin =
       user?.role === Role.SUPER_ADMIN || user?.role === Role.ADMIN;
-    const hasActiveAgency = isValidUser.agencies.length > 0;
 
-    if (!isAdmin && !hasActiveAgency) {
+    if (!isAdmin && user?.role !== Role.AGENCY) {
       throw new AppError(
         httpStatus.FORBIDDEN,
-        'Only admins and approved agencies with active subscription can post jobs',
+        'Only admins and users can post jobs',
       );
-    }
-
-    // If agency is posting, validate agency and set agency id
-    if (payload.posted_by_agency_id) {
-      const agency = await prisma.agency.findFirst({
-        where: {
-          id: payload.posted_by_agency_id,
-          user_id: user?.id,
-          status: 'APPROVED',
-          subscription_status: SubscriptionStatus.ACTIVE,
-        },
-      });
-
-      if (!agency) {
-        throw new AppError(
-          httpStatus.FORBIDDEN,
-          'Agency not found or not authorized to post jobs',
-        );
-      }
     }
 
     // Handle file upload if present
@@ -85,11 +62,11 @@ const CreateJob = async (
         company_logo: companyLogoUrl,
       },
       include: {
-        posted_by_agency: {
+        posted_by: {
           select: {
             id: true,
             name: true,
-            logo: true,
+            email: true,
           },
         },
         approved_by: {
@@ -115,15 +92,7 @@ const CreateJob = async (
 };
 
 const GetAllJobs = async (query: any, options: any) => {
-  const {
-    search,
-    kind,
-    type,
-    posted_by_id,
-    posted_by_agency_id,
-    is_approved,
-    company_name,
-  } = query;
+  const { search, kind, type, posted_by_id, is_approved, company_name } = query;
   const { limit, page, sort_order, sort_by, skip } =
     calculatePagination(options);
 
@@ -149,10 +118,6 @@ const GetAllJobs = async (query: any, options: any) => {
     andCondition.push({ posted_by_id });
   }
 
-  if (posted_by_agency_id) {
-    andCondition.push({ posted_by_agency_id });
-  }
-
   if (is_approved !== undefined) {
     andCondition.push({
       approved_at: is_approved === 'true' ? { not: null } : null,
@@ -176,11 +141,11 @@ const GetAllJobs = async (query: any, options: any) => {
         ? { [sort_by]: sort_order }
         : { created_at: 'desc' },
     include: {
-      posted_by_agency: {
+      posted_by: {
         select: {
           id: true,
           name: true,
-          logo: true,
+          email: true,
         },
       },
       approved_by: {
@@ -214,14 +179,11 @@ const GetSingleJob = async (id: string) => {
       is_deleted: false,
     },
     include: {
-      posted_by_agency: {
+      posted_by: {
         select: {
           id: true,
           name: true,
-          logo: true,
-          contact_email: true,
-          contact_phone: true,
-          website: true,
+          email: true,
         },
       },
       approved_by: {
@@ -305,11 +267,11 @@ const UpdateJob = async (
           }),
       },
       include: {
-        posted_by_agency: {
+        posted_by: {
           select: {
             id: true,
             name: true,
-            logo: true,
+            email: true,
           },
         },
         approved_by: {
@@ -422,11 +384,11 @@ const GetMyJobs = async (userId: string, query: any, options: any) => {
         ? { [sort_by]: sort_order }
         : { created_at: 'desc' },
     include: {
-      posted_by_agency: {
+      posted_by: {
         select: {
           id: true,
           name: true,
-          logo: true,
+          email: true,
         },
       },
       approved_by: {
