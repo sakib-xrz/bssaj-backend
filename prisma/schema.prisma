@@ -292,10 +292,15 @@ model AgencySubscriptionPayment {
   @@map("agency_subscription_payments")
 }
 
-enum ComplainStatus {
-  PENDING
-  RESOLVED
-  REJECTED
+model Gallery {
+  id         String   @id @default(uuid())
+  title      String?
+  image      String
+  link       String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("galleries")
 }
 
 enum MemberKind {

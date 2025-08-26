@@ -12,6 +12,7 @@ import { MemberRouter } from '../modules/member/member.router';
 import { NewsRouter } from '../modules/news/news.routes';
 import { PaymentRouter } from '../modules/payment/payment.routes';
 import { UserRoute } from '../modules/user/user.routes';
+import { GalleryRouter } from '../modules/gallery/gallery.routes';
 
 const router = express.Router();
 
@@ -28,6 +29,7 @@ const routes: Route[] = [
   { path: '/news', route: NewsRouter },
   { path: '/certifications', route: CertificationRouter },
   { path: '/banners', route: BannerRouter },
+  { path: '/gallery', route: GalleryRouter },
   { path: '/payments', route: PaymentRouter },
   { path: '/jobs', route: JobRouter },
   { path: '/admin', route: AdminRoute },

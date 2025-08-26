@@ -17,6 +17,7 @@ const member_router_1 = require("../modules/member/member.router");
 const news_routes_1 = require("../modules/news/news.routes");
 const payment_routes_1 = require("../modules/payment/payment.routes");
 const user_routes_1 = require("../modules/user/user.routes");
+const gallery_routes_1 = require("../modules/gallery/gallery.routes");
 const router = express_1.default.Router();
 const routes = [
     { path: '/auth', route: auth_routes_1.AuthRoutes },
@@ -29,6 +30,7 @@ const routes = [
     { path: '/news', route: news_routes_1.NewsRouter },
     { path: '/certifications', route: certification_routes_1.CertificationRouter },
     { path: '/banners', route: banner_routes_1.BannerRouter },
+    { path: '/gallery', route: gallery_routes_1.GalleryRouter },
     { path: '/payments', route: payment_routes_1.PaymentRouter },
     { path: '/jobs', route: job_routes_1.JobRouter },
     { path: '/admin', route: admin_routes_1.AdminRoute },
