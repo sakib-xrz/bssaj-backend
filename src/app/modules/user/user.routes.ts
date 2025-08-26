@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', auth(Role.SUPER_ADMIN, Role.ADMIN), UserController.GetAllUser);
 router.patch(
   '/',
-  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
   UserController.UpdateUser,
 );
 router.get(
@@ -19,7 +19,7 @@ router.get(
 );
 router.patch(
   '/profile-picture',
-  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
   upload.single('image'),
   UserController.UpdateProfilePicture,
 );

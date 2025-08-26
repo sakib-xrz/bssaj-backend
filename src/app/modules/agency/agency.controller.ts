@@ -68,7 +68,7 @@ const UpdateAgency = catchAsync(async (req, res) => {
 
 const DeleteAgency = catchAsync(async (req, res) => {
   const id = req.params.id;
-  const result = await AgencyService.DeleteAgency(id);
+  const result = await AgencyService.DeleteAgency(id, req.user?.id);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

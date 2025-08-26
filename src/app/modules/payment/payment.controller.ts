@@ -116,16 +116,6 @@ const BulkCreatePayments = catchAsync(async (req, res) => {
   });
 });
 
-const MarkOverduePayments = catchAsync(async (req, res) => {
-  const result = await PaymentService.MarkOverduePayments();
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: 'Overdue payments marked successfully',
-    data: result,
-  });
-});
-
 const GetAgencyPaymentSummary = catchAsync(async (req, res) => {
   const agencyId = req.params.agencyId;
   const result = await PaymentService.GetAgencyPaymentSummary(agencyId);
@@ -148,5 +138,4 @@ export const PaymentController = {
   GetAgencyPayments,
   GetAgencyPaymentSummary,
   BulkCreatePayments,
-  MarkOverduePayments,
 };

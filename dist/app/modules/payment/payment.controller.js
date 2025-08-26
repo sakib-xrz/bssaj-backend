@@ -117,15 +117,6 @@ const BulkCreatePayments = (0, catchAsync_1.default)((req, res) => __awaiter(voi
         data: result,
     });
 }));
-const MarkOverduePayments = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield payment_services_1.PaymentService.MarkOverduePayments();
-    (0, sendResponse_1.default)(res, {
-        success: true,
-        statusCode: http_status_1.default.OK,
-        message: 'Overdue payments marked successfully',
-        data: result,
-    });
-}));
 const GetAgencyPaymentSummary = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const agencyId = req.params.agencyId;
     const result = yield payment_services_1.PaymentService.GetAgencyPaymentSummary(agencyId);
@@ -147,5 +138,4 @@ exports.PaymentController = {
     GetAgencyPayments,
     GetAgencyPaymentSummary,
     BulkCreatePayments,
-    MarkOverduePayments,
 };

@@ -482,7 +482,7 @@ const UpdateAgency = async (
   }
 };
 
-const DeleteAgency = async (id: string) => {
+const DeleteAgency = async (id: string, userId: string) => {
   const existingAgency = await prisma.agency.findUnique({
     where: { id, is_deleted: false },
     include: { success_stories: true, user: true },
@@ -490,6 +490,13 @@ const DeleteAgency = async (id: string) => {
 
   if (!existingAgency) {
     throw new AppError(httpStatus.NOT_FOUND, 'Agency not found');
+  }
+
+  if (existingAgency.user_id !== userId) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      'You are not authorized to delete this agency',
+    );
   }
 
   // Hard delete agency and associated data

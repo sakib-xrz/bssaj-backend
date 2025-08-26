@@ -11,7 +11,7 @@ const router = Router();
 router
   .route('/')
   .post(
-    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
     upload.single('cover_image'),
     validateRequest(BlogValidation.CreateBlogSchema),
     BlogController.CreateBlog,
@@ -20,7 +20,7 @@ router
 
 router.get(
   '/my-blogs',
-  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
   BlogController.GetMyBlogs,
 );
 
@@ -28,13 +28,13 @@ router
   .route('/:id')
   .get(BlogController.GetSingleBlog)
   .patch(
-    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
     upload.single('cover_image'), // ADDED: File upload middleware for updates
     validateRequest(BlogValidation.UpdateBlogSchema),
     BlogController.UpdateBlog,
   )
   .delete(
-    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
     BlogController.DeleteBlog,
   );
 

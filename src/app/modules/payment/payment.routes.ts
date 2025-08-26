@@ -26,14 +26,6 @@ router
     PaymentController.BulkCreatePayments,
   );
 
-// Mark overdue payments (admin only)
-router
-  .route('/mark-overdue')
-  .patch(
-    auth(Role.SUPER_ADMIN, Role.ADMIN),
-    PaymentController.MarkOverduePayments,
-  );
-
 // Agency-specific payments
 router
   .route('/agency/:agencyId')
@@ -46,7 +38,7 @@ router
 router
   .route('/agency/:agencyId/summary')
   .get(
-    auth(Role.SUPER_ADMIN, Role.ADMIN),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
     PaymentController.GetAgencyPaymentSummary,
   );
 
@@ -54,7 +46,7 @@ router
 router
   .route('/:id/approve')
   .patch(
-    auth(Role.SUPER_ADMIN, Role.ADMIN),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
     validateRequest(approvePaymentSchema),
     PaymentController.ApprovePayment,
   );
@@ -76,10 +68,13 @@ router
     PaymentController.GetSinglePayment,
   )
   .patch(
-    auth(Role.SUPER_ADMIN, Role.ADMIN),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
     validateRequest(updatePaymentSchema),
     PaymentController.UpdatePayment,
   )
-  .delete(auth(Role.SUPER_ADMIN, Role.ADMIN), PaymentController.DeletePayment);
+  .delete(
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
+    PaymentController.DeletePayment,
+  );
 
 export const PaymentRouter = router;

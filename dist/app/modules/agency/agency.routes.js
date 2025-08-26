@@ -31,5 +31,5 @@ router
     .route('/:id')
     .get(agency_controller_1.AgencyController.GetSingleAgency)
     .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), handelFile_1.upload.any(), (0, validateRequest_1.default)(agency_validation_1.agencyUpdateSchema), agency_controller_1.AgencyController.UpdateAgency)
-    .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), agency_controller_1.AgencyController.DeleteAgency);
+    .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), agency_controller_1.AgencyController.DeleteAgency);
 exports.AgencyRouter = router;

@@ -17,14 +17,14 @@ router.post(
 
 router.patch(
   '/change-password',
-  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
   validateRequest(AuthValidation.ChangePasswordSchema),
   AuthController.ChangePassword,
 );
 
 router.get(
   '/me',
-  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT, Role.USER),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY, Role.STUDENT),
   AuthController.GetMyProfile,
 );
 

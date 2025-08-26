@@ -62,6 +62,9 @@ router
     validateRequest(agencyUpdateSchema),
     AgencyController.UpdateAgency,
   )
-  .delete(auth(Role.SUPER_ADMIN, Role.ADMIN), AgencyController.DeleteAgency);
+  .delete(
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
+    AgencyController.DeleteAgency,
+  );
 
 export const AgencyRouter = router;

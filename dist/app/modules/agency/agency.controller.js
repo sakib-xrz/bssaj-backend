@@ -76,8 +76,9 @@ const UpdateAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 const DeleteAgency = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const id = req.params.id;
-    const result = yield agency_services_1.AgencyService.DeleteAgency(id);
+    const result = yield agency_services_1.AgencyService.DeleteAgency(id, (_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

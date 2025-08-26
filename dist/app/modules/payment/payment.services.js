@@ -420,61 +420,6 @@ const BulkCreatePayments = (payload) => __awaiter(void 0, void 0, void 0, functi
         message: `Created ${result.count} payments, skipped ${existingAgencyIds.length} existing payments`,
     };
 });
-const MarkOverduePayments = () => __awaiter(void 0, void 0, void 0, function* () {
-    // Mark payments as overdue based on payment_month logic
-    const currentMonthYear = new Date().toISOString().slice(0, 7); // YYYY-MM format
-    const [currentYear, currentMonth] = currentMonthYear.split('-').map(Number);
-    // Get payments that are from previous months and still pending
-    const overduePayments = yield prisma_1.default.agencySubscriptionPayment.findMany({
-        where: {
-            payment_status: client_1.PaymentStatus.PENDING,
-            is_deleted: false,
-        },
-        select: { id: true, payment_month: true },
-    });
-    const overduePaymentIds = overduePayments
-        .filter((payment) => {
-        const [paymentYear, paymentMonth] = payment.payment_month
-            .split('-')
-            .map(Number);
-        return (paymentYear < currentYear ||
-            (paymentYear === currentYear && paymentMonth < currentMonth));
-    })
-        .map((p) => p.id);
-    const result = yield prisma_1.default.agencySubscriptionPayment.updateMany({
-        where: {
-            id: { in: overduePaymentIds },
-        },
-        data: {
-            payment_status: client_1.PaymentStatus.OVERDUE,
-        },
-    });
-    // Also update agency subscription status to PAUSED for overdue payments
-    if (overduePaymentIds.length > 0) {
-        const overdueAgencies = yield prisma_1.default.agencySubscriptionPayment.findMany({
-            where: {
-                id: { in: overduePaymentIds },
-            },
-            select: { agency_id: true },
-            distinct: ['agency_id'],
-        });
-        if (overdueAgencies.length > 0) {
-            yield prisma_1.default.agency.updateMany({
-                where: {
-                    id: { in: overdueAgencies.map((p) => p.agency_id) },
-                },
-                data: {
-                    subscription_status: 'PAUSED',
-                    is_visible: false,
-                },
-            });
-        }
-    }
-    return {
-        updated_payments: result.count,
-        paused_agencies: overduePaymentIds.length,
-    };
-});
 const GetAgencyPaymentSummary = (agencyId) => __awaiter(void 0, void 0, void 0, function* () {
     const agency = yield prisma_1.default.agency.findUnique({
         where: { id: agencyId, is_deleted: false },
@@ -558,5 +503,4 @@ exports.PaymentService = {
     GetAgencyPayments,
     GetAgencyPaymentSummary,
     BulkCreatePayments,
-    MarkOverduePayments,
 };

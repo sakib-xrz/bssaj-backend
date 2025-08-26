@@ -509,70 +509,6 @@ const BulkCreatePayments = async (payload: any) => {
   };
 };
 
-const MarkOverduePayments = async () => {
-  // Mark payments as overdue based on payment_month logic
-  const currentMonthYear = new Date().toISOString().slice(0, 7); // YYYY-MM format
-  const [currentYear, currentMonth] = currentMonthYear.split('-').map(Number);
-
-  // Get payments that are from previous months and still pending
-  const overduePayments = await prisma.agencySubscriptionPayment.findMany({
-    where: {
-      payment_status: PaymentStatus.PENDING,
-      is_deleted: false,
-    },
-    select: { id: true, payment_month: true },
-  });
-
-  const overduePaymentIds = overduePayments
-    .filter((payment) => {
-      const [paymentYear, paymentMonth] = payment.payment_month
-        .split('-')
-        .map(Number);
-      return (
-        paymentYear < currentYear ||
-        (paymentYear === currentYear && paymentMonth < currentMonth)
-      );
-    })
-    .map((p) => p.id);
-
-  const result = await prisma.agencySubscriptionPayment.updateMany({
-    where: {
-      id: { in: overduePaymentIds },
-    },
-    data: {
-      payment_status: PaymentStatus.OVERDUE,
-    },
-  });
-
-  // Also update agency subscription status to PAUSED for overdue payments
-  if (overduePaymentIds.length > 0) {
-    const overdueAgencies = await prisma.agencySubscriptionPayment.findMany({
-      where: {
-        id: { in: overduePaymentIds },
-      },
-      select: { agency_id: true },
-      distinct: ['agency_id'],
-    });
-
-    if (overdueAgencies.length > 0) {
-      await prisma.agency.updateMany({
-        where: {
-          id: { in: overdueAgencies.map((p) => p.agency_id) },
-        },
-        data: {
-          subscription_status: 'PAUSED',
-          is_visible: false,
-        },
-      });
-    }
-  }
-
-  return {
-    updated_payments: result.count,
-    paused_agencies: overduePaymentIds.length,
-  };
-};
-
 const GetAgencyPaymentSummary = async (agencyId: string) => {
   const agency = await prisma.agency.findUnique({
     where: { id: agencyId, is_deleted: false },
@@ -664,5 +600,4 @@ export const PaymentService = {
   GetAgencyPayments,
   GetAgencyPaymentSummary,
   BulkCreatePayments,
-  MarkOverduePayments,
 };

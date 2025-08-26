@@ -19,10 +19,6 @@ router
 router
     .route('/bulk-create')
     .post((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), (0, validateRequest_1.default)(payment_validation_1.bulkCreatePaymentSchema), payment_controller_1.PaymentController.BulkCreatePayments);
-// Mark overdue payments (admin only)
-router
-    .route('/mark-overdue')
-    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), payment_controller_1.PaymentController.MarkOverduePayments);
 // Agency-specific payments
 router
     .route('/agency/:agencyId')
@@ -30,11 +26,11 @@ router
 // Agency payment summary
 router
     .route('/agency/:agencyId/summary')
-    .get((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), payment_controller_1.PaymentController.GetAgencyPaymentSummary);
+    .get((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), payment_controller_1.PaymentController.GetAgencyPaymentSummary);
 // Payment approval
 router
     .route('/:id/approve')
-    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), (0, validateRequest_1.default)(payment_validation_1.approvePaymentSchema), payment_controller_1.PaymentController.ApprovePayment);
+    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), (0, validateRequest_1.default)(payment_validation_1.approvePaymentSchema), payment_controller_1.PaymentController.ApprovePayment);
 // Main payment routes
 router
     .route('/')
@@ -43,6 +39,6 @@ router
 router
     .route('/:id')
     .get((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), payment_controller_1.PaymentController.GetSinglePayment)
-    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), (0, validateRequest_1.default)(payment_validation_1.updatePaymentSchema), payment_controller_1.PaymentController.UpdatePayment)
-    .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN), payment_controller_1.PaymentController.DeletePayment);
+    .patch((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), (0, validateRequest_1.default)(payment_validation_1.updatePaymentSchema), payment_controller_1.PaymentController.UpdatePayment)
+    .delete((0, auth_1.default)(client_1.Role.SUPER_ADMIN, client_1.Role.ADMIN, client_1.Role.AGENCY), payment_controller_1.PaymentController.DeletePayment);
 exports.PaymentRouter = router;
