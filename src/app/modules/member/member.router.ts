@@ -10,7 +10,7 @@ const router = Router();
 router
   .route('/')
   .post(
-    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.STUDENT),
+    auth(Role.SUPER_ADMIN, Role.ADMIN, Role.STUDENT, Role.AGENCY),
     validateRequest(MemberValidation.memberValidation),
     MembersController.CreateMember,
   )
@@ -18,7 +18,7 @@ router
 
 router.get(
   '/stats',
-  auth(Role.SUPER_ADMIN, Role.ADMIN),
+  auth(Role.SUPER_ADMIN, Role.ADMIN, Role.AGENCY),
   MembersController.GetMemberStats,
 );
 
