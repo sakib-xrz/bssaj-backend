@@ -14,6 +14,7 @@ import { NewsRouter } from '../modules/news/news.routes';
 import { PaymentRouter } from '../modules/payment/payment.routes';
 import { UserRoute } from '../modules/user/user.routes';
 import { GalleryRouter } from '../modules/gallery/gallery.routes';
+import { ScholarshipRouter } from '../modules/scholarship/scholarship.routes';
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ const routes: Route[] = [
   { path: '/jobs', route: JobRouter },
   { path: '/admin', route: AdminRoute },
   { path: '/consultations', route: ConsultationRouter },
+  { path: '/scholarships', route: ScholarshipRouter },
 ];
 
 routes.forEach((route) => {

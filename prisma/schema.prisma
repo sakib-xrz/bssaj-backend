@@ -149,6 +149,7 @@ model Scholarship {
   title           String
   description     String
   eligibility     String?
+  provider        String?
   amount          Int?
   deadline        DateTime
   application_url String
