@@ -1,13 +1,14 @@
 const JobConstants = {
-  searchableFields: ['title', 'description', 'company_name'],
+  searchableFields: ['title'],
   filterableFields: [
+    'search',
     'kind',
     'type',
     'posted_by_id',
     'is_approved',
     'company_name',
   ],
-  jobSearchableFields: ['title', 'description', 'company_name'],
+  jobSearchableFields: ['title'],
 };
 
 export default JobConstants;
