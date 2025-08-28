@@ -33,7 +33,7 @@ export const updatePaymentSchema = z.object({
 
 export const approvePaymentSchema = z.object({
   body: z.object({
-    payment_status: z.enum(['PAID', 'REJECTED'], {
+    payment_status: z.enum(['PAID', 'FAILED'], {
       required_error: 'Payment status is required for approval',
     }),
     notes: z.string().optional(),

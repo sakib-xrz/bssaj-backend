@@ -28,12 +28,12 @@ const CreatePayment = async (payload: any) => {
   }
 
   // Check if payment for this month already exists
-  const existingPayment = await prisma.agencySubscriptionPayment.findUnique({
+  const existingPayment = await prisma.agencySubscriptionPayment.findFirst({
     where: {
-      agency_id_payment_month: {
-        agency_id: payload.agency_id,
-        payment_month: payload.payment_month,
-      },
+      agency_id: payload.agency_id,
+      payment_month: payload.payment_month,
+      payment_status: PaymentStatus.PAID,
+      is_deleted: false,
     },
   });
 
@@ -374,9 +374,8 @@ const DeletePayment = async (id: string) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Payment not found');
   }
 
-  await prisma.agencySubscriptionPayment.update({
+  await prisma.agencySubscriptionPayment.delete({
     where: { id },
-    data: { is_deleted: true },
   });
 
   return { message: 'Payment deleted successfully' };

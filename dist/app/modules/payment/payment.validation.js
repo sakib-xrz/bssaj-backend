@@ -33,7 +33,7 @@ exports.updatePaymentSchema = zod_1.z.object({
 });
 exports.approvePaymentSchema = zod_1.z.object({
     body: zod_1.z.object({
-        payment_status: zod_1.z.enum(['PAID', 'REJECTED'], {
+        payment_status: zod_1.z.enum(['PAID', 'FAILED'], {
             required_error: 'Payment status is required for approval',
         }),
         notes: zod_1.z.string().optional(),

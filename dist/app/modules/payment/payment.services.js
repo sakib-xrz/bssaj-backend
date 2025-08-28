@@ -34,12 +34,12 @@ const CreatePayment = (payload) => __awaiter(void 0, void 0, void 0, function* (
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Agency not found');
     }
     // Check if payment for this month already exists
-    const existingPayment = yield prisma_1.default.agencySubscriptionPayment.findUnique({
+    const existingPayment = yield prisma_1.default.agencySubscriptionPayment.findFirst({
         where: {
-            agency_id_payment_month: {
-                agency_id: payload.agency_id,
-                payment_month: payload.payment_month,
-            },
+            agency_id: payload.agency_id,
+            payment_month: payload.payment_month,
+            payment_status: client_1.PaymentStatus.PAID,
+            is_deleted: false,
         },
     });
     if (existingPayment) {
@@ -318,9 +318,8 @@ const DeletePayment = (id) => __awaiter(void 0, void 0, void 0, function* () {
     if (!existingPayment) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Payment not found');
     }
-    yield prisma_1.default.agencySubscriptionPayment.update({
+    yield prisma_1.default.agencySubscriptionPayment.delete({
         where: { id },
-        data: { is_deleted: true },
     });
     return { message: 'Payment deleted successfully' };
 });

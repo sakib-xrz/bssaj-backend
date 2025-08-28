@@ -288,7 +288,6 @@ model AgencySubscriptionPayment {
   agency         Agency        @relation(fields: [agency_id], references: [id], onDelete: Cascade)
   approved_by    User?         @relation("PaymentApprover", fields: [approved_by_id], references: [id])
 
-  @@unique([agency_id, payment_month])
   @@map("agency_subscription_payments")
 }
 
