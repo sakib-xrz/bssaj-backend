@@ -6,6 +6,7 @@ import { BannerRouter } from '../modules/banner/banner.routes';
 import { BlogRouter } from '../modules/blog/blog.routes';
 import { CertificationRouter } from '../modules/certification/certification.routes';
 import { CommitteeRouter } from '../modules/committee/committee.routes';
+import { ConsultationRouter } from '../modules/consultation/consultation.routes';
 import { EventRouter } from '../modules/event/event.routes';
 import { JobRouter } from '../modules/job/job.routes';
 import { MemberRouter } from '../modules/member/member.router';
@@ -33,6 +34,7 @@ const routes: Route[] = [
   { path: '/payments', route: PaymentRouter },
   { path: '/jobs', route: JobRouter },
   { path: '/admin', route: AdminRoute },
+  { path: '/consultations', route: ConsultationRouter },
 ];
 
 routes.forEach((route) => {

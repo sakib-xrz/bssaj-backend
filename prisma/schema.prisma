@@ -302,6 +302,20 @@ model Gallery {
   @@map("galleries")
 }
 
+model Consultation {
+  id         String             @id @default(uuid())
+  kind       ConsultationKind
+  name       String
+  email      String
+  phone      String
+  message    String
+  status     ConsultationStatus @default(PENDING)
+  created_at DateTime           @default(now())
+  updated_at DateTime           @updatedAt
+
+  @@map("consultations")
+}
+
 enum MemberKind {
   ADVISER
   HONORABLE
@@ -379,4 +393,17 @@ enum PaymentStatus {
   FAILED
   REFUNDED
   OVERDUE
+}
+
+enum ConsultationKind {
+  ACADEMIC_CONSULTATION
+  CAREER_CONSULTATION
+  VISA_AND_IMMIGRATION_CONSULTATION
+  PERSONAL_CONSULTATION
+}
+
+enum ConsultationStatus {
+  PENDING
+  RESOLVED
+  CANCELLED
 }

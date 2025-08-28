@@ -11,6 +11,7 @@ const banner_routes_1 = require("../modules/banner/banner.routes");
 const blog_routes_1 = require("../modules/blog/blog.routes");
 const certification_routes_1 = require("../modules/certification/certification.routes");
 const committee_routes_1 = require("../modules/committee/committee.routes");
+const consultation_routes_1 = require("../modules/consultation/consultation.routes");
 const event_routes_1 = require("../modules/event/event.routes");
 const job_routes_1 = require("../modules/job/job.routes");
 const member_router_1 = require("../modules/member/member.router");
@@ -34,6 +35,7 @@ const routes = [
     { path: '/payments', route: payment_routes_1.PaymentRouter },
     { path: '/jobs', route: job_routes_1.JobRouter },
     { path: '/admin', route: admin_routes_1.AdminRoute },
+    { path: '/consultations', route: consultation_routes_1.ConsultationRouter },
 ];
 routes.forEach((route) => {
     router.use(route.path, route.route);
