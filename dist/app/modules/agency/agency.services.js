@@ -402,16 +402,13 @@ const UpdateAgency = (payload, id, files) => __awaiter(void 0, void 0, void 0, f
         throw error;
     }
 });
-const DeleteAgency = (id, userId) => __awaiter(void 0, void 0, void 0, function* () {
+const DeleteAgency = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const existingAgency = yield prisma_1.default.agency.findUnique({
         where: { id, is_deleted: false },
         include: { success_stories: true, user: true },
     });
     if (!existingAgency) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Agency not found');
-    }
-    if (existingAgency.user_id !== userId) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'You are not authorized to delete this agency');
     }
     // Hard delete agency and associated data
     yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
